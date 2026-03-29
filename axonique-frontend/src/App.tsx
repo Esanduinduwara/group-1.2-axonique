@@ -25,6 +25,7 @@ import ProductManagementPage from './pages/ProductManagementPage';
 import BrandProfilePage from './pages/BrandProfilePage';
 import StaffSignInPage from './pages/StaffSignInPage';
 import WishlistPage from './pages/WishlistPage';
+import ContactPage from './pages/ContactPage';
 
 export default function App() {
   return (
@@ -51,6 +52,7 @@ export default function App() {
                     <Route path="/checkout" element={<CheckoutPage />} />
                     {/* <Route path="/order-confirmation" element={<OrderConfirmationPage />} /> */}
                     <Route path="/wishlist" element={<WishlistPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
                   </Routes>
                   <Footer />
                 </>
