@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS users (
     security_answer_2 VARCHAR(255),
     security_question_3 VARCHAR(255),
     security_answer_3 VARCHAR(255),
-    enabled BOOLEAN DEFAULT FALSE
+    enabled BOOLEAN DEFAULT FALSE,
+    role VARCHAR(20) NOT NULL DEFAULT 'CUSTOMER'
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -26,6 +27,9 @@ CREATE TABLE IF NOT EXISTS products (
   image_url  VARCHAR(500),
   in_stock   BOOLEAN        NOT NULL DEFAULT TRUE,
   sizes_raw  VARCHAR(255)   NOT NULL DEFAULT '',
+  stock_quantity INT NOT NULL DEFAULT 0,
+  low_stock_threshold INT NOT NULL DEFAULT 5,
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -68,6 +72,18 @@ CREATE TABLE IF NOT EXISTS order_items (
   updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE IF NOT EXISTS brand_profile (
+  id                         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  logo_url                   LONGTEXT,
+  hero_banner_url            LONGTEXT,
+  discount_banner_text       VARCHAR(500),
+  discount_banner_active     BOOLEAN DEFAULT FALSE,
+  mission                    TEXT,
+  vision                     TEXT,
+  policies                   TEXT,
+  updated_at                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Axonique products
