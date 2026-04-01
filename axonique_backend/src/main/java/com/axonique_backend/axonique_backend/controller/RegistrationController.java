@@ -36,12 +36,14 @@ public class RegistrationController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto) {
         try {
             User user = registrationService.loginUser(loginDto.getUsername(), loginDto.getPassword());
-            String token = jwtUtils.generateToken(user.getUsername());
+            String roleName = user.getRole() != null ? user.getRole().name() : "CUSTOMER";
+            String token = jwtUtils.generateToken(user.getUsername(), roleName);
 
             return ResponseEntity.ok(com.axonique_backend.axonique_backend.dto.LoginResponse.builder()
                     .token(token)
                     .username(user.getUsername())
                     .email(user.getEmail())
+                    .role(roleName)
                     .build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).body(e.getMessage());

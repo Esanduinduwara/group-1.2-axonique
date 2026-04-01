@@ -27,5 +27,7 @@ public class ProductResponse {
     private boolean inStock;
     private List<String> sizes;
     private LocalDateTime createdAt;
-    
+    private int stockQuantity;
+    private int lowStockThreshold;
+    private boolean lowStock;
 }

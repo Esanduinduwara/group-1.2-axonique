@@ -37,7 +37,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const response = await fetch('http://localhost:8080/api/orders', {
+      const response = await fetch(''+(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080')+'/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

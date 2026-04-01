@@ -44,4 +44,8 @@ public class ProductRequest {
     
     @NotEmpty(message = "At least one size is required")
     private List<@NotBlank String> sizes;
+
+    private int stockQuantity = 0;
+
+    private int lowStockThreshold = 5;
 }

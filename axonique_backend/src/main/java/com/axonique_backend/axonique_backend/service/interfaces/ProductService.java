@@ -21,6 +21,8 @@ public interface ProductService {
 
     List<ProductResponse> getAllProducts();
 
+    List<String> getCategories();
+
     List<ProductResponse> getProductsByCategory(String category);
 
     List<ProductResponse> getInStockProducts();

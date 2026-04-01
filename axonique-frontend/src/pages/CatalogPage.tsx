@@ -36,7 +36,7 @@ export default function CatalogPage() {
 
   // Fetch products from API
   useEffect(() => {
-    fetch('http://localhost:8080/api/products')
+    fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/api/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data.data || data))
       .catch((err) => {

@@ -5,12 +5,6 @@ import com.axonique_backend.axonique_backend.dto.request.PlaceOrderRequest;
 import com.axonique_backend.axonique_backend.model.OrderStatus;
 import com.axonique_backend.axonique_backend.dto.response.OrderResponse;
 
-/**
- * interface defining the order feature contract.
- *
- * SOLID I: separated from ProductService — no coupling between features.
- * SOLID D: controllers depend on this interface, not the implementation.
- */
 public interface OrderService {
 
     OrderResponse placeOrder(PlaceOrderRequest request);
@@ -21,5 +15,8 @@ public interface OrderService {
 
     List<OrderResponse> getAllOrders();
 
-    OrderResponse updateOrderStatus(Long id, OrderStatus newStatus);
+    List<OrderResponse> searchOrders(String searchTerm);
+
+    // CHANGE THIS LINE: Set return type to void
+    void updateOrderStatus(Long id, OrderStatus newStatus);
 }

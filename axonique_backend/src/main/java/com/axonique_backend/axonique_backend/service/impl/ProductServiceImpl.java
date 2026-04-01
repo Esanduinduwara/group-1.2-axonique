@@ -46,6 +46,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<String> getCategories() {
+        return productRepository.findDistinctCategories();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ProductResponse> getProductsByCategory(String category) {
         return productRepository.findByCategory(category)
                 .stream()

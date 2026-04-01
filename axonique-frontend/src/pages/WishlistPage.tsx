@@ -4,7 +4,7 @@ import { useWishlist } from '../context/WishlistContext';
 
 export default function WishlistPage() {
   const navigate = useNavigate();
-  const { items } = useWishlist();
+  const { items, removeItem } = useWishlist();
 
   return (
     <main className="page">
@@ -18,8 +18,15 @@ export default function WishlistPage() {
           {items.length > 0 ? (
             <div className="product-grid" role="list" aria-label="Wishlist items">
               {items.map((p) => (
-                <div key={p.id} role="listitem">
+                <div key={p.id} role="listitem" style={{ position: 'relative' }}>
                   <ProductCard product={p} />
+                  <button
+                    className="wishlist-remove-btn"
+                    onClick={() => removeItem(p.id)}
+                    aria-label={`Remove ${p.name} from wishlist`}
+                  >
+                    ✕ Remove
+                  </button>
                 </div>
               ))}
             </div>

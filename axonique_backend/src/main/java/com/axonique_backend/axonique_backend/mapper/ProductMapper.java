@@ -32,6 +32,8 @@ public class ProductMapper {
         product.setImageUrl(request.getImageUrl());
         product.setInStock(request.isInStock());
         product.setSizes(request.getSizes());
+        product.setStockQuantity(request.getStockQuantity());
+        product.setLowStockThreshold(request.getLowStockThreshold());
         return product;
     }
 
@@ -50,6 +52,8 @@ public class ProductMapper {
         product.setImageUrl(request.getImageUrl());
         product.setInStock(request.isInStock());
         product.setSizes(request.getSizes());
+        product.setStockQuantity(request.getStockQuantity());
+        product.setLowStockThreshold(request.getLowStockThreshold());
     }
 
     /**
@@ -68,6 +72,9 @@ public class ProductMapper {
                 .inStock(product.isInStock())
                 .sizes(product.getSizes())
                 .createdAt(product.getCreatedAt())
+                .stockQuantity(product.getStockQuantity())
+                .lowStockThreshold(product.getLowStockThreshold())
+                .lowStock(product.isLowStock())
                 .build();
     }
 }

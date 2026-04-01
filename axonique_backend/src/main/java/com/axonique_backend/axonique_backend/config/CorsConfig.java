@@ -17,6 +17,8 @@ public class CorsConfig {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOriginPattern("http://localhost:*"); //dev
     config.addAllowedOriginPattern("https://*.axonique.com"); //prod
+    config.addAllowedOriginPattern("https://*.axonique.store"); //prod
+    config.addAllowedOriginPattern("https://*.vercel.app"); //vercel
     config.addAllowedMethod("*"); // Allow all HTTP methods
     config.addAllowedHeader("*"); // Allow all headers
     config.setAllowCredentials(true); 

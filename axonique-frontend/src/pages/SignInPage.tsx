@@ -36,7 +36,11 @@ export default function SignInPage() {
 
       if (response.ok) {
         const data = await response.json();
-        authService.saveAuth(data.token, { username: data.username, email: data.email });
+        authService.saveAuth(data.token, {
+          username: data.username,
+          email: data.email,
+          role: (data.role || 'CUSTOMER') as 'ADMIN' | 'STAFF' | 'CUSTOMER',
+        });
 
         setModal({
           isOpen: true,
