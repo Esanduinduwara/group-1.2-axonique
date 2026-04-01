@@ -1,0 +1,582 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< com.axonique_backend:axonique_backend >----------------
+[INFO] Building axonique_backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.4.3:run (default-cli) > test-compile @ axonique_backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ axonique_backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ axonique_backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ axonique_backend ---
+[INFO] skip non existing resourceDirectory C:\Users\randu\Desktop\Project AxoNique\group-1.2-axonique\axonique_backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ axonique_backend ---
+[INFO] Recompiling the module because of added or removed source files.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target\test-classes
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by lombok.permit.Permit
+WARNING: Please consider reporting this to the maintainers of class lombok.permit.Permit
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[INFO] 
+[INFO] <<< spring-boot:3.4.3:run (default-cli) < test-compile @ axonique_backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.4.3:run (default-cli) @ axonique_backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.3)
+
+2026-03-25T15:57:45.723+05:30  INFO 11228 --- [           main] c.a.a.AxoniqueBackendApplication         : Starting AxoniqueBackendApplication using Java 25.0.2 with PID 11228 (C:\Users\randu\Desktop\Project AxoNique\group-1.2-axonique\axonique_backend\target\classes started by randu in C:\Users\randu\Desktop\Project AxoNique\group-1.2-axonique\axonique_backend)
+2026-03-25T15:57:45.724+05:30  INFO 11228 --- [           main] c.a.a.AxoniqueBackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-03-25T15:57:46.469+05:30  INFO 11228 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-25T15:57:46.547+05:30  INFO 11228 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 69 ms. Found 4 JPA repository interfaces.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.apache.tomcat.jni.Library in an unnamed module (file:/C:/Users/randu/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.36/tomcat-embed-core-10.1.36.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+2026-03-25T15:57:47.249+05:30  INFO 11228 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-25T15:57:47.262+05:30  INFO 11228 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-25T15:57:47.262+05:30  INFO 11228 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-03-25T15:57:47.357+05:30  INFO 11228 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-25T15:57:47.357+05:30  INFO 11228 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1582 ms
+2026-03-25T15:57:47.527+05:30  INFO 11228 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-25T15:57:47.591+05:30  INFO 11228 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.8.Final
+2026-03-25T15:57:47.628+05:30  INFO 11228 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-25T15:57:47.917+05:30  INFO 11228 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-25T15:57:47.950+05:30  INFO 11228 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-25T15:57:48.194+05:30  INFO 11228 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2673487b
+2026-03-25T15:57:48.195+05:30  INFO 11228 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-25T15:57:48.254+05:30  WARN 11228 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-25T15:57:48.255+05:30  WARN 11228 --- [           main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-25T15:57:48.270+05:30  INFO 11228 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-25T15:57:49.396+05:30  INFO 11228 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: alter table users modify column role enum ('ADMIN','CUSTOMER','STAFF') not null
+2026-03-25T15:57:49.555+05:30  INFO 11228 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-25T15:57:49.850+05:30  INFO 11228 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-25T15:57:51.736+05:30  WARN 11228 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-25T15:57:51.762+05:30  INFO 11228 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-03-25T15:57:52.466+05:30  INFO 11228 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-25T15:57:52.474+05:30  INFO 11228 --- [           main] c.a.a.AxoniqueBackendApplication         : Started AxoniqueBackendApplication in 7.157 seconds (process running for 7.496)
+2026-03-25T16:04:14.971+05:30  INFO 11228 --- [nio-8080-exec-6] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-25T16:04:14.971+05:30  INFO 11228 --- [nio-8080-exec-6] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-25T16:04:14.971+05:30  INFO 11228 --- [nio-8080-exec-6] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select count(*) from orders o1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select count(*) from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select count(*) from orders o1_0
+Hibernate: select count(*) from products p1_0
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select count(*) from orders o1_0
+Hibernate: select count(*) from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select count(*) from orders o1_0
+Hibernate: select count(*) from products p1_0
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 order by p1_0.stock_quantity
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 order by p1_0.stock_quantity
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select count(*) from orders o1_0
+Hibernate: select count(*) from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select count(*) from orders o1_0
+Hibernate: select count(*) from products p1_0
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.id=?
+Hibernate: delete from users where id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0 order by o1_0.created_at desc
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.stock_quantity<=p1_0.low_stock_threshold order by p1_0.stock_quantity
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc limit ?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.stock_quantity<=p1_0.low_stock_threshold order by p1_0.stock_quantity
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0 order by o1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc limit ?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.id=?
+Hibernate: update products set badge=?,category=?,deleted=?,description=?,emoji=?,image_url=?,in_stock=?,low_stock_threshold=?,name=?,price=?,sizes_raw=?,stock_quantity=?,updated_at=? where id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.id=?
+Hibernate: delete from products where id=?
+2026-03-25T16:05:31.853+05:30  WARN 11228 --- [nio-8080-exec-5] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1451, SQLState: 23000
+2026-03-25T16:05:31.853+05:30 ERROR 11228 --- [nio-8080-exec-5] o.h.engine.jdbc.spi.SqlExceptionHelper   : Cannot delete or update a parent row: a foreign key constraint fails (`axo_nique`.`order_items`, CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`))
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.id=?
+Hibernate: update products set badge=?,category=?,deleted=?,description=?,emoji=?,image_url=?,in_stock=?,low_stock_threshold=?,name=?,price=?,sizes_raw=?,stock_quantity=?,updated_at=? where id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.id=?
+Hibernate: update products set badge=?,category=?,deleted=?,description=?,emoji=?,image_url=?,in_stock=?,low_stock_threshold=?,name=?,price=?,sizes_raw=?,stock_quantity=?,updated_at=? where id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into products (badge,category,created_at,deleted,description,emoji,image_url,in_stock,low_stock_threshold,name,price,sizes_raw,stock_quantity,updated_at) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+2026-03-25T16:06:11.526+05:30  WARN 11228 --- [nio-8080-exec-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1406, SQLState: 22001
+2026-03-25T16:06:11.527+05:30 ERROR 11228 --- [nio-8080-exec-2] o.h.engine.jdbc.spi.SqlExceptionHelper   : Data truncation: Data too long for column 'image_url' at row 1
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select count(*) from orders o1_0
+Hibernate: select count(*) from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select coalesce(sum(o1_0.total),0) from orders o1_0
+Hibernate: select count(*) from orders o1_0
+Hibernate: select count(*) from products p1_0
+Hibernate: select count(*) from users u1_0
+Hibernate: select year(o1_0.created_at),month(o1_0.created_at),sum(o1_0.total) from orders o1_0 group by year(o1_0.created_at),month(o1_0.created_at) order by year(o1_0.created_at) desc,month(o1_0.created_at) desc
+Hibernate: select o1_0.status,count(o1_0.id) from orders o1_0 group by o1_0.status
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select distinct p1_0.category from products p1_0 order by p1_0.category
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into products (badge,category,created_at,deleted,description,emoji,image_url,in_stock,low_stock_threshold,name,price,sizes_raw,stock_quantity,updated_at) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+2026-03-25T16:09:15.990+05:30  WARN 11228 --- [nio-8080-exec-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1406, SQLState: 22001
+2026-03-25T16:09:15.991+05:30 ERROR 11228 --- [nio-8080-exec-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : Data truncation: Data too long for column 'image_url' at row 1
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.id=?
+Hibernate: delete from products where id=?
+2026-03-25T16:09:21.558+05:30  WARN 11228 --- [nio-8080-exec-8] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1451, SQLState: 23000
+2026-03-25T16:09:21.558+05:30 ERROR 11228 --- [nio-8080-exec-8] o.h.engine.jdbc.spi.SqlExceptionHelper   : Cannot delete or update a parent row: a foreign key constraint fails (`axo_nique`.`order_items`, CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`))
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.stock_quantity<=p1_0.low_stock_threshold order by p1_0.stock_quantity
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0 order by o1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc limit ?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.stock_quantity<=p1_0.low_stock_threshold order by p1_0.stock_quantity
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0 order by o1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 order by u1_0.id desc limit ?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select o1_0.id,o1_0.created_at,o1_0.customer_email,o1_0.customer_name,o1_0.delivery_address,o1_0.shipping_fee,o1_0.status,o1_0.subtotal,o1_0.total,o1_0.updated_at from orders o1_0
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select i1_0.order_id,i1_0.id,i1_0.created_at,i1_0.line_total,i1_0.product_id,i1_0.product_name,i1_0.quantity,i1_0.selected_size,i1_0.unit_price,i1_0.updated_at from order_items i1_0 where i1_0.order_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 order by p1_0.stock_quantity
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 order by p1_0.stock_quantity
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.password,u1_0.role,u1_0.security_answer_1,u1_0.security_answer_2,u1_0.security_answer_3,u1_0.security_question_1,u1_0.security_question_2,u1_0.security_question_3,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0 where p1_0.id=?
+Hibernate: update products set badge=?,category=?,deleted=?,description=?,emoji=?,image_url=?,in_stock=?,low_stock_threshold=?,name=?,price=?,sizes_raw=?,stock_quantity=?,updated_at=? where id=?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?
+Hibernate: select p1_0.id,p1_0.badge,p1_0.category,p1_0.created_at,p1_0.deleted,p1_0.description,p1_0.emoji,p1_0.image_url,p1_0.in_stock,p1_0.low_stock_threshold,p1_0.name,p1_0.price,p1_0.sizes_raw,p1_0.stock_quantity,p1_0.updated_at from products p1_0
+Hibernate: select bp1_0.id,bp1_0.discount_banner_active,bp1_0.discount_banner_text,bp1_0.hero_banner_url,bp1_0.logo_url,bp1_0.mission,bp1_0.policies,bp1_0.updated_at,bp1_0.vision from brand_profile bp1_0 where bp1_0.id=?

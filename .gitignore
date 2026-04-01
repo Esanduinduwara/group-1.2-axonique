@@ -1,2 +1,5 @@
 axonique-frontend/node_modules
 axonique_backend/src/main/resources/application.properties
+*.log
+*.zip
+*.txt
