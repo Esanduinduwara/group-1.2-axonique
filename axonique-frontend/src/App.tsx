@@ -8,6 +8,7 @@ import { WishlistProvider } from './context/WishlistContext';
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
+import EmailVerificationPage from './pages/EmailVerificationPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import CatalogPage from './pages/CatalogPage';
@@ -47,6 +48,7 @@ export default function App() {
                     <Route path="/signin" element={<SignInPage />} />
                     <Route path="/staff/signin" element={<StaffSignInPage />} />
                     <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/change-password" element={<ChangePasswordPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/catalog" element={<CatalogPage />} />

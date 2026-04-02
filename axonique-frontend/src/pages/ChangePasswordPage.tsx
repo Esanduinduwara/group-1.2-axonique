@@ -9,9 +9,6 @@ export default function ChangePasswordPage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
-    const [securityQuestions, setSecurityQuestions] = useState<string[]>([]);
-    const [selectedQuestion, setSelectedQuestion] = useState('');
-    const [securityAnswer, setSecurityAnswer] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modal, setModal] = useState<{
         isOpen: boolean;
@@ -36,28 +33,8 @@ export default function ChangePasswordPage() {
             setTimeout(() => {
                 navigate('/signin');
             }, 2000);
-        } else {
-            // Fetch security questions
-            fetchQuestions();
         }
     }, [navigate]);
-
-    const fetchQuestions = async () => {
-        try {
-            const authHeader = authService.getAuthHeader();
-            const response = await fetch('http://localhost:8080/api/auth/questions', {
-                headers: {
-                    ...authHeader as any
-                }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setSecurityQuestions(data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch security questions', error);
-        }
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -88,9 +65,7 @@ export default function ChangePasswordPage() {
                 body: JSON.stringify({
                     currentPassword,
                     newPassword,
-                    confirmNewPassword,
-                    securityQuestion: selectedQuestion,
-                    securityAnswer
+                    confirmNewPassword
                 }),
             });
 
@@ -177,33 +152,6 @@ export default function ChangePasswordPage() {
                             required
                             placeholder="••••••••"
                         />
-                    </div>
-
-                    <div className="security-verification-section">
-                        <h3 className="section-subtitle">Security Verification</h3>
-                        <p className="section-help">Choose 1 of your security questions to verify identity.</p>
-
-                        <div className="form-group">
-                            <select
-                                value={selectedQuestion}
-                                onChange={(e) => setSelectedQuestion(e.target.value)}
-                                required
-                                className="security-select"
-                            >
-                                <option value="">Select a Question</option>
-                                {securityQuestions.map(q => <option key={q} value={q}>{q}</option>)}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <input
-                                type="text"
-                                value={securityAnswer}
-                                onChange={(e) => setSecurityAnswer(e.target.value)}
-                                required
-                                placeholder="Enter your answer"
-                            />
-                        </div>
                     </div>
 
                     <button type="submit" className="change-password-btn" disabled={isSubmitting}>
