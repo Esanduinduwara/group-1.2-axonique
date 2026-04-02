@@ -1,9 +1,12 @@
 package com.axonique_backend.axonique_backend.controller;
 
 import com.axonique_backend.axonique_backend.dto.RegistrationDto;
+import com.axonique_backend.axonique_backend.service.CodeGeneratorService;
 import com.axonique_backend.axonique_backend.service.RegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,17 +21,24 @@ public class RegistrationController {
 
     private final RegistrationService registrationService;
     private final JwtUtils jwtUtils;
+    private final CodeGeneratorService codeGeneratorService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegistrationDto registrationDto) {
-        try {
-            registrationService.registerUser(registrationDto);
-            return ResponseEntity.ok("User registered successfully!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("An error occurred during registration: " + e.getMessage());
+    @PostMapping("/register/{code}")
+    public ResponseEntity<?> register(@Valid @RequestBody RegistrationDto registrationDto, @PathVariable("code") String code) {
+
+        if(codeGeneratorService.validateCode(registrationDto.getEmail(), code)){
+        
+            try {
+                registrationService.registerUser(registrationDto);
+                return ResponseEntity.ok("User registered successfully!");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError()
+                        .body("An error occurred during registration: " + e.getMessage());
+            }
+        } else {
+            return new ResponseEntity<>("Invalid Verification Code!!",HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -65,17 +75,6 @@ public class RegistrationController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body("An error occurred: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/questions")
-    public ResponseEntity<?> getSecurityQuestions(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
-        try {
-            String[] questions = registrationService.getUserSecurityQuestions(userDetails.getUsername());
-            return ResponseEntity.ok(questions);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
