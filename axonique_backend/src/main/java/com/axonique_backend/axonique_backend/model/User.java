@@ -25,24 +25,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "security_question_1")
-    private String securityQuestion1;
-
-    @Column(name = "security_answer_1")
-    private String securityAnswer1;
-
-    @Column(name = "security_question_2")
-    private String securityQuestion2;
-
-    @Column(name = "security_answer_2")
-    private String securityAnswer2;
-
-    @Column(name = "security_question_3")
-    private String securityQuestion3;
-
-    @Column(name = "security_answer_3")
-    private String securityAnswer3;
-
     @Builder.Default
     private boolean enabled = false;
 

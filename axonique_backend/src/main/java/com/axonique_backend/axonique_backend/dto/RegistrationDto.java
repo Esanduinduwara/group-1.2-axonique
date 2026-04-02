@@ -22,22 +22,4 @@ public class RegistrationDto {
 
     @NotBlank(message = "Confirm Password is required")
     private String confirmPassword;
-
-    @NotBlank(message = "Security Question 1 is required")
-    private String securityQuestion1;
-
-    @NotBlank(message = "Security Answer 1 is required")
-    private String securityAnswer1;
-
-    @NotBlank(message = "Security Question 2 is required")
-    private String securityQuestion2;
-
-    @NotBlank(message = "Security Answer 2 is required")
-    private String securityAnswer2;
-
-    @NotBlank(message = "Security Question 3 is required")
-    private String securityQuestion3;
-
-    @NotBlank(message = "Security Answer 3 is required")
-    private String securityAnswer3;
 }
