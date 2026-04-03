@@ -21,7 +21,8 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
   const navLinks = [
     { label: '📊 Dashboard', path: '/admin/dashboard', roles: ['ADMIN'] },
     { label: '📦 Orders', path: '/admin/orders', roles: ['ADMIN', 'STAFF'] },
-    { label: '🗃️ Inventory', path: '/admin/inventory', roles: ['ADMIN', 'STAFF'] },
+    { label: '📦 Bulk Orders', path: '/admin/bulk-orders', roles: ['ADMIN', 'STAFF'] },
+    { label: '👕 Inventory', path: '/admin/inventory', roles: ['ADMIN', 'STAFF'] },
     { label: '🛍️ Products', path: '/admin/products', roles: ['ADMIN', 'STAFF'] },
     { label: '🎨 Brand Profile', path: '/admin/brand', roles: ['ADMIN'] },
     { label: '👤 Staff Hub', path: '/staff/dashboard', roles: ['ADMIN', 'STAFF'] },

@@ -110,6 +110,17 @@ export default function Navbar() {
               </button>
             </li>
           ))}
+          {isAuthenticated && user && (user.role === 'RETAILER' || user.role === 'ADMIN') && (
+            <li>
+              <button
+                className={`navbar__link${isActive('/retailer/bulk-order') ? ' navbar__link--active' : ''}`}
+                onClick={() => handleNav('/retailer/bulk-order')}
+                aria-current={isActive('/retailer/bulk-order') ? 'page' : undefined}
+              >
+                Bulk Orders
+              </button>
+            </li>
+          )}
         </ul>
 
         {/* Right Actions */}
@@ -195,6 +206,14 @@ export default function Navbar() {
             {link.label}
           </button>
         ))}
+        {isAuthenticated && user && (user.role === 'RETAILER' || user.role === 'ADMIN') && (
+          <button
+            className={`navbar__mobile-link${isActive('/retailer/bulk-order') ? ' navbar__mobile-link--active' : ''}`}
+            onClick={() => handleNav('/retailer/bulk-order')}
+          >
+            Bulk Orders
+          </button>
+        )}
         <button className="navbar__mobile-link" onClick={() => handleNav('/cart')}>
           Cart ({totalItems})
         </button>

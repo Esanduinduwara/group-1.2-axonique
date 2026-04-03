@@ -3,7 +3,7 @@ import { authService } from '../services/authService';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRoles: ('ADMIN' | 'STAFF' | 'CUSTOMER')[];
+  requiredRoles: ('ADMIN' | 'STAFF' | 'CUSTOMER' | 'RETAILER')[];
 }
 
 export default function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
@@ -11,7 +11,7 @@ export default function ProtectedRoute({ children, requiredRoles }: ProtectedRou
     return <Navigate to="/signin" replace />;
   }
 
-  const role = authService.getRole() as 'ADMIN' | 'STAFF' | 'CUSTOMER' | null;
+  const role = authService.getRole() as 'ADMIN' | 'STAFF' | 'CUSTOMER' | 'RETAILER' | null;
   if (!role || !requiredRoles.includes(role)) {
     return <Navigate to="/" replace />;
   }
