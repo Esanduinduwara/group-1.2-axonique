@@ -30,6 +30,7 @@ import BrandProfilePage from './pages/BrandProfilePage';
 import StaffSignInPage from './pages/StaffSignInPage';
 import WishlistPage from './pages/WishlistPage';
 import ContactPage from './pages/ContactPage';
+import AXOConcierge from './components/Chat/AXOConcierge';
 
 export default function App() {
   return (
@@ -121,6 +122,7 @@ export default function App() {
               }
             />
           </Routes>
+          <AXOConcierge />
         </BrowserRouter>
       </WishlistProvider>
     </CartProvider>
