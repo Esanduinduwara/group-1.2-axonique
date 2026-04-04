@@ -676,6 +676,26 @@ const handleSubmit = useCallback(async () => {
     setNotes('');
     setToast('Bulk order placed successfully!');
     setTab('history');
+    
+    // Refetch bulk orders to show the newly created order
+    const ordersRes = await fetch(`${apiBaseUrl}/api/bulk-orders/my`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (ordersRes.ok) {
+      const ordersData = await ordersRes.json();
+      const bulkOrderResponses = ordersData.data || [];
+      const updatedOrders: PastOrder[] = bulkOrderResponses.map((bo: any) => ({
+        id: bo.id,
+        ref: bo.ref,
+        date: bo.createdAt ? new Date(bo.createdAt).toLocaleDateString() : '',
+        items: bo.itemCount || 0,
+        subtotal: bo.subtotal || 0,
+        discount: bo.discountAmount || 0,
+        total: bo.total || 0,
+        status: bo.status as OrderStatus,
+      }));
+      setOrders(updatedOrders);
+    }
   } catch (err) {
     setToast('Failed to place order. Please try again.');
   } finally {
