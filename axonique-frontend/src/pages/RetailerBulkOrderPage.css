@@ -182,6 +182,7 @@
   outline: none;
   transition: border-color .2s;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .rb-input:focus {
