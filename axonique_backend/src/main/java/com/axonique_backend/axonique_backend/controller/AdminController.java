@@ -1,11 +1,15 @@
 package com.axonique_backend.axonique_backend.controller;
 
+import com.axonique_backend.axonique_backend.dto.request.CreateRetailerRequest;
+import com.axonique_backend.axonique_backend.dto.request.CreateStaffRequest;
 import com.axonique_backend.axonique_backend.dto.response.ApiResponse;
 import com.axonique_backend.axonique_backend.dto.response.DashboardMetricsResponse;
 import com.axonique_backend.axonique_backend.dto.response.ProductResponse;
 import com.axonique_backend.axonique_backend.dto.response.UserSummaryResponse;
 import com.axonique_backend.axonique_backend.service.interfaces.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +46,34 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<UserSummaryResponse>>> getAllUsers() {
         return ResponseEntity.ok(ApiResponse.ok("Users retrieved", adminService.getAllUsers()));
+    }
+
+    /**
+     * POST /api/admin/retailers
+     * Create a new retailer account.
+     * ADMIN only.
+     */
+    @PostMapping("/retailers")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<UserSummaryResponse>> createRetailer(
+            @Valid @RequestBody CreateRetailerRequest request) {
+        UserSummaryResponse created = adminService.createRetailer(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(created));
+    }
+
+    /**
+     * POST /api/admin/staff
+     * Create a new staff account.
+     * ADMIN only.
+     */
+    @PostMapping("/staff")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<UserSummaryResponse>> createStaff(
+            @Valid @RequestBody CreateStaffRequest request) {
+        UserSummaryResponse created = adminService.createStaff(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(created));
     }
 
     /**

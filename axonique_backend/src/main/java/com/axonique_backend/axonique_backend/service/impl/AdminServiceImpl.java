@@ -1,5 +1,7 @@
 package com.axonique_backend.axonique_backend.service.impl;
 
+import com.axonique_backend.axonique_backend.dto.request.CreateRetailerRequest;
+import com.axonique_backend.axonique_backend.dto.request.CreateStaffRequest;
 import com.axonique_backend.axonique_backend.dto.response.DashboardMetricsResponse;
 import com.axonique_backend.axonique_backend.dto.response.DashboardMetricsResponse.MonthlyRevenue;
 import com.axonique_backend.axonique_backend.dto.response.ProductResponse;
@@ -9,11 +11,13 @@ import com.axonique_backend.axonique_backend.mapper.ProductMapper;
 import com.axonique_backend.axonique_backend.model.Product;
 import com.axonique_backend.axonique_backend.model.Role;
 import com.axonique_backend.axonique_backend.model.User;
+import com.axonique_backend.axonique_backend.repository.BulkOrderRepository;
 import com.axonique_backend.axonique_backend.repository.OrderRepository;
 import com.axonique_backend.axonique_backend.repository.ProductRepository;
 import com.axonique_backend.axonique_backend.repository.UserRepository;
 import com.axonique_backend.axonique_backend.service.interfaces.AdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +34,16 @@ import java.util.Map;
 public class AdminServiceImpl implements AdminService {
 
     private final OrderRepository orderRepository;
+    private final BulkOrderRepository bulkOrderRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductMapper productMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
     public DashboardMetricsResponse getDashboardMetrics() {
+        // Regular Orders Metrics
         BigDecimal totalRevenue = orderRepository.sumTotalRevenue();
         long totalOrders = orderRepository.count();
         long totalProducts = productRepository.count();
@@ -70,6 +77,18 @@ public class AdminServiceImpl implements AdminService {
         BigDecimal estimatedCost = totalRevenue.multiply(BigDecimal.valueOf(0.60)).setScale(2, RoundingMode.HALF_UP);
         BigDecimal estimatedProfit = totalRevenue.subtract(estimatedCost).setScale(2, RoundingMode.HALF_UP);
 
+        // Bulk Orders Metrics
+        long totalBulkOrders = bulkOrderRepository.countTotalBulkOrders();
+        BigDecimal totalBulkRevenue = bulkOrderRepository.sumTotalBulkRevenue();
+        BigDecimal totalBulkDiscount = bulkOrderRepository.sumTotalBulkDiscount();
+        
+        // Bulk orders by status
+        List<Object[]> bulkStatusRaw = bulkOrderRepository.countBulkOrdersByStatus();
+        Map<String, Long> bulkOrdersByStatus = new HashMap<>();
+        for (Object[] row : bulkStatusRaw) {
+            bulkOrdersByStatus.put(row[0].toString(), (Long) row[1]);
+        }
+
         return DashboardMetricsResponse.builder()
                 .totalRevenue(totalRevenue)
                 .totalOrders(totalOrders)
@@ -79,6 +98,10 @@ public class AdminServiceImpl implements AdminService {
                 .ordersByStatus(ordersByStatus)
                 .estimatedCost(estimatedCost)
                 .estimatedProfit(estimatedProfit)
+                .totalBulkOrders(totalBulkOrders)
+                .totalBulkRevenue(totalBulkRevenue)
+                .bulkOrdersByStatus(bulkOrdersByStatus)
+                .totalBulkDiscount(totalBulkDiscount)
                 .build();
     }
 
@@ -97,13 +120,75 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public UserSummaryResponse createRetailer(CreateRetailerRequest request) {
+        // Validate username not already taken
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username '" + request.getUsername() + "' is already taken");
+        }
+
+        // Validate email not already registered
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email '" + request.getEmail() + "' is already registered");
+        }
+
+        // Create new retailer user
+        User retailer = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.RETAILER)
+                .enabled(true)
+                .build();
+
+        User saved = userRepository.save(retailer);
+        return UserSummaryResponse.builder()
+                .id(saved.getId())
+                .username(saved.getUsername())
+                .email(saved.getEmail())
+                .role(saved.getRole().name())
+                .enabled(saved.isEnabled())
+                .build();
+    }
+
+    @Override
+    public UserSummaryResponse createStaff(CreateStaffRequest request) {
+        // Validate username not already taken
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username '" + request.getUsername() + "' is already taken");
+        }
+
+        // Validate email not already registered
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email '" + request.getEmail() + "' is already registered");
+        }
+
+        // Create new staff user
+        User staff = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.STAFF)
+                .enabled(true)
+                .build();
+
+        User saved = userRepository.save(staff);
+        return UserSummaryResponse.builder()
+                .id(saved.getId())
+                .username(saved.getUsername())
+                .email(saved.getEmail())
+                .role(saved.getRole().name())
+                .enabled(saved.isEnabled())
+                .build();
+    }
+
+    @Override
     public UserSummaryResponse updateUserRole(Long userId, String role) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         try {
             user.setRole(Role.valueOf(role.toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid role: " + role + ". Must be CUSTOMER, STAFF, or ADMIN");
+            throw new IllegalArgumentException("Invalid role: " + role + ". Must be CUSTOMER, STAFF, ADMIN, or RETAILER");
         }
         userRepository.save(user);
         return UserSummaryResponse.builder()
