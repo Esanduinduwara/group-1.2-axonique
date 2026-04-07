@@ -22,16 +22,4 @@ public class ResetPasswordDto {
 
     @NotBlank(message = "Confirm password is required")
     private String confirmNewPassword;
-
-    @NotBlank(message = "Security Question 1 selection is required")
-    private String securityQuestion1;
-
-    @NotBlank(message = "Security Answer 1 is required")
-    private String securityAnswer1;
-
-    @NotBlank(message = "Security Question 2 selection is required")
-    private String securityQuestion2;
-
-    @NotBlank(message = "Security Answer 2 is required")
-    private String securityAnswer2;
 }

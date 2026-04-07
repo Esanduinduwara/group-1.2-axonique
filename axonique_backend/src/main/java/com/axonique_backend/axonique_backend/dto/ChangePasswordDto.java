@@ -17,10 +17,4 @@ public class ChangePasswordDto {
 
     @NotBlank(message = "Please confirm your new password")
     private String confirmNewPassword;
-
-    @NotBlank(message = "Security question selection is required")
-    private String securityQuestion;
-
-    @NotBlank(message = "Security answer is required")
-    private String securityAnswer;
 }

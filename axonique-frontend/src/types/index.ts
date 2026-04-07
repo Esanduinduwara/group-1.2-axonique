@@ -62,6 +62,10 @@ export interface DashboardMetrics {
   ordersByStatus: Record<string, number>;
   estimatedCost: number;
   estimatedProfit: number;
+  totalBulkOrders: number;
+  totalBulkRevenue: number;
+  bulkOrdersByStatus: Record<string, number>;
+  totalBulkDiscount: number;
 }
 
 export interface StaffActivity {

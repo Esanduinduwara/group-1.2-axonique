@@ -15,6 +15,14 @@ export default function AdminDashboardPage() {
   const [toast, setToast] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error'>('success');
   const [page, setPage] = useState(0);
+  const [showAddRetailerModal, setShowAddRetailerModal] = useState(false);
+  const [retailerForm, setRetailerForm] = useState({ username: '', email: '', password: '' });
+  const [retailerErrors, setRetailerErrors] = useState<Record<string, string>>({});
+  const [isSubmittingRetailer, setIsSubmittingRetailer] = useState(false);
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+  const [staffForm, setStaffForm] = useState({ username: '', email: '', password: '' });
+  const [staffErrors, setStaffErrors] = useState<Record<string, string>>({});
+  const [isSubmittingStaff, setIsSubmittingStaff] = useState(false);
   const pageSize = 10;
 
   const headers = { ...authService.getAuthHeader(), 'Content-Type': 'application/json' };
@@ -34,6 +42,88 @@ export default function AdminDashboardPage() {
     setToast(msg);
     setToastType(type);
     setTimeout(() => setToast(''), 3000);
+  };
+
+  const validateRetailerForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!retailerForm.username) errors.username = 'Username required';
+    else if (retailerForm.username.length < 3) errors.username = 'Username too short';
+    if (!retailerForm.email) errors.email = 'Email required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(retailerForm.email)) errors.email = 'Invalid email';
+    if (!retailerForm.password) errors.password = 'Password required';
+    else if (retailerForm.password.length < 6) errors.password = 'Password too short';
+    
+    setRetailerErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateStaffForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!staffForm.username) errors.username = 'Username required';
+    else if (staffForm.username.length < 3) errors.username = 'Username too short';
+    if (!staffForm.email) errors.email = 'Email required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(staffForm.email)) errors.email = 'Invalid email';
+    if (!staffForm.password) errors.password = 'Password required';
+    else if (staffForm.password.length < 6) errors.password = 'Password too short';
+    
+    setStaffErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleAddRetailer = async () => {
+    if (!validateRetailerForm()) return;
+    
+    setIsSubmittingRetailer(true);
+    try {
+      const res = await fetch(`${API}/api/admin/retailers`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(retailerForm),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        setUsers(prev => [...prev, data.data]);
+        setShowAddRetailerModal(false);
+        setRetailerForm({ username: '', email: '', password: '' });
+        setRetailerErrors({});
+        showToast('Retailer created successfully');
+      } else {
+        showToast(data.message || 'Failed to create retailer', 'error');
+      }
+    } catch (err) {
+      console.error('Error creating retailer:', err);
+      showToast('Network error', 'error');
+    } finally {
+      setIsSubmittingRetailer(false);
+    }
+  };
+
+  const handleAddStaff = async () => {
+    if (!validateStaffForm()) return;
+    
+    setIsSubmittingStaff(true);
+    try {
+      const res = await fetch(`${API}/api/admin/staff`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(staffForm),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        setUsers(prev => [...prev, data.data]);
+        setShowAddStaffModal(false);
+        setStaffForm({ username: '', email: '', password: '' });
+        setStaffErrors({});
+        showToast('Staff member created successfully');
+      } else {
+        showToast(data.message || 'Failed to create staff member', 'error');
+      }
+    } catch (err) {
+      console.error('Error creating staff:', err);
+      showToast('Network error', 'error');
+    } finally {
+      setIsSubmittingStaff(false);
+    }
   };
 
   const handleRoleChange = async (userId: number, role: string) => {
@@ -149,6 +239,28 @@ export default function AdminDashboardPage() {
                     </>
                   )}
                 </div>
+                
+                {/* Bulk Orders KPIs */}
+                <div className="kpi-card">
+                  <div className="kpi-icon">📊</div>
+                  <div className="kpi-value">{metrics?.totalBulkOrders || 0}</div>
+                  <div className="kpi-label">Bulk Orders</div>
+                </div>
+                <div className="kpi-card">
+                  <div className="kpi-icon">💳</div>
+                  {role === 'ADMIN' && (
+                    <>
+                      <div className="kpi-value">LKR {metrics?.totalBulkRevenue?.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</div>
+                      <div className="kpi-label">Bulk Revenue</div>
+                    </>
+                  )}
+                  {role === 'STAFF' && (
+                    <>
+                      <div className="kpi-value">***</div>
+                      <div className="kpi-label">Bulk Revenue (Hidden)</div>
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="charts-row">
@@ -207,12 +319,71 @@ export default function AdminDashboardPage() {
                     </>
                   )}
                 </div>
+                
+                {/* Bulk Orders Chart */}
+                <div className="chart-card">
+                  <h2 className="chart-title">Bulk Orders by Status</h2>
+                  {!metrics?.totalBulkOrders || metrics.totalBulkOrders === 0 ? (
+                    <p className="chart-empty">No bulk orders yet</p>
+                  ) : (
+                    <>
+                      {(() => {
+                        const bulkStatusEntries = Object.entries(metrics?.bulkOrdersByStatus ?? {});
+                        const totalBulkOrders = bulkStatusEntries.reduce((s, [, v]) => s + v, 0);
+                        let cumulativeAngle = 0;
+                        const bulkConicParts = bulkStatusEntries.map(([status, count]) => {
+                          const pct = totalBulkOrders > 0 ? (count / totalBulkOrders) * 100 : 0;
+                          const part = `${statusColors[status] ?? '#555'} ${cumulativeAngle}% ${cumulativeAngle + pct}%`;
+                          cumulativeAngle += pct;
+                          return part;
+                        }).join(', ');
+                        
+                        return (
+                          <>
+                            <div
+                              className="doughnut"
+                              style={{ background: `conic-gradient(${bulkConicParts})` }}
+                              aria-label="Bulk orders by status chart"
+                            />
+                            <div className="doughnut-legend">
+                              {bulkStatusEntries.map(([status, count]) => (
+                                <div key={`bulk-${status}`} className="legend-item">
+                                  <span className="legend-dot" style={{ background: statusColors[status] }} />
+                                  <span>{status}</span>
+                                  <span className="legend-count">{count}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Users Table */}
               {role === 'ADMIN' && (
                 <div className="table-card">
-                  <h2 className="chart-title">User Management</h2>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <h2 className="chart-title">User Management</h2>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        className="pm-action-btn pm-action-btn--primary"
+                        onClick={() => setShowAddStaffModal(true)}
+                        style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                      >
+                        + Add Staff
+                      </button>
+                      <button
+                        className="pm-action-btn pm-action-btn--primary"
+                        onClick={() => setShowAddRetailerModal(true)}
+                        style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                      >
+                        + Add Retailer
+                      </button>
+                    </div>
+                  </div>
                   <div className="table-wrapper">
                     <table className="admin-table">
                       <thead>
@@ -238,6 +409,7 @@ export default function AdminDashboardPage() {
                                 <option value="CUSTOMER">CUSTOMER</option>
                                 <option value="STAFF">STAFF</option>
                                 <option value="ADMIN">ADMIN</option>
+                                <option value="RETAILER">RETAILER</option>
                               </select>
                             </td>
                             <td>
@@ -267,6 +439,150 @@ export default function AdminDashboardPage() {
                 </div>
               )}
             </>
+          )}
+
+          {/* Add Retailer Modal */}
+          {showAddRetailerModal && (
+            <div className="om-modal-overlay" onClick={() => setShowAddRetailerModal(false)}>
+              <div className="om-modal" onClick={e => e.stopPropagation()}>
+                <div className="om-modal__header">
+                  <h2>Add New Retailer</h2>
+                  <button className="om-modal__close" onClick={() => setShowAddRetailerModal(false)}>✕</button>
+                </div>
+                <div className="om-modal__body">
+                  <form onSubmit={(e) => { e.preventDefault(); handleAddRetailer(); }}>
+                    <div className="form-group">
+                      <label htmlFor="username">Username</label>
+                      <input
+                        id="username"
+                        type="text"
+                        className="form-control"
+                        value={retailerForm.username}
+                        onChange={e => setRetailerForm({ ...retailerForm, username: e.target.value })}
+                        placeholder="Enter username"
+                        disabled={isSubmittingRetailer}
+                      />
+                      {retailerErrors.username && <span className="error-message">{retailerErrors.username}</span>}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="email">Email</label>
+                      <input
+                        id="email"
+                        type="email"
+                        className="form-control"
+                        value={retailerForm.email}
+                        onChange={e => setRetailerForm({ ...retailerForm, email: e.target.value })}
+                        placeholder="Enter email"
+                        disabled={isSubmittingRetailer}
+                      />
+                      {retailerErrors.email && <span className="error-message">{retailerErrors.email}</span>}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="password">Password</label>
+                      <input
+                        id="password"
+                        type="password"
+                        className="form-control"
+                        value={retailerForm.password}
+                        onChange={e => setRetailerForm({ ...retailerForm, password: e.target.value })}
+                        placeholder="Enter password"
+                        disabled={isSubmittingRetailer}
+                      />
+                      {retailerErrors.password && <span className="error-message">{retailerErrors.password}</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                      <button
+                        type="submit"
+                        className="pm-action-btn pm-action-btn--primary"
+                        disabled={isSubmittingRetailer}
+                      >
+                        {isSubmittingRetailer ? 'Creating...' : 'Create Retailer'}
+                      </button>
+                      <button
+                        type="button"
+                        className="pm-action-btn"
+                        onClick={() => setShowAddRetailerModal(false)}
+                        disabled={isSubmittingRetailer}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Add Staff Modal */}
+          {showAddStaffModal && (
+            <div className="om-modal-overlay" onClick={() => setShowAddStaffModal(false)}>
+              <div className="om-modal" onClick={e => e.stopPropagation()}>
+                <div className="om-modal__header">
+                  <h2>Add New Staff Member</h2>
+                  <button className="om-modal__close" onClick={() => setShowAddStaffModal(false)}>✕</button>
+                </div>
+                <div className="om-modal__body">
+                  <form onSubmit={(e) => { e.preventDefault(); handleAddStaff(); }}>
+                    <div className="form-group">
+                      <label htmlFor="staff-username">Username</label>
+                      <input
+                        id="staff-username"
+                        type="text"
+                        className="form-control"
+                        value={staffForm.username}
+                        onChange={e => setStaffForm({ ...staffForm, username: e.target.value })}
+                        placeholder="Enter username"
+                        disabled={isSubmittingStaff}
+                      />
+                      {staffErrors.username && <span className="error-message">{staffErrors.username}</span>}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="staff-email">Email</label>
+                      <input
+                        id="staff-email"
+                        type="email"
+                        className="form-control"
+                        value={staffForm.email}
+                        onChange={e => setStaffForm({ ...staffForm, email: e.target.value })}
+                        placeholder="Enter email"
+                        disabled={isSubmittingStaff}
+                      />
+                      {staffErrors.email && <span className="error-message">{staffErrors.email}</span>}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="staff-password">Password</label>
+                      <input
+                        id="staff-password"
+                        type="password"
+                        className="form-control"
+                        value={staffForm.password}
+                        onChange={e => setStaffForm({ ...staffForm, password: e.target.value })}
+                        placeholder="Enter password"
+                        disabled={isSubmittingStaff}
+                      />
+                      {staffErrors.password && <span className="error-message">{staffErrors.password}</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                      <button
+                        type="submit"
+                        className="pm-action-btn pm-action-btn--primary"
+                        disabled={isSubmittingStaff}
+                      >
+                        {isSubmittingStaff ? 'Creating...' : 'Create Staff'}
+                      </button>
+                      <button
+                        type="button"
+                        className="pm-action-btn"
+                        onClick={() => setShowAddStaffModal(false)}
+                        disabled={isSubmittingStaff}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </main>

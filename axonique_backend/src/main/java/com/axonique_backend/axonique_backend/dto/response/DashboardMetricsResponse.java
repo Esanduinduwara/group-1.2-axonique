@@ -22,6 +22,12 @@ public class DashboardMetricsResponse {
     private Map<String, Long> ordersByStatus;
     private BigDecimal estimatedCost;
     private BigDecimal estimatedProfit;
+    
+    // Bulk orders metrics
+    private Long totalBulkOrders;
+    private BigDecimal totalBulkRevenue;
+    private Map<String, Long> bulkOrdersByStatus;
+    private BigDecimal totalBulkDiscount;
 
     @Data
     @Builder

@@ -42,12 +42,6 @@ public class RegistrationService {
                 .username(registrationDto.getUsername())
                 .email(registrationDto.getEmail())
                 .password(passwordEncoder.encode(registrationDto.getPassword()))
-                .securityQuestion1(registrationDto.getSecurityQuestion1())
-                .securityAnswer1(passwordEncoder.encode(registrationDto.getSecurityAnswer1().toLowerCase()))
-                .securityQuestion2(registrationDto.getSecurityQuestion2())
-                .securityAnswer2(passwordEncoder.encode(registrationDto.getSecurityAnswer2().toLowerCase()))
-                .securityQuestion3(registrationDto.getSecurityQuestion3())
-                .securityAnswer3(passwordEncoder.encode(registrationDto.getSecurityAnswer3().toLowerCase()))
                 .enabled(true)
                 .build();
 
@@ -99,22 +93,6 @@ public class RegistrationService {
             throw new IllegalArgumentException("Invalid current password");
         }
 
-        // Verify security answer
-        String storedAnswer = null;
-        if (dto.getSecurityQuestion().equals(user.getSecurityQuestion1())) {
-            storedAnswer = user.getSecurityAnswer1();
-        } else if (dto.getSecurityQuestion().equals(user.getSecurityQuestion2())) {
-            storedAnswer = user.getSecurityAnswer2();
-        } else if (dto.getSecurityQuestion().equals(user.getSecurityQuestion3())) {
-            storedAnswer = user.getSecurityAnswer3();
-        } else {
-            throw new IllegalArgumentException("Invalid security question selection");
-        }
-
-        if (!passwordEncoder.matches(dto.getSecurityAnswer().toLowerCase(), storedAnswer)) {
-            throw new IllegalArgumentException("Incorrect security answer");
-        }
-
         if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
             throw new IllegalArgumentException("New passwords do not match");
         }
@@ -129,23 +107,6 @@ public class RegistrationService {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid details provided"));
 
-        int verifiedCount = 0;
-
-        // Check if question 1 is one of the user's questions and matches
-        if (isVerified(user, dto.getSecurityQuestion1(), dto.getSecurityAnswer1())) {
-            verifiedCount++;
-        }
-
-        // Check if question 2 is one of the user's questions and matches
-        if (isVerified(user, dto.getSecurityQuestion2(), dto.getSecurityAnswer2())) {
-            verifiedCount++;
-        }
-
-        if (verifiedCount < 2) {
-            log.warn("Password reset failed: Security verification failed for email: {}", dto.getEmail());
-            throw new IllegalArgumentException("Invalid details provided");
-        }
-
         if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
             throw new IllegalArgumentException("Passwords do not match");
         }
@@ -153,33 +114,5 @@ public class RegistrationService {
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
         log.info("Password reset successfully for email: {}", dto.getEmail());
-    }
-
-    private boolean isVerified(User user, String question, String answer) {
-        String storedAnswer = null;
-
-        if (question.equals(user.getSecurityQuestion1())) {
-            storedAnswer = user.getSecurityAnswer1();
-        } else if (question.equals(user.getSecurityQuestion2())) {
-            storedAnswer = user.getSecurityAnswer2();
-        } else if (question.equals(user.getSecurityQuestion3())) {
-            storedAnswer = user.getSecurityAnswer3();
-        }
-
-        if (storedAnswer == null) {
-            return false;
-        }
-
-        return passwordEncoder.matches(answer.toLowerCase(), storedAnswer);
-    }
-
-    public String[] getUserSecurityQuestions(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return new String[] {
-                user.getSecurityQuestion1(),
-                user.getSecurityQuestion2(),
-                user.getSecurityQuestion3()
-        };
     }
 }

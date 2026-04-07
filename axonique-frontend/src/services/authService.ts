@@ -6,7 +6,7 @@ const USER_KEY = 'axonique_user';
 export interface UserInfo {
     username: string;
     email: string;
-    role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
+    role: 'CUSTOMER' | 'STAFF' | 'ADMIN' | 'RETAILER';
 }
 
 export const authService = {

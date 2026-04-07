@@ -2,6 +2,7 @@ package com.axonique_backend.axonique_backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -59,6 +60,21 @@ public class SecurityConfig {
                                                 .permitAll()
                                                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "STAFF")
                                                 .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "STAFF")
+                                                // Admins/staff can view all bulk orders
+                                                .requestMatchers(HttpMethod.GET, "/api/bulk-orders/all")
+                                                .hasAnyRole("ADMIN", "STAFF")
+                                                // Retailers and admins can create / view bulk orders
+                                                .requestMatchers(HttpMethod.POST, "/api/bulk-orders")
+                                                .hasAnyRole("RETAILER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/bulk-orders/my")
+                                                .hasAnyRole("RETAILER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/bulk-orders/**")
+                                                .hasAnyRole("RETAILER", "ADMIN", "STAFF")
+                                                // Only admins/staff can update order status
+                                                .requestMatchers(HttpMethod.PATCH, "/api/bulk-orders/**")
+                                                .hasAnyRole("ADMIN", "STAFF")
+                                                .requestMatchers("/sendMail/**")
+                                                .permitAll()
                                                 .anyRequest().authenticated())
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
                 return http.build();
