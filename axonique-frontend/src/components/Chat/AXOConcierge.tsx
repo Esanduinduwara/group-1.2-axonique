@@ -1,262 +1,715 @@
 import { useState, useEffect, useRef } from 'react';
 import './AXOConcierge.css';
-import { CHAT_DATA, GREETING_MESSAGE, DEFAULT_RESPONSE, SYNONYMS, PRODUCTS } from './chatbot_data';
+import { CHAT_DATA, GREETING_MESSAGE, SYNONYMS, PRODUCTS } from './chatbot_data';
+import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
+import type { Product } from '../../types';
+
+interface MessageOption {
+  label: string;
+  action: string;
+}
 
 interface Message {
   id: string;
   text: string;
   sender: 'bot' | 'user';
   timestamp: number;
+  options?: MessageOption[];
 }
 
+// Removed unused ParsedIntent interface
 export default function AXOConcierge() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen]     = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { id: 'initial', text: GREETING_MESSAGE, sender: 'bot', timestamp: Date.now() }
   ]);
   const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping]     = useState(false);
+  const [showHelp, setShowHelp]     = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const cart     = useCart();
+  const wishlist = useWishlist();
+  const [realProducts, setRealProducts] = useState<Product[]>([]);
+
+  const [pendingAction, setPendingAction] = useState<{
+    action: 'add_cart' | 'remove_cart' | 'add_wishlist' | 'remove_wishlist' | 'ambiguous' | 'confirm_add_all_cart' | 'confirm_add_all_wishlist' | 'confirm_clear_all_cart' | 'confirm_clear_all_wishlist';
+    qty: number;
+    collection: string | null;
+    type: string | null;
+    size: string | null;
+    originalQuery?: string; // To re-process the query with a known target
+  } | null>(null);
+
+  // Ref keeps pendingAction in sync for setTimeout closures (avoids stale reads)
+  const pendingActionRef = useRef(pendingAction);
+  const updatePending = (val: typeof pendingAction) => {
+    setPendingAction(val);
+    pendingActionRef.current = val;
   };
 
+  const SIZE_TOKENS = ['xs', 's', 'm', 'l', 'xl', 'xxl'];
+
   useEffect(() => {
-    if (isOpen) scrollToBottom();
+    fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/api/products`)
+      .then(r => r.json())
+      .then(d => setRealProducts(d.data || d))
+      .catch(err => console.error('Chatbot: failed to load products', err));
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping, isOpen]);
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
-
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      text: inputValue.trim(),
-      sender: 'user',
-      timestamp: Date.now()
-    };
-
+    const userMsg: Message = { id: Date.now().toString(), text: inputValue.trim(), sender: 'user', timestamp: Date.now() };
     setMessages(prev => [...prev, userMsg]);
     setInputValue('');
     processResponse(userMsg.text);
   };
 
-  const processResponse = (userInput: string) => {
-    setIsTyping(true);
-    
-    // Normalize input
-    const rawTerms = userInput.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
-    
-    // Map to base words via Synonyms
-    const terms = rawTerms.map(t => SYNONYMS[t] || t);
+  // ─────────────── helpers ────────────────────────────────────────────────
 
-    setTimeout(() => {
-      let botResponseText = DEFAULT_RESPONSE;
-
-      const askingPrice = terms.includes('price') || terms.includes('cost') || (terms.includes('how') && terms.includes('much'));
-      const askingColor = terms.includes('color') || terms.includes('colour');
-      const askingType = terms.includes('type') || terms.includes('style');
-
-      const mentionedCollections = terms.filter(t => PRODUCTS.some(p => p.collection.toLowerCase() === t));
-      const mentionedTypes = terms.filter(t => PRODUCTS.some(p => p.type.toLowerCase() === t));
-      const mentionedColors = terms.filter(t => PRODUCTS.some(p => p.color.toLowerCase() === t));
-
-      // Parse prices for filters
-      const numbers = rawTerms.map(t => parseInt(t.replace(/[^0-9]/g, ''))).filter(n => !isNaN(n));
-      const isUnder = rawTerms.includes('under') || rawTerms.includes('below') || rawTerms.includes('less');
-      const isOver = rawTerms.includes('over') || rawTerms.includes('above') || rawTerms.includes('more');
-
-      let filteredProducts = [...PRODUCTS];
-
-      // Apply price filters
-      if (numbers.length > 0) {
-        if (isUnder) filteredProducts = filteredProducts.filter(p => p.price <= numbers[0]);
-        else if (isOver) filteredProducts = filteredProducts.filter(p => p.price >= numbers[0]);
-        else if (numbers.length >= 2 && rawTerms.includes('between')) {
-            const min = Math.min(numbers[0], numbers[1]);
-            const max = Math.max(numbers[0], numbers[1]);
-            filteredProducts = filteredProducts.filter(p => p.price >= min && p.price <= max);
-        }
-      }
-
-      // Apply attribute filters
-      if (mentionedCollections.length > 0) {
-        filteredProducts = filteredProducts.filter(p => mentionedCollections.includes(p.collection.toLowerCase()));
-      }
-      if (mentionedTypes.length > 0) {
-        filteredProducts = filteredProducts.filter(p => mentionedTypes.includes(p.type.toLowerCase()));
-      }
-      if (mentionedColors.length > 0) {
-        filteredProducts = filteredProducts.filter(p => mentionedColors.includes(p.color.toLowerCase()));
-      }
-
-      // If no specific attributes or prices were mentioned, don't just dump all products
-      const isSearchingProducts = mentionedCollections.length > 0 || mentionedTypes.length > 0 || mentionedColors.length > 0 || numbers.length > 0;
-
-      if (isSearchingProducts) {
-        if (filteredProducts.length === 0) {
-          botResponseText = "We couldn't find any products matching those exact criteria. Try adjusting your search!";
-        } else if (filteredProducts.length === 1) {
-          const targetProduct = filteredProducts[0];
-          const productFullName = `${targetProduct.collection} ${targetProduct.type}`;
-
-          if (askingPrice && askingColor) {
-             const templates = [
-               `It is a ${targetProduct.color.toLowerCase()} ${targetProduct.type.toLowerCase()} priced at LKR ${targetProduct.price}.`,
-               `The ${productFullName} comes in ${targetProduct.color.toLowerCase()} and costs LKR ${targetProduct.price}.`,
-               `Available in ${targetProduct.color.toLowerCase()}, you can grab this for LKR ${targetProduct.price}.`
-             ];
-             botResponseText = templates[Math.floor(Math.random() * templates.length)];
-          } else if (askingPrice) {
-             botResponseText = `LKR ${targetProduct.price}`;
-          } else if (askingColor) {
-             botResponseText = `The ${productFullName} comes in ${targetProduct.color}.`;
-          } else if (askingType) {
-             botResponseText = `It is a ${targetProduct.type}.`;
-          } else {
-             const generalTemplates = [
-               `The ${productFullName} ${targetProduct.description}. It's ${targetProduct.color.toLowerCase()} in color and priced at LKR ${targetProduct.price}.`,
-               `The ${productFullName} ${targetProduct.description}. Tailored for comfort and style, it comes in ${targetProduct.color.toLowerCase()} and starts at LKR ${targetProduct.price}.`,
-               `Discover the ${productFullName}: it ${targetProduct.description}. This ${targetProduct.color.toLowerCase()} piece is available for LKR ${targetProduct.price}.`
-             ];
-             botResponseText = generalTemplates[Math.floor(Math.random() * generalTemplates.length)];
-          }
-        } else {
-          // Multiple products match - Using actual bullet points for the list
-          let listStr = filteredProducts.map(p => `• **${p.collection} ${p.type}** (${p.color}): LKR ${p.price}. ${p.description}`).join('\n');
-          botResponseText = `We found ${filteredProducts.length} options for you:\n${listStr}`;
-        }
-      } else {
-        // 2. Fallback to basic FAQ matching 
-        let bestMatch = null;
-        let highestScore = 0;
-
-        for (const entry of CHAT_DATA) {
-          let score = 0;
-          let matches = 0;
-
-          for (const kw of entry.keywords) {
-            if (terms.includes(kw.toLowerCase())) {
-              matches++;
-            }
-          }
-
-          if (matches > 0) {
-            score = matches * 10;
-            if (entry.subKeywords) {
-              for (const sub of entry.subKeywords) {
-                if (terms.includes(sub.toLowerCase())) {
-                  score += 5;
-                }
-              }
-            }
-            if (score > highestScore) {
-              highestScore = score;
-              bestMatch = entry;
-            }
-          }
-        }
-
-        if (bestMatch) {
-          botResponseText = bestMatch.response;
-        }
-      }
-
-      const botMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        text: botResponseText,
-        sender: 'bot',
-        timestamp: Date.now()
-      };
-
-      setMessages(prev => [...prev, botMsg]);
-      setIsTyping(false);
-    }, 800);
+  const parseNumber = (terms: string[], rawTokens: string[]): number => {
+    const map: Record<string, number> = { a:1, an:1, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10 };
+    for (const t of rawTokens) {
+      const n = parseInt(t); if (!isNaN(n)) return n;
+      if (t.startsWith('x') && !isNaN(parseInt(t.slice(1)))) return parseInt(t.slice(1));
+    }
+    for (const t of terms) if (map[t]) return map[t];
+    return 1;
   };
 
-  /**
-   * Simple formatter to handle **bold** text and newlines
-   */
-  const formatMessage = (text: string) => {
-    return text.split('\n').map((line, i) => (
+  const getRealProduct = (p: typeof PRODUCTS[0]) =>
+    realProducts.find(rp =>
+      rp.name.toLowerCase().includes(p.collection.toLowerCase()) &&
+      (rp.name.toLowerCase().includes(p.type.toLowerCase()) || (p.type === 'Cap' && rp.category === 'Caps'))
+    );
+
+  const endResponse = (text: string, options?: MessageOption[]) => {
+    setMessages(prev => [...prev, { id: (Date.now()+1).toString(), text, sender: 'bot', timestamp: Date.now(), options }]);
+    setIsTyping(false);
+  };
+
+  const execRaw = (action: string, realP: Product, qty: number, size: string) => {
+    let finalSize = size;
+    if (realP.category === 'Caps' || realP.sizes?.includes('One Size')) finalSize = 'One Size';
+    if (action === 'add_cart') {
+      const existing = cart.items.find(i => i.product.id === realP.id && i.size === finalSize);
+      if (existing) cart.changeQty(realP.id, finalSize, qty);
+      else for (let i=0; i<qty; i++) cart.addItem(realP, finalSize);
+    } else if (action === 'remove_cart') {
+      cart.changeQty(realP.id, finalSize, -Math.abs(qty));
+    } else if (action === 'add_wishlist') {
+      wishlist.addItem(realP);
+    } else if (action === 'remove_wishlist') {
+      wishlist.removeItem(realP.id);
+    }
+  };
+
+  const execSingle = (action: string, realP: Product, qty: number, size: string) => {
+    let finalSize = size;
+    if (realP.category === 'Caps' || realP.sizes?.includes('One Size')) finalSize = 'One Size';
+    execRaw(action, realP, qty, finalSize);
+    const needsSize = realP.sizes && !realP.sizes.includes('One Size');
+    const szText = needsSize ? ` (Size ${finalSize})` : '';
+    const label = `**${realP.name}**${szText}`;
+    const msgs: Record<string,string> = {
+      add_cart:       `Added ${qty} ${label} to your cart!`,
+      remove_cart:    `Removed ${qty} ${label} from your cart.`,
+      add_wishlist:   `Added ${label} to your wishlist!`,
+      remove_wishlist:`Removed ${label} from your wishlist.`,
+    };
+    endResponse(msgs[action] || 'Done!');
+  };
+
+  // Filter the abstract PRODUCTS catalog by parsed filters
+  const applyFilters = (
+    collections: string[], types: string[], colors: string[],
+    priceNumber: number | null, priceDir: string | null, priceNumber2: number | null
+  ) => {
+    let list = [...PRODUCTS];
+    if (collections.length > 0) list = list.filter(p => collections.includes(p.collection.toLowerCase()));
+    if (types.length > 0)       list = list.filter(p => types.includes(p.type.toLowerCase()));
+    if (colors.length > 0)      list = list.filter(p => colors.includes(p.color.toLowerCase()));
+    if (priceNumber !== null && priceDir) {
+      if (priceDir === 'below') list = list.filter(p => p.price <= priceNumber);
+      else if (priceDir === 'above') list = list.filter(p => p.price >= priceNumber);
+      else if (priceDir === 'between' && priceNumber2 !== null) {
+        const lo = Math.min(priceNumber, priceNumber2), hi = Math.max(priceNumber, priceNumber2);
+        list = list.filter(p => p.price >= lo && p.price <= hi);
+      }
+    }
+    return list;
+  };
+
+  // ─────────────── main NLP entry point ───────────────────────────────────
+
+  const processResponse = (userInput: string) => {
+    setIsTyping(true);
+
+    // Normalise: currency synonyms, strip punctuation
+    let nText = userInput.toLowerCase();
+    nText = nText.replace(/rupees?/g, 'lkr').replace(/\brs\b/g, 'lkr').replace(/\/-/g, '').replace(/[^\w\s]/g, ' ');
+    const rawTokens = nText.split(/\s+/).filter(Boolean);
+
+    // De-pluralise + synonym map
+    const terms = rawTokens.map(t => {
+      let base = t;
+      if (t !== 'timeless' && t !== 'shoes' && t !== 'less' && t !== 'yes' && t.endsWith('s')) {
+        base = t.endsWith('ies') ? t.slice(0, -3) + 'y' : t.slice(0, -1);
+      }
+      return SYNONYMS[base] || SYNONYMS[t] || base;
+    });
+
+
+      // ── Canceller ────────────────────────────────────────────────────────
+      if (['cancel', 'stop', 'nvm', 'nevermind'].some(w => terms.includes(w))) {
+        if (pendingActionRef.current) {
+          updatePending(null);
+          endResponse("Okay, canceled! What else can I help you with?");
+          return;
+        }
+      }
+
+      // Confirmation Yes/No
+      if (['yes', 'yep', 'sure', 'yeah'].some(w => terms.includes(w))) {
+        if (pendingActionRef.current && pendingActionRef.current.action.startsWith('confirm_')) {
+          const act = pendingActionRef.current.action;
+          if (act === 'confirm_clear_all_cart') { cart.clearCart(); endResponse("Your cart has been cleared out entirely."); }
+          else if (act === 'confirm_clear_all_wishlist') { wishlist.items.forEach(i => wishlist.removeItem(i.id)); endResponse("Your wishlist has been cleared out entirely."); }
+          else if (act === 'confirm_add_all_cart') {
+             PRODUCTS.forEach(p => { const rp = getRealProduct(p); if (rp) execRaw('add_cart', rp, 1, rp.sizes?.includes('M') ? 'M' : 'One Size'); });
+             endResponse("Added one of every item to your cart!");
+          }
+          else if (act === 'confirm_add_all_wishlist') {
+             PRODUCTS.forEach(p => { const rp = getRealProduct(p); if (rp) execRaw('add_wishlist', rp, 1, 'One Size'); });
+             endResponse("Added one of every item to your wishlist!");
+          }
+          updatePending(null);
+          return;
+        }
+      }
+
+      if (['no', 'nope', 'nah'].some(w => terms.includes(w))) {
+        if (pendingActionRef.current && pendingActionRef.current.action.startsWith('confirm_')) {
+          updatePending(null);
+          endResponse("Action canceled.");
+          return;
+        }
+      }
+
+      // ── SIGNAL EXTRACTION ───────────────────────────────────────────────
+      const isCart      = terms.some(t => ['cart', 'bag', 'basket'].includes(t));
+      const isWishlist  = terms.some(t => ['wishlist', 'favorites', 'favourite', 'favorite', 'save', 'saved'].includes(t));
+      const targetCart  = isCart || terms.some(t => ['buy', 'purchase', 'order', 'checkout', 'cop'].includes(t));
+      const targetWL    = isWishlist || terms.some(t => ['save', 'favorite', 'wish'].includes(t));
+      const targetBoth  = targetCart || targetWL;
+
+      const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop'].includes(t));
+      const isRemoveVerb = terms.some(t => ['remove', 'delete', 'drop', 'take', 'ditch', 'dump'].includes(t));
+      const isClearVerb  = terms.some(t => ['clear', 'empty', 'wipe', 'reset', 'nuke'].includes(t));
+      const isKeepVerb   = terms.some(t => ['keep', 'just', 'only', 'leave'].includes(t));
+      const isCheckVerb  = terms.some(t => ['check', 'list', 'show', 'view', 'display', 'see'].includes(t));
+      const isModVerb    = isKeepVerb || terms.some(t => ['double', 'half', 'increase', 'reduce', 'decrease', 'halve'].includes(t));
+      const isQAVerb     = ['is', 'are', 'did', 'have', 'was', 'how'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
+      const isAll        = terms.some(t => ['all', 'every', 'each', 'everything'].includes(t));
+
+      const mCollections = terms.filter(t => PRODUCTS.some(p => p.collection.toLowerCase() === t));
+      const mTypes       = Array.from(new Set(terms.filter(t => PRODUCTS.some(p => p.type.toLowerCase() === t))));
+      const mColors      = terms.filter(t => PRODUCTS.some(p => p.color.toLowerCase() === t));
+      let mSizes       = rawTokens.filter(t => SIZE_TOKENS.includes(t.toLowerCase())).map(t => t.toUpperCase());
+
+      // Size rules for Caps
+      if (mTypes.includes('cap') || mTypes.includes('hat')) {
+        mSizes = [];
+      }
+
+      // Price / Qty parsing
+      const allNums = rawTokens.map(t => parseInt(t)).filter(n => !isNaN(n));
+      const priceNum1 = allNums.find(n => n >= 100) ?? null;
+      const priceNum2 = allNums.filter(n => n >= 100).length >= 2 ? allNums.filter(n => n >= 100)[1] : null;
+      const qty = parseNumber(terms, rawTokens.filter(t => parseInt(t) < 100 || t.startsWith('x')));
+
+      const isBelow   = terms.some(t => ['below', 'under', 'less', 'within'].includes(t));
+      const isAbove   = terms.some(t => ['above', 'over', 'more', 'greater'].includes(t));
+      const isBetween = terms.includes('between');
+      const priceDir  = isBetween ? 'between' : isBelow ? 'below' : isAbove ? 'above' : null;
+
+      const filteredProducts = applyFilters(mCollections, mTypes, mColors, priceNum1, priceDir, priceNum2);
+      const hasProductFilters = mCollections.length > 0 || mTypes.length > 0 || mColors.length > 0 || mSizes.length > 0 || priceNum1 !== null;
+
+      // Ambiguous target branch before anything else!
+      if (!targetCart && !targetWL && (isAddVerb || isRemoveVerb || isClearVerb || isModVerb)) {
+        updatePending({ action: 'ambiguous', qty, collection: mCollections[0]||null, type: mTypes[0]||null, size: mSizes[0]||null, originalQuery: userInput });
+        endResponse("Did you mean to apply this to your **cart** or **wishlist**?", [{ label: 'Cart', action: `Cart ${userInput}` }, { label: 'Wishlist', action: `Wishlist ${userInput}` }]);
+        return;
+      }
+
+      // ── BRANCH RESOLUTION ────────────────────────────────────────────────
+      let branch = "3) Unknown";
+      let subBranch = "N/A";
+      let logOutput = "";
+
+      // Determine Branch
+      if (isAddVerb || isRemoveVerb || isClearVerb || isModVerb || targetBoth) {
+        branch = "2) Action";
+        if (isAddVerb) subBranch = isAll || hasProductFilters ? "2.1.2) Add based on condition" : "2.1.1) Add individual";
+        else if (isRemoveVerb) subBranch = isAll || hasProductFilters ? "2.2.2) Remove based on condition" : "2.2.1) Remove individual";
+        else if (isModVerb) {
+           if (isKeepVerb) subBranch = "2.5.3) Keep certain items";
+           else if (terms.some(t => ['double','half','increase','reduce'].includes(t))) subBranch = "2.5.1/2) Quantity modifiers";
+           else subBranch = "2.5) Cart actions";
+        }
+        else if (isClearVerb) subBranch = "2.2/2.4) Clear Cart/Wishlist";
+        else if (isCheckVerb) subBranch = "Cart/Wishlist check";
+      } else {
+        branch = "1) Info";
+        if (hasProductFilters || isCheckVerb) subBranch = "1.1) Product info";
+        else if (terms.some(t => ['contact','support','help'].includes(t))) subBranch = "1.2) Contact info";
+        else if (terms.some(t => ['shipping','delivery','return'].includes(t))) subBranch = "1.3) Shipping policy";
+      }
+
+      // Logging Utility
+      const log = (msg: string) => { logOutput = msg; };
+      const finalLog = () => {
+        console.group(`%c AXO CONCIERGE NLP `, 'background:#111; color:#0f0; padding:2px 5px; border-radius:3px;');
+        console.log(`%cPROMPT:%c "${userInput}"`, 'font-weight:bold; color:#aaa', 'color:#fff');
+        console.log(`%cKEYWORDS:%c ${terms.join(', ')}`, 'font-weight:bold; color:#aaa', 'color:#0ff');
+        console.log(`%cBRANCH:%c ${branch} -> ${subBranch}`, 'font-weight:bold; color:#aaa', 'color:#f0f');
+        console.log(`%cCONDITIONS:%c filters:${hasProductFilters}, all:${isAll}, cart:${targetCart}, wl:${targetWL}`, 'font-weight:bold; color:#aaa', 'color:#ff0');
+        console.log(`%cOUTPUT:%c ${logOutput}`, 'font-weight:bold; color:#aaa', 'color:#fff');
+        console.groupEnd();
+      };
+
+      // ── EXECUTION ───────────────────────────────────────────────────────
+
+      // A: Context Handling (Clarification)
+      let activePendingAction = pendingActionRef.current;
+      if (activePendingAction) {
+        const isUnrelated = (activePendingAction.action === 'ambiguous' && !targetBoth && (isAddVerb || isRemoveVerb || mCollections.length > 0 || mTypes.length > 0)) ||
+                            (activePendingAction.action !== 'ambiguous' && !activePendingAction.collection && mCollections.length === 0 && (isModVerb || targetBoth)) ||
+                            (activePendingAction.action !== 'ambiguous' && !activePendingAction.type && mTypes.length === 0 && (isModVerb || targetBoth));
+
+        if (isUnrelated) { activePendingAction = null; updatePending(null); }
+      }
+
+      if (activePendingAction) {
+        if (activePendingAction.action === 'ambiguous') {
+          const target = targetCart ? 'cart' : targetWL ? 'wishlist' : null;
+          if (target) {
+            updatePending(null);
+            processResponse(activePendingAction.originalQuery + ' ' + target);
+            return;
+          }
+          log("Asking for cart/wishlist target");
+          endResponse("I'm sorry, I still didn't catch which one. Did you mean your **cart** or **wishlist**?", [{ label: 'Cart', action: 'Cart ' + activePendingAction.originalQuery }, { label: 'Wishlist', action: 'Wishlist ' + activePendingAction.originalQuery }]);
+          finalLog();
+          return;
+        }
+
+        const coll = activePendingAction.collection || mCollections[0] || null;
+        const type = activePendingAction.type || mTypes[0] || null;
+
+        if (!coll) {
+          updatePending({ ...activePendingAction, collection: null, type });
+          endResponse("Which brand?", Array.from(new Set(PRODUCTS.map(p => p.collection))).map(c => ({ label: c, action: c })));
+          log("Asking for brand"); finalLog(); return;
+        }
+        if (!type) {
+          updatePending({ ...activePendingAction, collection: coll, type: null });
+          const opts = Array.from(new Set(PRODUCTS.filter(p => p.collection.toLowerCase() === coll.toLowerCase()).map(p => p.type))).map(t => ({ label: t, action: t }));
+          endResponse(`Got it, ${coll}. Which type?`, opts);
+          log("Asking for type"); finalLog(); return;
+        }
+
+        const matchP = PRODUCTS.find(p => p.collection.toLowerCase() === coll.toLowerCase() && p.type.toLowerCase() === type.toLowerCase());
+        const realProduct = matchP ? getRealProduct(matchP) : null;
+        if (!realProduct) { updatePending(null); endResponse(`I couldn't find a **${coll} ${type}** in our catalog.`); log("Product not found"); finalLog(); return; }
+
+        let size = activePendingAction.size;
+        const needsSize = !realProduct.sizes?.includes('One Size') && realProduct.category !== 'Caps';
+        if (needsSize && !size) {
+          if (mSizes.length > 0) size = mSizes[0];
+          else {
+            updatePending({ ...activePendingAction, collection: coll, type, size: null });
+            endResponse(`What size for the **${coll} ${type}**?`, realProduct.sizes.map(s => ({ label: s, action: s })));
+            log("Asking for size"); finalLog(); return;
+          }
+        }
+        execSingle(activePendingAction.action, realProduct, activePendingAction.qty, needsSize ? (size || 'M') : 'One Size');
+        updatePending(null);
+        log("Completed pending action"); finalLog(); return;
+      }
+
+      // Branch 2: Action
+      if (branch === "2) Action") {
+        if (isAddVerb && (isCart || targetCart) && terms.some(t => ['wishlist', 'favorite', 'favourite', 'saved'].includes(t)) && !hasProductFilters) {
+            if (wishlist.items.length === 0) {
+               endResponse("Your wishlist is currently empty, nothing to add to cart.");
+            } else {
+               let addedCount = 0;
+               wishlist.items.forEach(wItem => {
+                   const rp = getRealProduct({ collection: wItem.name.split(' ')[0], type: wItem.name.split(' ').slice(1).join(' '), color: '', price: 0, description: '' } as any) || wItem;
+                   if (rp) {
+                     const needsSize = rp.sizes && !rp.sizes.includes('One Size') && rp.category !== 'Caps';
+                     const s = needsSize ? (rp.sizes.includes('M') ? 'M' : rp.sizes[0]) : 'One Size';
+                     execRaw('add_cart', rp, 1, s);
+                     addedCount++;
+                   }
+               });
+               endResponse(`Added ${addedCount} item(s) from your wishlist to your cart!`);
+            }
+            log("Cart: Added from wishlist"); finalLog(); return;
+        }
+
+        const target = targetWL && !targetCart ? 'wishlist' : 'cart';
+
+        // Check/List (if no add/remove/mod)
+        if (isCheckVerb && !isAddVerb && !isRemoveVerb && !isModVerb && !isClearVerb) {
+          if (target === 'cart') {
+            if (cart.items.length === 0) endResponse("Your cart is currently empty.");
+            else endResponse(`You have ${cart.totalItems} item(s) in your cart:\n${cart.items.map(i => `• **${i.product.name}** (Size ${i.size}) x ${i.qty}`).join('\n')}\n\n**Total:** LKR ${cart.subtotal}`);
+          } else {
+            if (wishlist.items.length === 0) endResponse("Your wishlist is empty.");
+            else endResponse(`Your Wishlist:\n${wishlist.items.map(i => `• **${i.name}** — LKR ${i.price}`).join('\n')}`);
+          }
+          log(`Checked ${target}`); finalLog(); return;
+        }
+
+        // Q&A Logic (Is total... Do I have...)
+        if (isQAVerb) {
+          if ((terms.includes('total') || terms.includes('cost')) && priceNum1 !== null && priceDir && target === 'cart') {
+            const sub = cart.subtotal;
+            const res = priceDir === 'above' ? sub > priceNum1 : sub < priceNum1;
+            endResponse(`${res ? 'Yes!' : 'No —'} your cart total is LKR ${sub}, which is ${res ? '' : 'not '}${priceDir} LKR ${priceNum1}.`);
+            log("Q&A: Price total check"); finalLog(); return;
+          }
+          if (hasProductFilters) {
+            const inList = target === 'cart' 
+              ? cart.items.some(i => (mCollections.length === 0 || mCollections.every(c => i.product.name.toLowerCase().includes(c))) && (mTypes.length === 0 || mTypes.every(t => i.product.name.toLowerCase().includes(t))) && (mSizes.length === 0 || mSizes.includes(i.size)))
+              : wishlist.items.some(i => (mCollections.length === 0 || mCollections.every(c => i.name.toLowerCase().includes(c))) && (mTypes.length === 0 || mTypes.every(t => i.name.toLowerCase().includes(t))));
+            endResponse(inList ? `Yes, that item is in your ${target}.` : `No, I don't see that in your ${target}.`);
+            log("Q&A: Product existence check"); finalLog(); return;
+          }
+        }
+
+        // 2.5 Logic (Modifiers)
+        if (isModVerb) {
+          if (isKeepVerb) {
+            if (!hasProductFilters) {
+              endResponse("Please specify what you want to keep (e.g., 'Keep only Timeless items'). Prompt again.");
+              log("Keep operation without filters"); finalLog(); return;
+            }
+            let removedCount = 0;
+            if (target === 'cart') {
+              [...cart.items].forEach(item => {
+                const matchesFilter = filteredProducts.some(fp => { const rp = getRealProduct(fp); return rp && rp.id === item.product.id; });
+                const matchesSize = mSizes.length === 0 || mSizes.includes(item.size);
+                if (!(matchesFilter && matchesSize)) { cart.changeQty(item.product.id, item.size, -item.qty); removedCount++; }
+              });
+            } else {
+              [...wishlist.items].forEach(item => {
+                const matchesFilter = filteredProducts.some(fp => { const rp = getRealProduct(fp); return rp && rp.id === item.id; });
+                if (!matchesFilter) { wishlist.removeItem(item.id); removedCount++; }
+              });
+            }
+            endResponse(`Kept matching items and removed ${removedCount} others from your ${target}.`);
+            log(`${target}: Keep operation completed`); finalLog(); return;
+          }
+          if (target === 'cart') {
+            if (terms.includes('double')) { cart.items.forEach(i => cart.changeQty(i.product.id, i.size, i.qty)); endResponse("Cart doubled!"); log("Cart doubled"); finalLog(); return; }
+            if (terms.includes('half')) { cart.items.forEach(i => cart.changeQty(i.product.id, i.size, -Math.floor(i.qty/2))); endResponse("Cart halved!"); log("Cart halved"); finalLog(); return; }
+          }
+        }
+
+        // 2.1/2.2/2.3/2.4 Add/Remove
+        const actionType = (isAddVerb ? 'add_' : 'remove_') + target;
+
+        // Bulk (All) / Clear
+        if (isAll || isClearVerb || (isRemoveVerb && hasProductFilters && mCollections.length === 0 && mTypes.length > 0)) {
+          if (!hasProductFilters) {
+            if (isClearVerb || isRemoveVerb) {
+               const clearTerms = ['clear', 'empty', 'wipe', 'reset', 'nuke', 'all', 'whole', 'entire', 'cart', 'bag', 'basket', 'wishlist', 'favorite', 'favourite', 'save', 'saved', 'my', 'the', 'item', 'from'];
+               const isPureClear = isClearVerb && terms.every(t => clearTerms.includes(t));
+               
+               if (isPureClear) {
+                  if (target === 'cart') cart.clearCart(); 
+                  else wishlist.items.forEach(i => wishlist.removeItem(i.id));
+                  endResponse(`Your ${target} has been cleared out entirely.`);
+                  log(`Pure clear ${target} bypass`); finalLog(); return;
+               }
+
+               updatePending({ action: `confirm_clear_all_${target}` as any, qty, collection: null, type: null, size: null });
+               endResponse(`Do you want to clear your ${target} out entirely?`, [{label: 'Yes', action: 'Yes'}, {label: 'No', action: 'No'}]);
+               log(`Confirming clear all ${target}`); finalLog(); return;
+            }
+            if (isAddVerb) {
+               updatePending({ action: `confirm_add_all_${target}` as any, qty, collection: null, type: null, size: null });
+               endResponse(`Did you mean to add one of EVERY item to your ${target}?`, [{label: 'Yes', action: 'Yes'}, {label: 'No', action: 'No'}]);
+               log(`Confirming add all ${target}`); finalLog(); return;
+            }
+          }
+
+          const targetList = isAddVerb ? filteredProducts : filteredProducts.filter(p => { 
+            const rp = getRealProduct(p); 
+            return rp && (target === 'cart' ? cart.items.some(i => i.product.id === rp.id) : wishlist.items.some(i => i.id === rp.id));
+          });
+          if (targetList.length === 0 && !isClearVerb) { endResponse(`No matching items found to ${isAddVerb ? 'add' : 'remove'}.`); log("Bulk: No matches"); finalLog(); return; }
+          
+          let affectedCount = 0;
+          if (target === 'cart' && (isRemoveVerb || isClearVerb)) {
+             [...cart.items].forEach(item => {
+                 const matchesFilter = filteredProducts.some(fp => { const rp = getRealProduct(fp); return rp && rp.id === item.product.id; });
+                 const matchesSize = mSizes.length === 0 || mSizes.includes(item.size);
+                 if (matchesFilter && matchesSize) { cart.changeQty(item.product.id, item.size, -item.qty); affectedCount++; }
+             });
+          } else if (target === 'wishlist' && (isRemoveVerb || isClearVerb)) {
+             [...wishlist.items].forEach(item => {
+                 const matchesFilter = filteredProducts.some(fp => { const rp = getRealProduct(fp); return rp && rp.id === item.id; });
+                 if (matchesFilter) { wishlist.removeItem(item.id); affectedCount++; }
+             });
+          } else {
+             targetList.forEach(p => {
+                const rp = getRealProduct(p);
+                if (rp) {
+                  const s = mSizes[0] || (rp.sizes?.includes('M') ? 'M' : rp.sizes?.[0]) || 'One Size';
+                  execRaw(actionType, rp, qty, s);
+                  affectedCount++;
+                }
+             });
+          }
+          endResponse(`${isAddVerb ? 'Added' : 'Removed'} ${affectedCount} item(s) matching your criteria.`);
+          log(`Bulk ${isAddVerb ? 'Add' : 'Remove'} success`); finalLog(); return;
+        }
+
+        // Individual
+        if (mCollections.length > 0 && mTypes.length > 0) {
+          const matchP = PRODUCTS.find(p => p.collection.toLowerCase() === mCollections[0] && p.type.toLowerCase() === mTypes[0]);
+          const realP = matchP ? getRealProduct(matchP) : null;
+          if (!realP) { endResponse("I couldn't find that specific item."); log("Single: Not found"); finalLog(); return; }
+          
+          const needsSize = !realP.sizes?.includes('One Size') && realP.category !== 'Caps';
+          if (needsSize && mSizes.length === 0) {
+            updatePending({ action: actionType as any, qty, collection: mCollections[0], type: mTypes[0], size: null });
+            endResponse(`What size for the **${mCollections[0]} ${mTypes[0]}**?`, realP.sizes.map(s => ({ label: s, action: s })));
+            log("Single: Prompting for size"); finalLog(); return;
+          }
+          execSingle(actionType, realP, qty, mSizes[0] || 'M');
+          log("Single Add/Remove success"); finalLog(); return;
+        }
+
+        // If we reached here in Action, but didn't have enough info:
+        updatePending({ action: (isAddVerb || isRemoveVerb) ? ((isAddVerb ? 'add_' : 'remove_') + target) as any : 'ambiguous', qty, collection: mCollections[0]||null, type: mTypes[0]||null, size: mSizes[0]||null, originalQuery: userInput });
+        if (!mCollections[0]) { endResponse("Which brand?", Array.from(new Set(PRODUCTS.map(p => p.collection))).map(c => ({ label: c, action: c }))); log("Ambiguous: Asking brand"); }
+        else { endResponse(`Got it, ${mCollections[0]}. Which type?`, Array.from(new Set(PRODUCTS.filter(p => p.collection.toLowerCase() === mCollections[0].toLowerCase()).map(p => p.type))).map(t => ({ label: t, action: t }))); log("Ambiguous: Asking type"); }
+        finalLog(); return;
+      }
+      // Branch 1: Info
+      if (branch === "1) Info") {
+        if (subBranch === "1.1) Product info") {
+           if (filteredProducts.length === 0) { endResponse("I couldn't find any products matching that."); log("Info: No products match"); finalLog(); return; }
+           if (filteredProducts.length === 1) {
+             const p = filteredProducts[0];
+             endResponse(`**${p.collection} ${p.type}**: LKR ${p.price}. ${p.description}`);
+           } else {
+             endResponse(`I found ${filteredProducts.length} matches:\n${filteredProducts.slice(0,5).map(p => `• **${p.collection} ${p.type}** (LKR ${p.price})`).join('\n')}`);
+           }
+           log("Info: Product list displayed"); finalLog(); return;
+        }
+        
+        // FAQ Fallback
+        const scored = CHAT_DATA.map(entry => {
+          let score = 0;
+          for (const kw of entry.keywords) if (terms.includes(kw.toLowerCase())) score += 10;
+          if (entry.subKeywords) for (const sub of entry.subKeywords) if (terms.includes(sub.toLowerCase())) score += 5;
+          return { entry, score };
+        }).filter(x => x.score > 0).sort((a,b) => b.score - a.score);
+
+        if (scored.length > 0) {
+          endResponse(scored[0].entry.response);
+          log(`FAQ match: ${scored[0].entry.keywords[0]}`);
+        } else {
+          endResponse("I'm not sure how to help with that. Try asking about products, shipping, or saying 'Add to cart'.");
+          log("Fallback: No match");
+        }
+        finalLog(); return;
+      }
+
+  };
+
+  // ─────────────── rendering ─────────────────────────────────────────────
+
+  const formatMessage = (text: string) =>
+    text.split('\n').map((line, i) => (
       <span key={i}>
-        {line.split('**').map((part, j) => (
-          j % 2 === 1 ? <strong key={j}>{part}</strong> : part
-        ))}
+        {line.split('**').map((part, j) => j % 2 === 1 ? <strong key={j}>{part}</strong> : part)}
         {i < text.split('\n').length - 1 && <br />}
       </span>
     ));
-  };
 
-  const handleQuickAction = (text: string) => {
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      text,
-      sender: 'user',
-      timestamp: Date.now()
-    };
+  const handleQuickAction = (msgId: string, text: string) => {
+    // Remove options from the clicked message so they can't be reused
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, options: [] } : m));
+    
+    const userMsg: Message = { id: Date.now().toString(), text, sender: 'user', timestamp: Date.now() };
     setMessages(prev => [...prev, userMsg]);
     processResponse(text);
   };
 
   return (
     <div className="axo-chat-container">
-      {/* Toggle Button */}
-      <button 
-        className="axo-chat-toggle" 
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Contact Concierge"
-      >
-        {isOpen ? (
-          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="currentColor"/></svg>
-        ) : (
-          <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>
-        )}
+      <button className="axo-chat-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Contact Concierge">
+        {isOpen
+          ? <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="currentColor"/></svg>
+          : <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>
+        }
       </button>
 
-      {/* Chat Window */}
       {isOpen && (
         <div className="axo-chat-window">
           <div className="axo-chat-header">
             <h3>AXO Concierge</h3>
-            <button className="axo-chat-close" onClick={() => setIsOpen(false)}>&times;</button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button className="axo-chat-help" onClick={() => setShowHelp(true)} title="Help">?</button>
+              <button className="axo-chat-close" onClick={() => setIsOpen(false)}>&times;</button>
+            </div>
           </div>
+
+          {/* ── Help Modal ──────────────────────────────────── */}
+          {showHelp && (
+            <div className="axo-help-overlay" onClick={() => setShowHelp(false)}>
+              <div className="axo-help-modal" onClick={e => e.stopPropagation()}>
+                <div className="axo-help-header">
+                  <h3>How to use AXO Concierge</h3>
+                  <button className="axo-chat-close" onClick={() => setShowHelp(false)}>&times;</button>
+                </div>
+                <div className="axo-help-body">
+
+                  <div className="axo-help-section">
+                    <h4>🛒 Cart Actions</h4>
+                    <ul>
+                      <li><strong>Add to cart</strong> — <em>"Buy Timeless Cap"</em>, <em>"Add Phantom Hoodie XL to cart"</em>, <em>"Purchase 2 Impossible Tees M"</em></li>
+                      <li><strong>Remove from cart</strong> — <em>"Remove Timeless Cap from cart"</em>, <em>"Delete Phantom Tee from cart"</em></li>
+                      <li><strong>Check cart</strong> — <em>"Check my cart"</em>, <em>"Show cart"</em>, <em>"What's in my bag?"</em></li>
+                      <li><strong>Clear cart</strong> — <em>"Clear my cart"</em>, <em>"Empty cart"</em>, <em>"Wipe my bag"</em></li>
+                    </ul>
+                  </div>
+
+                  <div className="axo-help-section">
+                    <h4>💛 Wishlist Actions</h4>
+                    <ul>
+                      <li><strong>Save to wishlist</strong> — <em>"Save Timeless Tee to wishlist"</em>, <em>"Add Phantom Cap to favorites"</em></li>
+                      <li><strong>Remove from wishlist</strong> — <em>"Remove Timeless Tee from wishlist"</em></li>
+                      <li><strong>Check wishlist</strong> — <em>"Show my wishlist"</em>, <em>"Check favorites"</em></li>
+                      <li><strong>Clear wishlist</strong> — <em>"Clear my wishlist"</em></li>
+                    </ul>
+                  </div>
+
+                  <div className="axo-help-section">
+                    <h4>📦 Bulk Operations</h4>
+                    <ul>
+                      <li><strong>Add all of a type</strong> — <em>"Add all Timeless items to cart M"</em>, <em>"Buy all caps"</em></li>
+                      <li><strong>Remove all of a type</strong> — <em>"Remove all caps from cart"</em>, <em>"Delete all hoodies"</em></li>
+                    </ul>
+                  </div>
+
+                  <div className="axo-help-section">
+                    <h4>🔢 Quantity Modifiers</h4>
+                    <ul>
+                      <li><strong>Double</strong> — <em>"Double my cart"</em></li>
+                      <li><strong>Halve</strong> — <em>"Half my cart"</em></li>
+                      <li><strong>Increase / Decrease</strong> — <em>"Increase cart by 2"</em>, <em>"Reduce cart by 1"</em></li>
+                      <li><strong>Keep only</strong> — <em>"Keep only Timeless items in cart"</em></li>
+                      <li><strong>Set exact sizes</strong> — <em>"Keep only XL sizes" → Cart</em>, <em>"Just M and L for each item"</em></li>
+                      <li><strong>Set exact qty</strong> — <em>"Set just 2 of each item" → Cart</em></li>
+                    </ul>
+                  </div>
+
+                  <div className="axo-help-section">
+                    <h4>❓ Questions &amp; Queries</h4>
+                    <ul>
+                      <li><strong>Total check</strong> — <em>"Is total above 5000"</em>, <em>"Is my cart below LKR 3000"</em></li>
+                      <li><strong>Item check</strong> — <em>"Did I buy Timeless Cap?"</em>, <em>"Are all caps in my cart?"</em></li>
+                      <li><strong>Product info</strong> — <em>"How much is Phantom Hoodie?"</em>, <em>"What color is Timeless Tee?"</em></li>
+                      <li><strong>Browse</strong> — <em>"Show me all tees"</em>, <em>"Show black items"</em>, <em>"Items under 3000"</em></li>
+                    </ul>
+                  </div>
+
+                  <div className="axo-help-section">
+                    <h4>ℹ️ General</h4>
+                    <ul>
+                      <li><strong>Shipping</strong> — <em>"How does shipping work?"</em></li>
+                      <li><strong>Returns</strong> — <em>"What's the return policy?"</em></li>
+                      <li><strong>Sizing</strong> — <em>"Size guide"</em>, <em>"How do your hoodies fit?"</em></li>
+                      <li><strong>Contact</strong> — <em>"Contact support"</em>, <em>"Help"</em></li>
+                      <li><strong>Cancel</strong> — <em>"Cancel"</em>, <em>"Never mind"</em> (cancels any pending prompt)</li>
+                    </ul>
+                  </div>
+
+                  <div className="axo-help-section">
+                    <h4>💡 Tips</h4>
+                    <ul>
+                      <li><strong>"buy/purchase/order"</strong> always implies <strong>cart</strong></li>
+                      <li><strong>"save/favorite"</strong> always implies <strong>wishlist</strong></li>
+                      <li><strong>"add/remove"</strong> without a target will prompt you to pick <strong>cart</strong> or <strong>wishlist</strong></li>
+                      <li>You can say sizes like <strong>S, M, L, XL, XXL</strong></li>
+                      <li>Brands: <strong>Timeless, Impossible, Phantom, Xenonix</strong></li>
+                      <li>Types: <strong>Tee, Hoodie, Cap</strong></li>
+                      <li>Currency: <strong>"LKR"</strong>, <strong>"Rs"</strong>, or <strong>"rupees"</strong> are all understood</li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="axo-chat-messages">
             {messages.map(m => (
-              <div key={m.id} className={`axo-msg axo-msg-${m.sender}`}>
-                {formatMessage(m.text)}
+              <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div className={`axo-msg axo-msg-${m.sender}`}>
+                  {formatMessage(m.text)}
+                </div>
+                {m.options && m.options.length > 0 && m.sender === 'bot' && (
+                  <div className="axo-msg-options">
+                    {m.options.map((opt, i) => (
+                      <button key={i} className="axo-msg-opt-btn" onClick={() => handleQuickAction(m.id, opt.action)} disabled={isTyping}>
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {isTyping && (
               <div className="axo-typing">
-                <div className="axo-dot"></div>
-                <div className="axo-dot"></div>
-                <div className="axo-dot"></div>
+                <div className="axo-dot"/><div className="axo-dot"/><div className="axo-dot"/>
               </div>
             )}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef}/>
           </div>
 
-          {/* Quick Options */}
           <div className="axo-chat-options-container" style={{ padding: '0 20px' }}>
-             <div className="axo-chat-options">
-               <button className="axo-opt-btn" onClick={() => handleQuickAction("Price of Timeless Cap")}>Timeless Cap</button>
-               <button className="axo-opt-btn" onClick={() => handleQuickAction("Tell me about Impossible Hoodie")}>Impossible Hoodie</button>
-               <button className="axo-opt-btn" onClick={() => handleQuickAction("Size Guide")}>Sizing</button>
-             </div>
+            <div className="axo-chat-options">
+              <button className="axo-opt-btn" onClick={() => handleQuickAction('fixed-opt', "Buy Timeless Cap")}>Buy Timeless Cap</button>
+              <button className="axo-opt-btn" onClick={() => handleQuickAction('fixed-opt', "Check my cart")}>Check Cart</button>
+              <button className="axo-opt-btn" onClick={() => handleQuickAction('fixed-opt', "Size Guide")}>Sizing</button>
+            </div>
           </div>
 
           <div className="axo-chat-input-row">
-            <input 
-              type="text" 
-              placeholder="Ask the concierge..." 
+            <input
+              type="text"
+              placeholder="Ask the concierge..."
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              onChange={e => setInputValue(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSend()}
+              disabled={isTyping}
             />
-            <button className="axo-chat-send" onClick={handleSend} disabled={!inputValue.trim()}>
+            <button className="axo-chat-send" onClick={handleSend} disabled={!inputValue.trim() || isTyping}>
               <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
           </div>

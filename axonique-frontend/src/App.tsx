@@ -31,6 +31,7 @@ import StaffSignInPage from './pages/StaffSignInPage';
 import WishlistPage from './pages/WishlistPage';
 import ContactPage from './pages/ContactPage';
 import AXOConcierge from './components/Chat/AXOConcierge';
+import ChatbotTestPage from './pages/ChatbotTestPage';
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
                     <Route path="/refund" element={<RefundPolicyPage />} />
                     <Route path="/terms" element={<TermsPage />} />
                     <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                    <Route path="/chatbot-test" element={<ChatbotTestPage />} />
                     <Route path="*" element={<HomePage />} />
                   </Routes>
                   <Footer />
