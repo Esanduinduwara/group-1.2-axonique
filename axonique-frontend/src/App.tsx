@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 
@@ -19,6 +20,7 @@ import ShippingPolicyPage from './pages/ShippingPolicyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import RetailerBulkOrderPage from './pages/RetailerBulkOrderPage';
 
 // Admin/Staff Pages
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -31,6 +33,7 @@ import StaffSignInPage from './pages/StaffSignInPage';
 import WishlistPage from './pages/WishlistPage';
 import ContactPage from './pages/ContactPage';
 import AXOConcierge from './components/Chat/AXOConcierge';
+import BulkOrderManagementPage from './pages/BulkOrderManagementPage';
 
 export default function App() {
   return (
@@ -57,6 +60,13 @@ export default function App() {
                     <Route path="/product/:id" element={<ProductPage />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/retailer/bulk-order" element={
+                      <ErrorBoundary>
+                        <ProtectedRoute requiredRoles={['RETAILER', 'ADMIN']}>
+                          <RetailerBulkOrderPage />
+                        </ProtectedRoute>
+                      </ErrorBoundary>
+                    } />
                     <Route path="/wishlist" element={<WishlistPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/shipping" element={<ShippingPolicyPage />} />
@@ -92,6 +102,14 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRoles={['ADMIN', 'STAFF']}>
                   <OrderManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/bulk-orders"
+              element={
+                <ProtectedRoute requiredRoles={['ADMIN', 'STAFF']}>
+                  <BulkOrderManagementPage />
                 </ProtectedRoute>
               }
             />

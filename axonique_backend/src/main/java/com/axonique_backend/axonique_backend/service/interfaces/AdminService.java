@@ -1,5 +1,7 @@
 package com.axonique_backend.axonique_backend.service.interfaces;
 
+import com.axonique_backend.axonique_backend.dto.request.CreateRetailerRequest;
+import com.axonique_backend.axonique_backend.dto.request.CreateStaffRequest;
 import com.axonique_backend.axonique_backend.dto.response.DashboardMetricsResponse;
 import com.axonique_backend.axonique_backend.dto.response.ProductResponse;
 import com.axonique_backend.axonique_backend.dto.response.UserSummaryResponse;
@@ -10,6 +12,10 @@ public interface AdminService {
     DashboardMetricsResponse getDashboardMetrics();
 
     List<UserSummaryResponse> getAllUsers();
+
+    UserSummaryResponse createRetailer(CreateRetailerRequest request);
+
+    UserSummaryResponse createStaff(CreateStaffRequest request);
 
     UserSummaryResponse updateUserRole(Long userId, String role);
 
