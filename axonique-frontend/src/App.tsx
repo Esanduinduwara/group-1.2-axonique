@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { BulkProvider } from './context/BulkContext';
 
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
@@ -39,7 +40,8 @@ export default function App() {
   return (
     <CartProvider>
       <WishlistProvider>
-        <BrowserRouter>
+        <BulkProvider>
+          <BrowserRouter>
           <Routes>
             {/* Public routes with Navbar + Footer */}
             <Route
@@ -142,7 +144,8 @@ export default function App() {
           </Routes>
           <AXOConcierge />
         </BrowserRouter>
-      </WishlistProvider>
-    </CartProvider>
+      </BulkProvider>
+    </WishlistProvider>
+  </CartProvider>
   );
 }

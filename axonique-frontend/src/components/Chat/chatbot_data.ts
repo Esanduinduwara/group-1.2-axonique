@@ -22,8 +22,16 @@ export const SYNONYMS: Record<string, string> = {
   'sweatshirt': 'hoodie',
   'bought': 'buy',
   'hoody': 'hoodie',
-  'caps': 'cap',
-  'tees': 'tee'
+   'caps': 'cap',
+  'tees': 'tee',
+  'wholesale': 'bulk',
+  'retailer': 'retail',
+  'business': 'retail',
+  'pay': 'checkout',
+  'finish': 'checkout',
+  'complete': 'checkout',
+  'brand': 'company',
+  'address': 'address'
 };
 
 export const PRODUCTS: ProductInfo[] = [

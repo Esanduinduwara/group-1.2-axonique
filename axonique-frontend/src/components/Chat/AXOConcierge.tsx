@@ -3,6 +3,7 @@ import './AXOConcierge.css';
 import { CHAT_DATA, GREETING_MESSAGE, SYNONYMS, PRODUCTS } from './chatbot_data';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useBulk, getBulkDiscount } from '../../context/BulkContext';
 import type { Product } from '../../types';
 
 interface MessageOption {
@@ -31,15 +32,20 @@ export default function AXOConcierge() {
 
   const cart     = useCart();
   const wishlist = useWishlist();
+  const bulk     = useBulk();
   const [realProducts, setRealProducts] = useState<Product[]>([]);
 
   const [pendingAction, setPendingAction] = useState<{
-    action: 'add_cart' | 'remove_cart' | 'add_wishlist' | 'remove_wishlist' | 'ambiguous' | 'confirm_add_all_cart' | 'confirm_add_all_wishlist' | 'confirm_clear_all_cart' | 'confirm_clear_all_wishlist';
+    action: 'add_cart' | 'remove_cart' | 'add_wishlist' | 'remove_wishlist' | 'ambiguous' | 
+            'confirm_add_all_cart' | 'confirm_add_all_wishlist' | 
+            'confirm_clear_all_cart' | 'confirm_clear_all_wishlist' | 'confirm_clear_bulk' |
+            'confirm_checkout_cart' | 'confirm_checkout_bulk' |
+            'set_company' | 'set_contact_person' | 'set_contact_email' | 'set_address' | 'set_notes';
     qty: number;
     collection: string | null;
     type: string | null;
     size: string | null;
-    originalQuery?: string; // To re-process the query with a known target
+    originalQuery?: string;
   } | null>(null);
 
   // Ref keeps pendingAction in sync for setTimeout closures (avoids stale reads)
@@ -180,6 +186,17 @@ export default function AXOConcierge() {
           const act = pendingActionRef.current.action;
           if (act === 'confirm_clear_all_cart') { cart.clearCart(); endResponse("Your cart has been cleared out entirely."); }
           else if (act === 'confirm_clear_all_wishlist') { wishlist.items.forEach(i => wishlist.removeItem(i.id)); endResponse("Your wishlist has been cleared out entirely."); }
+          else if (act === 'confirm_clear_bulk') { bulk.clearBulk(); endResponse("Your bulk order has been cleared out entirely."); }
+          else if (act === 'confirm_checkout_cart') { 
+            if (cart.items.length === 0) endResponse("Your cart is empty! Add some items before checking out.");
+            else { endResponse("Checkout successful! Thank you for shopping with AxoNique."); cart.clearCart(); }
+          }
+          else if (act === 'confirm_checkout_bulk') {
+            const missing = !bulk.info.companyName || !bulk.info.contactPerson || !bulk.info.contactEmail || !bulk.info.deliveryAddress;
+            if (bulk.items.length === 0) endResponse("Your bulk order is empty!");
+            else if (missing) endResponse("Please provide all required retailer information before checking out. Use 'Update business info' to start.");
+            else { endResponse("Bulk order submitted successfully! Our team will contact you shortly."); bulk.clearBulk(); }
+          }
           else if (act === 'confirm_add_all_cart') {
              PRODUCTS.forEach(p => { const rp = getRealProduct(p); if (rp) execRaw('add_cart', rp, 1, rp.sizes?.includes('M') ? 'M' : 'One Size'); });
              endResponse("Added one of every item to your cart!");
@@ -204,15 +221,19 @@ export default function AXOConcierge() {
       // ── SIGNAL EXTRACTION ───────────────────────────────────────────────
       const isCart      = terms.some(t => ['cart', 'bag', 'basket'].includes(t));
       const isWishlist  = terms.some(t => ['wishlist', 'favorites', 'favourite', 'favorite', 'save', 'saved'].includes(t));
+      const isBulk      = terms.some(t => ['bulk', 'retail', 'wholesale'].includes(t));
       const targetCart  = isCart || terms.some(t => ['buy', 'purchase', 'order', 'checkout', 'cop'].includes(t));
       const targetWL    = isWishlist || terms.some(t => ['save', 'favorite', 'wish'].includes(t));
-      const targetBoth  = targetCart || targetWL;
+      const targetBulk  = isBulk;
+      const targetBoth  = targetCart || targetWL || targetBulk;
 
-      const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop'].includes(t));
+      const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place', 'set'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop', 'pay', 'finish'].includes(t));
       const isRemoveVerb = terms.some(t => ['remove', 'delete', 'drop', 'take', 'ditch', 'dump'].includes(t));
       const isClearVerb  = terms.some(t => ['clear', 'empty', 'wipe', 'reset', 'nuke'].includes(t));
       const isKeepVerb   = terms.some(t => ['keep', 'just', 'only', 'leave'].includes(t));
       const isCheckVerb  = terms.some(t => ['check', 'list', 'show', 'view', 'display', 'see'].includes(t));
+      const isCheckout   = terms.some(t => ['checkout', 'buy', 'purchase', 'order', 'pay', 'finish'].includes(t));
+      const isInfoVerb   = terms.some(t => ['detail', 'info', 'information', 'profile', 'business', 'retailer', 'company'].includes(t));
       const isModVerb    = isKeepVerb || terms.some(t => ['double', 'half', 'increase', 'reduce', 'decrease', 'halve'].includes(t));
       const isQAVerb     = ['is', 'are', 'did', 'have', 'was', 'how'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
       const isAll        = terms.some(t => ['all', 'every', 'each', 'everything'].includes(t));
@@ -242,7 +263,7 @@ export default function AXOConcierge() {
       const hasProductFilters = mCollections.length > 0 || mTypes.length > 0 || mColors.length > 0 || mSizes.length > 0 || priceNum1 !== null;
 
       // Ambiguous target branch before anything else!
-      if (!targetCart && !targetWL && (isAddVerb || isRemoveVerb || isClearVerb || isModVerb)) {
+      if (!targetCart && !targetWL && !targetBulk && (isAddVerb || isRemoveVerb || isClearVerb || isModVerb)) {
         updatePending({ action: 'ambiguous', qty, collection: mCollections[0]||null, type: mTypes[0]||null, size: mSizes[0]||null, originalQuery: userInput });
         endResponse("Did you mean to apply this to your **cart** or **wishlist**?", [{ label: 'Cart', action: `Cart ${userInput}` }, { label: 'Wishlist', action: `Wishlist ${userInput}` }]);
         return;
@@ -310,6 +331,16 @@ export default function AXOConcierge() {
           return;
         }
 
+        if (activePendingAction.action === 'set_company' || activePendingAction.action === 'set_contact_person' || activePendingAction.action === 'set_contact_email' || activePendingAction.action === 'set_address' || activePendingAction.action === 'set_notes') {
+            const val = userInput;
+            if (activePendingAction.action === 'set_company') { bulk.setInfo({ companyName: val }); updatePending({ ...activePendingAction, action: 'set_contact_person' }); endResponse(`Company set to **${val}**. Now, who is the **Contact Person**?`); }
+            else if (activePendingAction.action === 'set_contact_person') { bulk.setInfo({ contactPerson: val }); updatePending({ ...activePendingAction, action: 'set_contact_email' }); endResponse(`Contact person set to **${val}**. What is the **Email address**?`); }
+            else if (activePendingAction.action === 'set_contact_email') { bulk.setInfo({ contactEmail: val }); updatePending({ ...activePendingAction, action: 'set_address' }); endResponse(`Email set to **${val}**. Where should we send the items? (**Delivery Address**)`); }
+            else if (activePendingAction.action === 'set_address') { bulk.setInfo({ deliveryAddress: val }); updatePending({ ...activePendingAction, action: 'set_notes' }); endResponse(`Address set. Any **Special Notes** or delivery instructions? (Say "none" if N/A)`); }
+            else if (activePendingAction.action === 'set_notes') { bulk.setInfo({ notes: val.toLowerCase()==='none' ? '' : val }); updatePending(null); endResponse("Got it! Your retailer profile is updated and ready."); }
+            return;
+        }
+
         const coll = activePendingAction.collection || mCollections[0] || null;
         const type = activePendingAction.type || mTypes[0] || null;
 
@@ -342,6 +373,97 @@ export default function AXOConcierge() {
         execSingle(activePendingAction.action, realProduct, activePendingAction.qty, needsSize ? (size || 'M') : 'One Size');
         updatePending(null);
         log("Completed pending action"); finalLog(); return;
+      }
+
+      // ── BULK / RETAIL BRANCH ───────────────────────────────────────────
+      if (targetBulk) {
+        branch = "Bulk Order";
+        
+        // Retailer Info Sub-branch
+        if (isInfoVerb || terms.includes('profile')) {
+          if (isClearVerb) {
+            bulk.setInfo({ companyName: '', contactPerson: '', contactEmail: '', deliveryAddress: '', notes: '' });
+            endResponse("Your retailer information has been cleared.");
+          } else if (isAddVerb || terms.includes('update') || terms.includes('change') || terms.includes('edit')) {
+            updatePending({ action: 'set_company', qty: 1, collection: null, type: null, size: null });
+            endResponse("Let's update your business details. First, what is your **Company / Brand Name**?");
+          } else {
+            const i = bulk.info;
+            const infoText = i.companyName 
+              ? `Retailer Info:\n- **Company:** ${i.companyName}\n- **Person:** ${i.contactPerson}\n- **Email:** ${i.contactEmail}\n- **Address:** ${i.deliveryAddress}\n- **Notes:** ${i.notes || 'None'}`
+              : "No business information found. Say 'Update business info' to set it up.";
+            endResponse(infoText);
+          }
+          log("Bulk: Managed retailer info"); finalLog(); return;
+        }
+
+        // Checkout Bulk
+        if (isCheckout) {
+          updatePending({ action: 'confirm_checkout_bulk', qty: 1, collection: null, type: null, size: null });
+          endResponse("Are you ready to submit this bulk order?", [{label: 'Yes, Submit', action: 'Yes'}, {label: 'No', action: 'No'}]);
+          log("Bulk: Checkout confirmation prompt"); finalLog(); return;
+        }
+
+        // Help / Total / Discount
+        if (isCheckVerb || terms.includes('total') || terms.includes('discount') || terms.includes('cost')) {
+          if (terms.includes('discount')) {
+            const disc = getBulkDiscount(bulk.totalQty);
+            endResponse(`Because you have **${bulk.totalQty}** items in total, you get a **${disc.pct}%** discount which amounts to **LKR ${bulk.discountAmt}**`);
+          } else {
+            if (bulk.items.length === 0) endResponse("Your bulk order is currently empty.");
+            else endResponse(`Bulk Order Total:\n- Subtotal: LKR ${bulk.subtotal}\n- Discount: LKR ${bulk.discountAmt} (${getBulkDiscount(bulk.totalQty).pct}%)\n**Grand Total: LKR ${bulk.grandTotal}**`);
+          }
+          log("Bulk: Checked total/discount"); finalLog(); return;
+        }
+
+        // Clear Bulk
+        if (isClearVerb || (isRemoveVerb && isAll && !hasProductFilters)) {
+          updatePending({ action: 'confirm_clear_bulk', qty: 1, collection: null, type: null, size: null });
+          endResponse("Delete your **entire bulk order**? This cannot be undone.", [{label: 'Yes, Clear', action: 'Yes'}, {label: 'No, Keep it', action: 'No'}]);
+          log("Bulk: Clear confirmation prompt"); finalLog(); return;
+        }
+
+        // Double / Half / More / Less
+        if (isModVerb) {
+          if (terms.includes('double')) {
+            bulk.items.forEach(i => bulk.changeQty(i.product.id, i.size, i.qty * 2));
+            endResponse("Bulk order quantities doubled!");
+          } else if (terms.includes('half')) {
+            bulk.items.forEach(i => bulk.changeQty(i.product.id, i.size, Math.floor(i.qty / 2)));
+            endResponse("Bulk order quantities halved!");
+          } else if (terms.some(t => ['more', 'increase'].includes(t))) {
+             bulk.items.forEach(i => bulk.changeQty(i.product.id, i.size, i.qty + qty));
+             endResponse(`Added ${qty} more of each item in bulk!`);
+          } else if (terms.some(t => ['less', 'reduce', 'remove'].includes(t))) {
+             bulk.items.forEach(i => bulk.changeQty(i.product.id, i.size, i.qty - qty));
+             endResponse(`Reduced each item in bulk by ${qty}.`);
+          }
+          log("Bulk: Modifiers applied"); finalLog(); return;
+        }
+
+        // Add to Bulk
+        if (isAddVerb) {
+          if (mCollections.length > 0 && mTypes.length > 0) {
+            const matchP = PRODUCTS.find(p => p.collection.toLowerCase() === mCollections[0] && p.type.toLowerCase() === mTypes[0]);
+            const realP = matchP ? getRealProduct(matchP) : null;
+            if (!realP) { endResponse(`I couldn't find a **${mCollections[0]} ${mTypes[0]}**.`); log("Bulk: Not found"); finalLog(); return; }
+            
+            let size = mSizes[0];
+            const needsSize = !realP.sizes?.includes('One Size') && realP.category !== 'Caps';
+            if (needsSize && !size) {
+               updatePending({ action: 'ambiguous' as any, qty, collection: mCollections[0], type: mTypes[0], size: null, originalQuery: userInput }); // Using ambiguous as a generic prompt state
+               endResponse(`What size for the bulk **${realP.name}**?`, realP.sizes.map(s => ({ label: s, action: s })));
+               log("Bulk: Asking size"); finalLog(); return;
+            }
+            const finalSize = needsSize ? size : 'One Size';
+            bulk.addItem(realP, finalSize, qty);
+            endResponse(`Added ${qty} **${realP.name}** (${finalSize}) to your bulk order!`);
+            log("Bulk: Added item"); finalLog(); return;
+          }
+        }
+
+        endResponse("For bulk orders, you can say things like 'Buy in bulk 40 Phantom Tees L', 'Clear bulk order', 'What is my bulk total', or 'Double bulk'.");
+        log("Bulk: Help displayed"); finalLog(); return;
       }
 
       // Branch 2: Action
@@ -377,6 +499,13 @@ export default function AXOConcierge() {
             else endResponse(`Your Wishlist:\n${wishlist.items.map(i => `• **${i.name}** — LKR ${i.price}`).join('\n')}`);
           }
           log(`Checked ${target}`); finalLog(); return;
+        }
+
+        // Checkout Cart
+        if (isCheckout && target === 'cart') {
+          updatePending({ action: 'confirm_checkout_cart', qty: 1, collection: null, type: null, size: null });
+          endResponse("Ready to place your order?", [{label: 'Yes, Checkout', action: 'Yes'}, {label: 'No', action: 'No'}]);
+          log("Cart: Checkout confirmation prompt"); finalLog(); return;
         }
 
         // Q&A Logic (Is total... Do I have...)
@@ -432,19 +561,9 @@ export default function AXOConcierge() {
         if (isAll || isClearVerb || (isRemoveVerb && hasProductFilters && mCollections.length === 0 && mTypes.length > 0)) {
           if (!hasProductFilters) {
             if (isClearVerb || isRemoveVerb) {
-               const clearTerms = ['clear', 'empty', 'wipe', 'reset', 'nuke', 'all', 'whole', 'entire', 'cart', 'bag', 'basket', 'wishlist', 'favorite', 'favourite', 'save', 'saved', 'my', 'the', 'item', 'from'];
-               const isPureClear = isClearVerb && terms.every(t => clearTerms.includes(t));
-               
-               if (isPureClear) {
-                  if (target === 'cart') cart.clearCart(); 
-                  else wishlist.items.forEach(i => wishlist.removeItem(i.id));
-                  endResponse(`Your ${target} has been cleared out entirely.`);
-                  log(`Pure clear ${target} bypass`); finalLog(); return;
-               }
-
-               updatePending({ action: `confirm_clear_all_${target}` as any, qty, collection: null, type: null, size: null });
-               endResponse(`Do you want to clear your ${target} out entirely?`, [{label: 'Yes', action: 'Yes'}, {label: 'No', action: 'No'}]);
-               log(`Confirming clear all ${target}`); finalLog(); return;
+                updatePending({ action: `confirm_clear_all_${target}` as any, qty, collection: null, type: null, size: null });
+                endResponse(`Are you sure you want to clear your **entire ${target}**?`, [{label: 'Yes, Clear it', action: 'Yes'}, {label: 'No, Keep it', action: 'No'}]);
+                log(`Confirming clear all ${target}`); finalLog(); return;
             }
             if (isAddVerb) {
                updatePending({ action: `confirm_add_all_${target}` as any, qty, collection: null, type: null, size: null });
@@ -609,10 +728,14 @@ export default function AXOConcierge() {
                   </div>
 
                   <div className="axo-help-section">
-                    <h4>📦 Bulk Operations</h4>
+                    <h4>📦 Bulk & Retail Orders</h4>
                     <ul>
-                      <li><strong>Add all of a type</strong> — <em>"Add all Timeless items to cart M"</em>, <em>"Buy all caps"</em></li>
-                      <li><strong>Remove all of a type</strong> — <em>"Remove all caps from cart"</em>, <em>"Delete all hoodies"</em></li>
+                      <li><strong>Bulk add</strong> — <em>"Buy in bulk 40 Phantom Tees L"</em>, <em>"Add 100 Timeless Caps to retail order"</em></li>
+                      <li><strong>Business Profile</strong> — <em>"Update business info"</em>, <em>"Show retailer details"</em>, <em>"Clear business profile"</em></li>
+                      <li><strong>Checkout</strong> — <em>"Checkout bulk order"</em>, <em>"Finish and pay"</em></li>
+                      <li><strong>Modify bulk</strong> — <em>"Double bulk order"</em>, <em>"Add 10 more of each item in bulk"</em></li>
+                      <li><strong>Bulk info</strong> — <em>"What is my bulk discount?"</em></li>
+                      <li><strong>Clear bulk</strong> — <em>"Clear bulk order"</em></li>
                     </ul>
                   </div>
 
