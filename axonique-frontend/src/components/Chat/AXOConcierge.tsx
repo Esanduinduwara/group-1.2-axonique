@@ -4,6 +4,7 @@ import { CHAT_DATA, GREETING_MESSAGE, SYNONYMS, PRODUCTS } from './chatbot_data'
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useBulk, getBulkDiscount } from '../../context/BulkContext';
+import { authService } from '../../services/authService';
 import type { Product } from '../../types';
 
 interface MessageOption {
@@ -40,12 +41,14 @@ export default function AXOConcierge() {
             'confirm_add_all_cart' | 'confirm_add_all_wishlist' | 
             'confirm_clear_all_cart' | 'confirm_clear_all_wishlist' | 'confirm_clear_bulk' |
             'confirm_checkout_cart' | 'confirm_checkout_bulk' |
-            'set_company' | 'set_contact_person' | 'set_contact_email' | 'set_address' | 'set_notes';
+            'set_company' | 'set_contact_person' | 'set_contact_email' | 'set_address' | 'set_notes' |
+            'create_staff_username' | 'create_staff_email' | 'create_staff_password' | 'confirm_create_staff' | 'confirm_restock';
     qty: number;
     collection: string | null;
     type: string | null;
     size: string | null;
     originalQuery?: string;
+    payload?: any;
   } | null>(null);
 
   // Ref keeps pendingAction in sync for setTimeout closures (avoids stale reads)
@@ -153,7 +156,7 @@ export default function AXOConcierge() {
 
   // ─────────────── main NLP entry point ───────────────────────────────────
 
-  const processResponse = (userInput: string) => {
+  const processResponse = async (userInput: string) => {
     setIsTyping(true);
 
     // Normalise: currency synonyms, strip punctuation
@@ -205,6 +208,41 @@ export default function AXOConcierge() {
              PRODUCTS.forEach(p => { const rp = getRealProduct(p); if (rp) execRaw('add_wishlist', rp, 1, 'One Size'); });
              endResponse("Added one of every item to your wishlist!");
           }
+          else if (act === 'confirm_create_staff') {
+             const { username, email, password } = pendingActionRef.current.payload;
+             const head = authService.getAuthHeader();
+             const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+             try {
+                const res = await fetch(`${API_URL}/api/admin/staff`, {
+                   method: 'POST', headers: { ...head, 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ username, email, password })
+                });
+                const data = await res.json();
+                if (data.success || res.ok) endResponse(`Success! Staff member '${username}' has been created.`);
+                else endResponse(`Failed to create staff member: ${data.message || 'Unknown error'}`);
+             } catch (e) {
+                endResponse("Network error while creating user.");
+             }
+          }
+          else if (act === 'confirm_restock') {
+             const { productId, name, newAmount } = pendingActionRef.current.payload;
+             const head = authService.getAuthHeader();
+             const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+             try {
+                const pRes = await fetch(`${API_URL}/api/products/${productId}`);
+                const pData = await pRes.json();
+                if (pData.data) {
+                    const existingProduct = pData.data;
+                    existingProduct.stockQuantity = (existingProduct.stockQuantity || 0) + newAmount;
+                    const res = await fetch(`${API_URL}/api/products/${productId}`, {
+                       method: 'PUT', headers: { ...head, 'Content-Type': 'application/json' },
+                       body: JSON.stringify(existingProduct)
+                    });
+                    if (res.ok) endResponse(`Success! Restocked ${newAmount} units of '${name}'.`);
+                    else endResponse(`Failed to restock '${name}'.`);
+                } else endResponse("Product not found on server.");
+             } catch (e) { endResponse("Network error."); }
+          }
           updatePending(null);
           return;
         }
@@ -219,24 +257,58 @@ export default function AXOConcierge() {
       }
 
       // ── SIGNAL EXTRACTION ───────────────────────────────────────────────
-      const isCart      = terms.some(t => ['cart', 'bag', 'basket'].includes(t));
-      const isWishlist  = terms.some(t => ['wishlist', 'favorites', 'favourite', 'favorite', 'save', 'saved'].includes(t));
-      const isBulk      = terms.some(t => ['bulk', 'retail', 'wholesale'].includes(t));
-      const targetCart  = isCart || terms.some(t => ['buy', 'purchase', 'order', 'checkout', 'cop'].includes(t));
-      const targetWL    = isWishlist || terms.some(t => ['save', 'favorite', 'wish'].includes(t));
-      const targetBulk  = isBulk;
-      const targetBoth  = targetCart || targetWL || targetBulk;
+      const actsCart      = terms.some(t => ['cart', 'bag', 'basket'].includes(t));
+      const actsWL        = terms.some(t => ['wishlist', 'favorites', 'favourite', 'favorite', 'save', 'saved'].includes(t));
+      const actsBulk      = terms.some(t => ['bulk', 'retail', 'wholesale'].includes(t));
+      const actsInv       = terms.some(t => ['inventory', 'restock', 'restocking', 'stock', 'stocklevel', 'threshold', 'qty', 'amount'].includes(t));
+      const actsStaff     = terms.some(t => ['staff', 'worker', 'member', 'admin', 'registration', 'registrations', 'registered', 'user', 'users'].includes(t));
+      const actsMetrics   = terms.some(t => ['report', 'revenue', 'profit', 'metric', 'overview', 'system', 'maintenance', 'activity', 'pending', 'dispatch', 'latest'].includes(t)) || actsStaff;
 
-      const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place', 'set'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop', 'pay', 'finish'].includes(t));
+      const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place', 'set', 'create'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop', 'pay', 'finish', 'restock'].includes(t));
       const isRemoveVerb = terms.some(t => ['remove', 'delete', 'drop', 'take', 'ditch', 'dump'].includes(t));
       const isClearVerb  = terms.some(t => ['clear', 'empty', 'wipe', 'reset', 'nuke'].includes(t));
       const isKeepVerb   = terms.some(t => ['keep', 'just', 'only', 'leave'].includes(t));
-      const isCheckVerb  = terms.some(t => ['check', 'list', 'show', 'view', 'display', 'see'].includes(t));
+      const isCheckVerb  = terms.some(t => ['check', 'list', 'show', 'view', 'display', 'see'].includes(t)) || ['is', 'are', 'did', 'have', 'was', 'how', 'what', 'who'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
       const isCheckout   = terms.some(t => ['checkout', 'buy', 'purchase', 'order', 'pay', 'finish'].includes(t));
       const isInfoVerb   = terms.some(t => ['detail', 'info', 'information', 'profile', 'business', 'retailer', 'company'].includes(t));
-      const isModVerb    = isKeepVerb || terms.some(t => ['double', 'half', 'increase', 'reduce', 'decrease', 'halve'].includes(t));
+      const isModVerb    = isKeepVerb || terms.some(t => ['double', 'half', 'increase', 'reduce', 'decrease', 'halve', 'update'].includes(t));
       const isQAVerb     = ['is', 'are', 'did', 'have', 'was', 'how'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
       const isAll        = terms.some(t => ['all', 'every', 'each', 'everything'].includes(t));
+
+      // Check strict structural branches
+      let resolvedTargets: string[] = [];
+      if (actsCart || terms.some(t => ['buy', 'purchase', 'checkout', 'cop', 'pay'].includes(t))) resolvedTargets.push('Cart');
+      if (actsWL || terms.some(t => ['save', 'favorite', 'wish'].includes(t))) resolvedTargets.push('Wishlist');
+      if (actsBulk || terms.some(t => ['business', 'retailer', 'company'].includes(t))) resolvedTargets.push('Bulk');
+      if (actsInv || (isAddVerb && terms.some(t=>['restock'].includes(t)))) resolvedTargets.push('Inventory');
+      if (actsStaff) resolvedTargets.push('Staff');
+
+      // Expand implicit collisions ("buy in bulk" -> Cart + Bulk -> Bulk overrides Cart locally)
+      if (resolvedTargets.includes('Cart') && resolvedTargets.includes('Bulk')) {
+          resolvedTargets = resolvedTargets.filter(t => t !== 'Cart');
+      }
+
+      // Security role check
+      const role = authService.getRole() || 'CUSTOMER';
+      const isStaffUser = role === 'STAFF' || role === 'ADMIN';
+      const isAdminUser = role === 'ADMIN';
+
+      // 1) Verify structural logic: Reject ambiguous multi-targets
+      if (resolvedTargets.length > 1) {
+          if ((isStaffUser) && (resolvedTargets.includes('Inventory') || resolvedTargets.includes('Staff'))) {
+              endResponse(`Your query is ambiguous because it refers to multiple discrete operations (${resolvedTargets.join(' and ')}). Please pick one branch at a time.`);
+              return;
+          } else if (resolvedTargets.includes('Staff') || resolvedTargets.includes('Inventory')) {
+              // Hide from standard customers
+              endResponse("I couldn't clearly map your query to a standard shopping action. Are you talking about your Cart or Wishlist?");
+              return;
+          } else {
+              endResponse(`Your query is combining commands for your ${resolvedTargets.join(' and ')}. Please separate your requests!`);
+              return;
+          }
+      }
+
+      const activeTarget = resolvedTargets[0] || null;
 
       const mCollections = terms.filter(t => PRODUCTS.some(p => p.collection.toLowerCase() === t));
       const mTypes       = Array.from(new Set(terms.filter(t => PRODUCTS.some(p => p.type.toLowerCase() === t))));
@@ -244,9 +316,7 @@ export default function AXOConcierge() {
       let mSizes       = rawTokens.filter(t => SIZE_TOKENS.includes(t.toLowerCase())).map(t => t.toUpperCase());
 
       // Size rules for Caps
-      if (mTypes.includes('cap') || mTypes.includes('hat')) {
-        mSizes = [];
-      }
+      if (mTypes.includes('cap') || mTypes.includes('hat')) { mSizes = []; }
 
       // Price / Qty parsing
       const allNums = rawTokens.map(t => parseInt(t)).filter(n => !isNaN(n));
@@ -262,17 +332,170 @@ export default function AXOConcierge() {
       const filteredProducts = applyFilters(mCollections, mTypes, mColors, priceNum1, priceDir, priceNum2);
       const hasProductFilters = mCollections.length > 0 || mTypes.length > 0 || mColors.length > 0 || mSizes.length > 0 || priceNum1 !== null;
 
-      // Ambiguous target branch before anything else!
-      if (!targetCart && !targetWL && !targetBulk && (isAddVerb || isRemoveVerb || isClearVerb || isModVerb)) {
-        updatePending({ action: 'ambiguous', qty, collection: mCollections[0]||null, type: mTypes[0]||null, size: mSizes[0]||null, originalQuery: userInput });
-        endResponse("Did you mean to apply this to your **cart** or **wishlist**?", [{ label: 'Cart', action: `Cart ${userInput}` }, { label: 'Wishlist', action: `Wishlist ${userInput}` }]);
-        return;
+      // 2) Unrecognized Target Prompting (Replacing old "Ambiguous target branch before anything else")
+      if (!activeTarget && !actsMetrics && (isAddVerb || isRemoveVerb || isClearVerb || isModVerb)) {
+          const options = [
+             { label: 'Cart', action: `Cart ${userInput}` },
+             { label: 'Wishlist', action: `Wishlist ${userInput}` }
+          ];
+          if (isStaffUser) options.push({ label: 'Inventory', action: `Inventory ${userInput}` });
+          if ((isAdminUser) && isAddVerb) options.push({ label: 'Staff', action: `Staff ${userInput}` });
+          
+          updatePending({ action: 'ambiguous', qty, collection: mCollections[0]||null, type: mTypes[0]||null, size: mSizes[0]||null, originalQuery: userInput, payload: null });
+          endResponse("Where should I apply this action?", options);
+          return;
       }
+
+      // Map strict targets to execution variables
+      const targetCart = activeTarget === 'Cart';
+      const targetWL   = activeTarget === 'Wishlist';
+      const targetBulk = activeTarget === 'Bulk';
+      const targetBoth = targetCart || targetWL || targetBulk;
+
+      const isStaffReq = activeTarget === 'Inventory' || actsMetrics;
+      const isAdminReq = activeTarget === 'Staff' || terms.some(t => ['report', 'revenue', 'maintenance', 'restart', 'system', 'systemstatus', 'profit', 'admin', 'metric', 'overview'].includes(t));
 
       // ── BRANCH RESOLUTION ────────────────────────────────────────────────
       let branch = "3) Unknown";
       let subBranch = "N/A";
       let logOutput = "";
+
+      // Logging Utility
+      const log = (msg: string) => { logOutput = msg; };
+      const finalLog = () => {
+        console.group(`%c AXO CONCIERGE NLP `, 'background:#111; color:#0f0; padding:2px 5px; border-radius:3px;');
+        console.log(`%cPROMPT:%c "${userInput}"`, 'font-weight:bold; color:#aaa', 'color:#fff');
+        console.log(`%cKEYWORDS:%c ${terms.join(', ')}`, 'font-weight:bold; color:#aaa', 'color:#0ff');
+        console.log(`%cBRANCH:%c ${branch} -> ${subBranch}`, 'font-weight:bold; color:#aaa', 'color:#f0f');
+        console.log(`%cCONDITIONS:%c filters:${hasProductFilters}, all:${isAll}, cart:${targetCart}, wl:${targetWL}`, 'font-weight:bold; color:#aaa', 'color:#ff0');
+        console.log(`%cOUTPUT:%c ${logOutput}`, 'font-weight:bold; color:#aaa', 'color:#fff');
+        console.groupEnd();
+      };
+
+      // ── ADMIN / STAFF BRANCHES ───────────────────────────────────────────
+
+      if (isAdminReq || (isAdminUser && actsMetrics)) {
+          if (isAdminUser) {
+             branch = "Admin Action";
+             try {
+                const head = authService.getAuthHeader();
+                const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+                
+                if (terms.includes('revenue')) {
+                    const r = await fetch(`${API_URL}/api/admin/dashboard/metrics`, { headers: head }).then(d=>d.json());
+                    endResponse(`Admin: Total revenue is LKR ${r.data?.totalRevenue?.toLocaleString() || 0}.`);
+                    log(branch); finalLog(); return;
+                } else if (terms.includes('profit')) {
+                    const r = await fetch(`${API_URL}/api/admin/dashboard/metrics`, { headers: head }).then(d=>d.json());
+                    endResponse(`Admin: Estimated profit is LKR ${r.data?.estimatedProfit?.toLocaleString() || 0}.`);
+                    log(branch); finalLog(); return;
+                } else if ((terms.includes('add') || terms.includes('create')) && terms.includes('staff')) {
+                    updatePending({ action: 'create_staff_username', qty: 0, collection: null, type: null, size: null, payload: {} });
+                    endResponse("Let's create a new staff account. What should the username be?");
+                    log(branch); finalLog(); return;
+                } else if (terms.includes('staff') || terms.includes('users') || terms.includes('active') || terms.includes('registration') || terms.includes('registrations')) {
+                    const r = await fetch(`${API_URL}/api/admin/users`, { headers: head }).then(d=>d.json());
+                    const allUsers = r.data || [];
+                    const counts = allUsers.reduce((acc: any, u: any) => {
+                        acc[u.role] = (acc[u.role] || 0) + 1;
+                        return acc;
+                    }, {});
+                    const now = Date.now();
+                    const newLast24 = allUsers.filter((u: any) => u.createdAt && (now - new Date(u.createdAt).getTime()) < 24 * 60 * 60 * 1000).length;
+                    
+                    const roleBreakdown = `\n• Customers: ${counts['CUSTOMER'] || 0}\n• Staff: ${counts['STAFF'] || 0}\n• Admin: ${counts['ADMIN'] || 0}\n• Retailers: ${counts['RETAILER'] || 0}\n\nTotal Users: ${allUsers.length}\nNew Users (Past 24h): ${newLast24}`;
+                    endResponse(`Admin Hub — User Metrics:${roleBreakdown}`);
+                    log(branch); finalLog(); return;
+                } else if (terms.includes('metric') || terms.includes('overview') || terms.includes('products')) {
+                    const r = await fetch(`${API_URL}/api/admin/dashboard/metrics`, { headers: head }).then(d=>d.json());
+                    endResponse(`Admin Metrics: ${r.data?.totalOrders || 0} total orders, ${r.data?.totalBulkOrders || 0} bulk orders. Total products in catalog: ${r.data?.totalProducts || 0}.`);
+                    log(branch); finalLog(); return;
+                }
+                // Fallthrough to staff checks for admins if no specific admin keyword matched
+             } catch (e) {
+                endResponse("Admin: Network error fetching data.");
+                log(branch); finalLog(); return;
+             }
+          }
+      }
+
+      if (isStaffReq || (isStaffUser && actsMetrics)) {
+          if (isStaffUser) {
+             branch = "Staff Action";
+             try {
+                const head = authService.getAuthHeader();
+                const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+                
+                if (terms.includes('restock') || terms.includes('update')) {
+                     if (mCollections.length > 0 && mTypes.length > 0) {
+                         const match = realProducts.find(p => p.name.toLowerCase().includes(mCollections[0].toLowerCase()) && p.name.toLowerCase().includes(mTypes[0].toLowerCase()));
+                         if (match) {
+                             const addAmt = qty > 1 ? qty : 50;
+                             updatePending({ action: 'confirm_restock', qty: 0, collection: null, type: null, size: null, payload: { productId: match.id, name: match.name, newAmount: addAmt } });
+                             endResponse(`Critical Action: Are you sure you want to securely restock +${addAmt} units of '${match.name}'? (yes/no)`, [
+                                 { label: 'Yes', action: 'yes' }, { label: 'No', action: 'no' }
+                             ]);
+                             log(branch); finalLog(); return;
+                         }
+                     }
+                }
+                
+                if (terms.includes('stock') || terms.includes('inventory') || terms.includes('levels') || terms.includes('alert') || terms.includes('threshold') || terms.includes('healthy') || terms.includes('restocking')) {
+                     const r = await fetch(`${API_URL}/api/staff/low-stock`, { headers: head }).then(d=>d.json());
+                     const ls = r.data || [];
+                     if (ls.length === 0) endResponse("Staff: Inventory levels are healthy! No items below threshold.");
+                     else endResponse(`Staff: Warning! ${ls.length} items are low on stock. For example: '${ls[0]?.name}' only has ${ls[0]?.stockQuantity} units left.`);
+                } else if (terms.includes('registrations') || terms.includes('registered') || terms.includes('user') || terms.includes('signup')) {
+                     const r = await fetch(`${API_URL}/api/staff/activity`, { headers: head }).then(d=>d.json());
+                     const reg = r.data?.recentRegistrations || [];
+                     
+                     // Try to get full counts if allowed (admin role check)
+                     let roleBreakdown = "";
+                     try {
+                         const ur = await fetch(`${API_URL}/api/admin/users`, { headers: head }).then(d=>d.json());
+                         const allUsers = ur.data || [];
+                         if (Array.isArray(allUsers)) {
+                             const counts = allUsers.reduce((acc: any, u: any) => {
+                                 acc[u.role] = (acc[u.role] || 0) + 1;
+                                 return acc;
+                             }, {});
+                             const now = Date.now();
+                             const newLast24 = allUsers.filter((u: any) => u.createdAt && (now - new Date(u.createdAt).getTime()) < 24 * 60 * 60 * 1000).length;
+                             
+                             roleBreakdown = `\n• Customers: ${counts['CUSTOMER'] || 0}\n• Staff: ${counts['STAFF'] || 0}\n• Admin: ${counts['ADMIN'] || 0}\n• Retailers: ${counts['RETAILER'] || 0}\n\nTotal Users: ${allUsers.length}\nNew Users (Past 24h): ${newLast24}`;
+                         }
+                     } catch (e) {}
+
+                     if (roleBreakdown) {
+                         endResponse(`Staff Hub — User Metrics:${roleBreakdown}`);
+                     } else {
+                         if (reg.length === 0) endResponse("Staff: No recent registrations found in the activity log.");
+                         else {
+                             const names = reg.slice(0, 3).map((u:any) => u.username).join(', ');
+                             endResponse(`Staff: Found ${reg.length} recent registrations. Latest users: ${names}.`);
+                         }
+                     }
+                } else if (terms.includes('pending') || terms.includes('dispatch') || terms.includes('order')) {
+                     const r = await fetch(`${API_URL}/api/staff/activity`, { headers: head }).then(d=>d.json());
+                     const orders = r.data?.recentOrders || [];
+                     const pending = orders.filter((o:any)=>o.status==='PENDING').length;
+                     endResponse(`Staff: There are exactly ${pending} retail orders pending dispatch right now out of ${orders.length} recent orders.`);
+                } else if (terms.includes('bulk') || terms.includes('total') || terms.includes('count')) {
+                     const r = await fetch(`${API_URL}/api/admin/dashboard/metrics`, { headers: head }).then(d=>d.json());
+                     endResponse(`Staff: We have processed ${r.data?.totalOrders || 0} retail orders and ${r.data?.totalBulkOrders || 0} bulk orders.`);
+                } else {
+                     const r = await fetch(`${API_URL}/api/staff/activity`, { headers: head }).then(d=>d.json());
+                     const orders = r.data?.recentOrders || [];
+                     const reg = r.data?.recentRegistrations || [];
+                     endResponse(`Staff: Current activity summary: ${orders.length} recent orders and ${reg.length} new registrations.`);
+                }
+             } catch (e) {
+                endResponse("Staff Action failed due to network error.");
+             }
+             log(branch); finalLog(); return;
+          }
+          // If NOT staff, fall through silently to default response
+      }
 
       // Determine Branch
       if (isAddVerb || isRemoveVerb || isClearVerb || isModVerb || targetBoth) {
@@ -293,23 +516,31 @@ export default function AXOConcierge() {
         else if (terms.some(t => ['shipping','delivery','return'].includes(t))) subBranch = "1.3) Shipping policy";
       }
 
-      // Logging Utility
-      const log = (msg: string) => { logOutput = msg; };
-      const finalLog = () => {
-        console.group(`%c AXO CONCIERGE NLP `, 'background:#111; color:#0f0; padding:2px 5px; border-radius:3px;');
-        console.log(`%cPROMPT:%c "${userInput}"`, 'font-weight:bold; color:#aaa', 'color:#fff');
-        console.log(`%cKEYWORDS:%c ${terms.join(', ')}`, 'font-weight:bold; color:#aaa', 'color:#0ff');
-        console.log(`%cBRANCH:%c ${branch} -> ${subBranch}`, 'font-weight:bold; color:#aaa', 'color:#f0f');
-        console.log(`%cCONDITIONS:%c filters:${hasProductFilters}, all:${isAll}, cart:${targetCart}, wl:${targetWL}`, 'font-weight:bold; color:#aaa', 'color:#ff0');
-        console.log(`%cOUTPUT:%c ${logOutput}`, 'font-weight:bold; color:#aaa', 'color:#fff');
-        console.groupEnd();
-      };
+
 
       // ── EXECUTION ───────────────────────────────────────────────────────
 
       // A: Context Handling (Clarification)
       let activePendingAction = pendingActionRef.current;
       if (activePendingAction) {
+         const act = activePendingAction.action;
+         if (act === 'create_staff_username') {
+            updatePending({ ...activePendingAction, action: 'create_staff_email', payload: { username: userInput } });
+            endResponse(`Got it. What's the email for ${userInput}?`);
+            log('Staff Creation: Prompted email'); finalLog(); return;
+         } else if (act === 'create_staff_email') {
+            updatePending({ ...activePendingAction, action: 'create_staff_password', payload: { ...activePendingAction.payload, email: userInput } });
+            endResponse(`Okay, and what's the temporary password for ${activePendingAction.payload.username}?`);
+            log('Staff Creation: Prompted password'); finalLog(); return;
+         } else if (act === 'create_staff_password') {
+            const p = { ...activePendingAction.payload, password: userInput };
+            updatePending({ ...activePendingAction, action: 'confirm_create_staff', payload: p });
+            endResponse(`Critical Action: Are you sure you want to securely create a staff member named '${p.username}' with email '${p.email}'? (yes/no)`, [
+               { label: 'Yes', action: 'yes' }, { label: 'No', action: 'no' }
+            ]);
+            log('Staff Creation: Await Confirmation'); finalLog(); return;
+         }
+
         const isUnrelated = (activePendingAction.action === 'ambiguous' && !targetBoth && (isAddVerb || isRemoveVerb || mCollections.length > 0 || mTypes.length > 0)) ||
                             (activePendingAction.action !== 'ambiguous' && !activePendingAction.collection && mCollections.length === 0 && (isModVerb || targetBoth)) ||
                             (activePendingAction.action !== 'ambiguous' && !activePendingAction.type && mTypes.length === 0 && (isModVerb || targetBoth));
@@ -468,7 +699,7 @@ export default function AXOConcierge() {
 
       // Branch 2: Action
       if (branch === "2) Action") {
-        if (isAddVerb && (isCart || targetCart) && terms.some(t => ['wishlist', 'favorite', 'favourite', 'saved'].includes(t)) && !hasProductFilters) {
+        if (isAddVerb && (actsCart || targetCart) && terms.some(t => ['wishlist', 'favorite', 'favourite', 'saved'].includes(t)) && !hasProductFilters) {
             if (wishlist.items.length === 0) {
                endResponse("Your wishlist is currently empty, nothing to add to cart.");
             } else {
@@ -784,6 +1015,28 @@ export default function AXOConcierge() {
                       <li>Currency: <strong>"LKR"</strong>, <strong>"Rs"</strong>, or <strong>"rupees"</strong> are all understood</li>
                     </ul>
                   </div>
+
+                  {(authService.getRole() === 'STAFF' || authService.getRole() === 'ADMIN') && (
+                    <div className="axo-help-section">
+                      <h4>🛡️ Staff Commands</h4>
+                      <ul>
+                        <li><strong>Inventory Alerts</strong> — <em>"Show low stock items"</em>, <em>"Are there any items below threshold?"</em>, <em>"What needs restocking immediately?"</em>, <em>"Check stock levels"</em>, <em>"Any inventory alerts?"</em></li>
+                        <li><strong>Order Tracking</strong> — <em>"How many pending orders?"</em>, <em>"Show today's orders count"</em>, <em>"List pending dispatch"</em>, <em>"Show recent activity"</em>, <em>"Show total orders count"</em>, <em>"Show total bulk orders count"</em>, <em>"List all pending retail orders"</em>, <em>"List all pending bulk orders"</em></li>
+                        <li><strong>User Activity</strong> — <em>"Show recent registrations"</em>, <em>"Who registered recently?"</em>, <em>"Latest users"</em></li>
+                        <li><strong>Catalog</strong> — <em>"What is our total number of products?"</em></li>
+                      </ul>
+                    </div>
+                  )}
+
+                  {authService.getRole() === 'ADMIN' && (
+                    <div className="axo-help-section">
+                      <h4>⚙️ Admin Commands</h4>
+                      <ul>
+                        <li><strong>Metrics & Revenue</strong> — <em>"Show total revenue"</em>, <em>"Show estimated profit"</em>, <em>"Admin metrics overview"</em></li>
+                        <li><strong>User Management</strong> — <em>"How many staff users do we have?"</em></li>
+                      </ul>
+                    </div>
+                  )}
 
                 </div>
               </div>
