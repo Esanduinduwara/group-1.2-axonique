@@ -3,6 +3,18 @@
    Hero, featured products, collections, and why-us sections
    ============================================================ */
 
+/* ----- Discount Banner ----- */
+.discount-banner {
+  background: var(--accent);
+  color: #fff;
+  text-align: center;
+  padding: 10px 2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
 /* ----- Hero ----- */
 .hero {
   min-height: 82vh;
@@ -13,6 +25,15 @@
   overflow: hidden;
   background: radial-gradient(ellipse at 30% 60%, #0b0b0b 0%, #000000 70%);
   padding: 4rem 2rem;
+}
+
+.hero__logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1.5rem;
+  border: 2px solid rgba(252, 16, 16, 0.3);
 }
 
 .hero::before {
@@ -37,7 +58,7 @@
 
 .hero__image {
   position: absolute;
-  width: min(24vw, 260px);
+  width: min(30vw, 325px); /* Increased size by 25% */
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border-radius: 14px;
@@ -60,7 +81,7 @@
 
 .hero__tag {
   display: inline-block;
-  border: 1px solid var(--accent);
+  border: 1px solid rgba(252, 16, 16, 0.5);
   color: var(--accent);
   font-size: 0.65rem;
   letter-spacing: 4px;

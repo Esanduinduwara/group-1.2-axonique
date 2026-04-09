@@ -6,23 +6,32 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import Toast from '../components/Toast';
-import type { Product } from '../types';
+import type { Product, BrandProfile } from '../types';
 import './HomePage.css';
+
+const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [toast, setToast] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
+  const [brand, setBrand] = useState<BrandProfile | null>(null);
 
   // Fetch products from API
   useEffect(() => {
-    fetch('http://localhost:8080/api/products')
+    fetch(`${API}/api/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data.data || data))
       .catch((err) => {
         console.error('Failed to fetch products:', err);
         setToast('Failed to load products');
       });
+
+    // Fetch brand profile
+    fetch(`${API}/api/brand`)
+      .then((res) => res.json())
+      .then((data) => setBrand(data.data || null))
+      .catch(() => console.warn('Brand profile not available'));
   }, []);
 
   const newest = products.filter((p) =>
@@ -34,23 +43,38 @@ export default function HomePage() {
 
   return (
     <main className="page">
+      {/* ---- Discount Banner ---- */}
+      {brand?.discountBannerActive && brand.discountBannerText && (
+        <div className="discount-banner">
+          {brand.discountBannerText}
+        </div>
+      )}
+
       {/* ---- Hero ---- */}
       <div className="hero">
         <div className="hero__images" aria-hidden="true">
           <motion.img
             className="hero__image hero__image--left"
-            src="https://res.cloudinary.com/dimdro5dm/image/upload/v1772432348/Screenshot_2026-03-02_at_11.48.41_vkiqq6.png"
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
+            src={brand?.heroBannerUrl || "https://res.cloudinary.com/dimdro5dm/image/upload/v1772432348/Screenshot_2026-03-02_at_11.48.41_vkiqq6.png"}
+            initial={{ x: -100, opacity: 0, y: 0 }}
+            animate={{ x: 0, opacity: 1, y: [0, -10, 0] }}
+            transition={{
+              x: { duration: 0.8 },
+              opacity: { duration: 0.8 },
+              y: { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.8 }
+            }}
             alt=""
           />
           <motion.img
             className="hero__image hero__image--right"
             src="https://res.cloudinary.com/dimdro5dm/image/upload/v1772361719/MPPxAXO_9721.jpg_1_zjtm6g.jpg"
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
+            initial={{ x: 100, opacity: 0, y: 0 }}
+            animate={{ x: 0, opacity: 1, y: [0, 10, 0] }}
+            transition={{
+              x: { duration: 0.8 },
+              opacity: { duration: 0.8 },
+              y: { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.8 }
+            }}
             alt=""
           />
         </div>
@@ -60,6 +84,9 @@ export default function HomePage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
+          {brand?.logoUrl && (
+            <img className="hero__logo" src={brand.logoUrl} alt="AXO Logo" />
+          )}
           <div className="hero__tag">
             Our New{' '}
             <button
@@ -75,9 +102,7 @@ export default function HomePage() {
             AXO
           </h1>
           <p className="hero__desc">
-            Experience a seamless and personalized way to order your AXO apparel. From selecting
-            your style to final delivery, we've designed every step to be simple, transparent, and
-            customer-focused. Your style. Your order. Made easy.
+            {brand?.mission || "Experience a seamless and personalized way to order your AXO apparel. From selecting your style to final delivery, we've designed every step to be simple, transparent, and customer-focused. Your style. Your order. Made easy."}
           </p>
           <div className="hero__cta">
             <button className="btn btn-primary" onClick={() => navigate('/catalog')}>
@@ -199,6 +224,16 @@ export default function HomePage() {
               <h3 className="why-item__title">Premium Quality</h3>
               <p className="why-item__desc">Crafted to last through every season and trend</p>
             </motion.div>
+            {brand?.vision && (
+              <motion.div
+                whileInView={{ y: [20, 0], opacity: [0, 1] }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="why-item__icon">🔭</div>
+                <h3 className="why-item__title">Our Vision</h3>
+                <p className="why-item__desc">{brand.vision}</p>
+              </motion.div>
+            )}
           </div>
         </motion.div>
       </section>

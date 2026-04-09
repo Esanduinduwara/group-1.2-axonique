@@ -9,13 +9,13 @@
   --surface: #0b0b0b;
   --card: #0f0f0f;
   --border: #222222;
-  --accent: #ffffff;
-  --accent-light: #e6e6e6;
+  --accent: #FC1010;
+  --accent-light: #ff3d3d;
   --text: #ffffff;
   --muted: #bfbfbf;
   --danger: #c0392b;
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --nav-height: 64px;
   --max-width: 1200px;
   --radius: 6px;
@@ -120,13 +120,13 @@ section {
 
 .btn-primary {
   background: var(--accent);
-  color: #000;
+  color: #fff;
 }
 
 .btn-primary:hover {
   background: var(--accent-light);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(252, 16, 16, 0.3);
 }
 
 .btn-outline {

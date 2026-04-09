@@ -117,7 +117,7 @@ export default function Navbar() {
                 onClick={() => handleNav('/retailer/bulk-order')}
                 aria-current={isActive('/retailer/bulk-order') ? 'page' : undefined}
               >
-                Bulk Orders
+                Bulk
               </button>
             </li>
           )}
@@ -211,7 +211,7 @@ export default function Navbar() {
             className={`navbar__mobile-link${isActive('/retailer/bulk-order') ? ' navbar__mobile-link--active' : ''}`}
             onClick={() => handleNav('/retailer/bulk-order')}
           >
-            Bulk Orders
+            Bulk
           </button>
         )}
         <button className="navbar__mobile-link" onClick={() => handleNav('/cart')}>
