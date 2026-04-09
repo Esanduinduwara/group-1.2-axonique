@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ResetPasswordPage.css';
@@ -88,7 +89,12 @@ const ResetPasswordPage: React.FC = () => {
     return (
         <div className="reset-password-page">
             <div className="reset-password-container">
-                <div className="reset-password-card">
+                <motion.div 
+                    className="reset-password-card"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                >
                     <div className="reset-password-header">
                         <h1>Reset Password</h1>
                         <p>Verify identity to update your password</p>
@@ -135,7 +141,7 @@ const ResetPasswordPage: React.FC = () => {
                             {isSubmitting ? 'Resetting...' : 'Reset Password'}
                         </button>
                     </form>
-                </div>
+                </motion.div>
             </div>
 
             <Modal

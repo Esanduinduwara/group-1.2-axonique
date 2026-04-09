@@ -1,5 +1,6 @@
 // Shared ProductCard component — used in SCRUM-14 (Home) and SCRUM-16 (Catalog)
 
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
 import { useWishlist } from '../context/WishlistContext';
@@ -31,9 +32,21 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="product-card" onClick={handleViewDetails} role="button" tabIndex={0}
+    <motion.div 
+      className="product-card" 
+      onClick={handleViewDetails} 
+      role="button" 
+      tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && handleViewDetails()}
       aria-label={`View details for ${product.name}`}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      whileHover={{ 
+        y: -10,
+        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+      }}
+      transition={{ duration: 0.3 }}
     >
       <div className="product-card__img">
         {product.badge && (
@@ -78,6 +91,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
