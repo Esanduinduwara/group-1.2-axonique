@@ -390,16 +390,17 @@ export default function AXOConcierge() {
       const actsCart      = terms.some(t => ['cart', 'bag', 'basket'].includes(t));
       const actsWL        = terms.some(t => ['wishlist', 'favorites', 'favourite', 'favorite', 'save', 'saved'].includes(t));
       const actsBulk      = terms.some(t => ['bulk', 'retail', 'wholesale'].includes(t));
-      const actsInv       = terms.some(t => ['inventory', 'restock', 'restocking', 'stock', 'stocklevel', 'threshold', 'qty', 'amount'].includes(t));
+      const actsInv       = terms.some(t => ['inventory', 'restock', 'restocking', 'stock', 'stocklevel', 'threshold', 'qty', 'amount', 'available'].includes(t));
       const actsStaff     = terms.some(t => ['staff', 'worker', 'member', 'admin', 'registration', 'registrations', 'registered', 'user', 'users'].includes(t));
-      const actsMetrics   = terms.some(t => ['report', 'revenue', 'profit', 'metric', 'overview', 'system', 'maintenance', 'activity', 'pending', 'dispatch', 'latest'].includes(t)) || actsStaff;
+      const actsMetrics   = terms.some(t => ['report', 'revenue', 'profit', 'metric', 'overview', 'system', 'maintenance', 'activity', 'pending', 'dispatch', 'latest', 'total', 'count', 'number'].includes(t)) || actsStaff;
 
       const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place', 'set', 'create'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop', 'pay', 'finish', 'restock'].includes(t));
       const isRemoveVerb = terms.some(t => ['remove', 'delete', 'drop', 'take', 'ditch', 'dump'].includes(t));
       const isClearVerb  = terms.some(t => ['clear', 'empty', 'wipe', 'reset', 'nuke'].includes(t));
       const isKeepVerb   = terms.some(t => ['keep', 'just', 'only', 'leave'].includes(t));
       const isCheckVerb  = terms.some(t => ['check', 'list', 'show', 'view', 'display', 'see'].includes(t)) || ['is', 'are', 'did', 'have', 'was', 'how', 'what', 'who'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
-      const isCheckout   = terms.includes('checkout') || (terms.some(t => ['buy', 'purchase', 'order', 'pay', 'finish'].includes(t)) && !hasProductFilters);
+      const isCountQuery = terms.some(t => ['total', 'count', 'number', 'how many'].includes(t));
+      const isCheckout   = (terms.includes('checkout') || (terms.some(t => ['buy', 'purchase', 'order', 'pay', 'finish'].includes(t)) && !hasProductFilters)) && !isCountQuery;
       const isInfoVerb   = terms.some(t => ['detail', 'info', 'information', 'profile', 'business', 'retailer', 'company'].includes(t));
       const isModVerb    = isKeepVerb || terms.some(t => ['double', 'half', 'increase', 'reduce', 'decrease', 'halve', 'update'].includes(t));
       const isQAVerb     = ['is', 'are', 'did', 'have', 'was', 'how'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
@@ -613,9 +614,15 @@ export default function AXOConcierge() {
         else if (isCheckVerb) subBranch = "Cart/Wishlist check";
       } else {
         branch = "1) Info";
-        if (hasProductFilters || isCheckVerb) subBranch = "1.1) Product info";
-        else if (terms.some(t => ['contact','support','help'].includes(t))) subBranch = "1.2) Contact info";
-        else if (terms.some(t => ['shipping','delivery','return'].includes(t))) subBranch = "1.3) Shipping policy";
+        if (ctxPolicy || terms.some(t => ['shipping','delivery','return','refund','policy','size','fit'].includes(t))) {
+           subBranch = "1.3) Shipping policy";
+        } else if (terms.some(t => ['contact','support','help'].includes(t))) {
+           subBranch = "1.2) Contact info";
+        } else if (hasProductFilters || (isCheckVerb && terms.some(t => ['item','product','all','catalog','collection','brand','every'].includes(t)))) {
+           subBranch = "1.1) Product info";
+        } else {
+           subBranch = "1.4) General FAQ";
+        }
       }
 
 
@@ -645,7 +652,9 @@ export default function AXOConcierge() {
 
         const isUnrelated = (activePendingAction.action === 'ambiguous' && !targetBoth && (isAddVerb || isRemoveVerb || mCollections.length > 0 || mTypes.length > 0)) ||
                             (activePendingAction.action !== 'ambiguous' && !activePendingAction.collection && mCollections.length === 0 && (isModVerb || targetBoth)) ||
-                            (activePendingAction.action !== 'ambiguous' && !activePendingAction.type && mTypes.length === 0 && (isModVerb || targetBoth));
+                            (activePendingAction.action !== 'ambiguous' && !activePendingAction.type && mTypes.length === 0 && (isModVerb || targetBoth)) ||
+                            (ctxPolicy || actsMetrics || isAdminReq) || // Switch context if user asks for advice/metrics/admin
+                            (!isAddVerb && !isRemoveVerb && !isModVerb && !hasProductFilters && isCheckVerb); // User redirected to a check or info query
 
         if (isUnrelated) { activePendingAction = null; updatePending(null); }
       }

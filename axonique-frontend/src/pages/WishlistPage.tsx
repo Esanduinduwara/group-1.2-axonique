@@ -7,7 +7,7 @@ export default function WishlistPage() {
   const { items, removeItem } = useWishlist();
 
   return (
-    <main className="page">
+    <main className="page bg-stripes">
       <section>
         <div className="container">
           <div className="section-header">
