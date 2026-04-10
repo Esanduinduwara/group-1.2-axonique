@@ -237,6 +237,22 @@
   font-weight: 500;
 }
 
+.rb-label-tag {
+  font-size: 9px;
+  letter-spacing: .08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.rb-label-tag--opt {
+  opacity: 0.5;
+  font-weight: 400;
+}
+
 .rb-section {
   margin-bottom: 32px;
 }
@@ -532,6 +548,15 @@
   grid-template-columns: 1fr 1fr auto;
   gap: 6px;
   align-items: center;
+}
+
+.product-tile__controls > * {
+  min-width: 0;
+}
+
+.product-tile__controls .rb-select,
+.product-tile__controls .rb-input--qty {
+  padding: 8px;
 }
 
 .btn-add {

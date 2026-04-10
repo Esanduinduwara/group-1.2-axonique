@@ -12,7 +12,13 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+}
+
+.staff-kpi:hover {
+  border-color: rgba(252, 16, 16, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(252, 16, 16, 0.08);
 }
 
 .staff-kpi--alert {

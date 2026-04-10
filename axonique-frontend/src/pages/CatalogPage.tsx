@@ -92,7 +92,7 @@ export default function CatalogPage() {
     setOpenMenu((prev) => (prev === id ? null : id));
 
   return (
-    <main className="page">
+    <main className="page bg-stripes">
       <section>
         <div className="container">
           <div className="section-header">
