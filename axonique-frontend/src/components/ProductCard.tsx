@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Product } from '../types';
 import { useWishlist } from '../context/WishlistContext';
 import ProductModal from './ProductModal';
+import { decodeEmoji } from '../utils/decodeEmoji';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -62,7 +63,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             />
           ) : (
           <motion.span layoutId={`img-${product.id}`} className="product-card__emoji" aria-hidden="true">
-            {product.emoji}
+            {decodeEmoji(product.emoji)}
           </motion.span>
           )}
           <div className="product-card__overlay" aria-hidden="true" />

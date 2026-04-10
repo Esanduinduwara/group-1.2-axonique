@@ -3,6 +3,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { decodeEmoji } from '../utils/decodeEmoji';
 import './CartPage.css';
 
 export default function CartPage() {
@@ -51,7 +52,7 @@ export default function CartPage() {
                 >
                   {/* Thumbnail */}
                   <div className="cart-item__img" aria-hidden="true">
-                    {item.product.emoji}
+                    {item.product.imageUrl ? <img src={item.product.imageUrl} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : decodeEmoji(item.product.emoji)}
                   </div>
 
                   {/* Info */}

@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
 import { useBulk, getBulkDiscount, DISCOUNT_TIERS } from '../context/BulkContext';
+import { decodeEmoji } from '../utils/decodeEmoji';
 import './RetailerBulkOrderPage.css';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -148,7 +149,7 @@ function ProductSelector({
             <div key={p.id} className={`product-tile ${p.lowStock ? 'product-tile--low-stock' : ''}`}>
               {p.lowStock && <div className="low-stock-badge">Low Stock</div>}
               {p.badge && <div className="product-badge">{p.badge}</div>}
-              <div className="product-tile__emoji">{p.emoji}</div>
+              <div className="product-tile__emoji">{p.imageUrl ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : decodeEmoji(p.emoji)}</div>
               <div className="product-tile__body">
                 <div className="product-tile__name">{p.name}</div>
                 <div className="product-tile__cat">{p.category}</div>
@@ -285,7 +286,7 @@ function OrderBuilder({
                 return (
                   <div key={idx} className="order-line">
                     <span className="order-line__name">
-                      <span className="order-line__emoji">{line.product.emoji}</span>
+                      <span className="order-line__emoji">{decodeEmoji(line.product.emoji)}</span>
                       {line.product.name}
                     </span>
                     <span className="order-line__size">{line.size}</span>
@@ -368,6 +369,7 @@ function InventoryPanel({ products }: { products: Product[] }) {
   const [search, setSearch] = useState('');
   const lowStock = products.filter(p => p.lowStock);
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  const maxStock = Math.max(1, ...products.map(p => p.stockQuantity));
 
   return (
     <div className="inventory-panel">
@@ -394,15 +396,14 @@ function InventoryPanel({ products }: { products: Product[] }) {
           <span role="columnheader">Category</span>
           <span role="columnheader">Unit Price</span>
           <span role="columnheader">Stock</span>
-          <span role="columnheader">Threshold</span>
           <span role="columnheader">Status</span>
         </div>
         {filtered.map(p => {
-          const pct = Math.min(100, (p.stockQuantity / Math.max(1, p.lowStockThreshold * 5)) * 100);
+          const pct = Math.min(100, (p.stockQuantity / maxStock) * 100);
           return (
             <div key={p.id} className="inventory-row" role="row">
               <span className="inv-name" role="cell">
-                <span aria-hidden="true">{p.emoji}</span> {p.name}
+                <span aria-hidden="true">{decodeEmoji(p.emoji)}</span> {p.name}
               </span>
               <span role="cell">{p.category}</span>
               <span role="cell">{fmt(p.price)}</span>
@@ -415,7 +416,6 @@ function InventoryPanel({ products }: { products: Product[] }) {
                   <span className="stock-bar__label">{p.stockQuantity}</span>
                 </div>
               </span>
-              <span role="cell">{p.lowStockThreshold}</span>
               <span role="cell">
                 <span className={`inv-status ${p.lowStock ? 'inv-status--low' : 'inv-status--ok'}`}>
                   {p.lowStock ? 'Low' : 'OK'}
