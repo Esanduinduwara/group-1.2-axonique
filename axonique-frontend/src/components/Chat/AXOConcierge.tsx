@@ -21,6 +21,23 @@ interface Message {
 }
 
 // Removed unused ParsedIntent interface
+
+const BRANDS = ['Timeless', 'Impossible', 'Phantom', 'Xenonix'];
+const TYPES  = ['Tee', 'Hoodie', 'Cap'];
+const TARGETS = ['Cart', 'Wishlist', 'Bulk'];
+
+const BASE_FAQ_OPTIONS = [
+  { label: 'Check Cart', action: 'Check my cart', keywords: ['cart', 'bag', 'checkout', 'total'], category: 'transaction' },
+  { label: 'Sizing Guide', action: 'Size Guide', keywords: ['size', 'fit', 'measurement', 'hoodie', 'tee'], category: 'policy' },
+  { label: 'Return Policy', action: 'What is the return policy?', keywords: ['return', 'refund', 'policy', 'exchange'], category: 'policy' },
+  { label: 'Shipping Info', action: 'How does shipping work?', keywords: ['shipping', 'delivery', 'arrive', 'track'], category: 'policy' },
+  { label: 'Show Wishlist', action: 'Show my wishlist', keywords: ['wishlist', 'favorite', 'save'], category: 'transaction' },
+  { label: 'Contact Support', action: 'Contact support', keywords: ['contact', 'help', 'support', 'email'], category: 'general' },
+  { label: 'Show All Tees', action: 'Show all tees', keywords: ['tee', 'shirt', 'clothing'], category: 'product' },
+  { label: 'Bulk Order Info', action: 'How do bulk orders work?', keywords: ['bulk', 'retail', 'wholesale', 'business'], category: 'transaction' },
+  { label: 'Show Black Items', action: 'Show black items', keywords: ['black', 'color', 'dark'], category: 'product' },
+];
+
 export default function AXOConcierge() {
   const [isOpen, setIsOpen]     = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -29,6 +46,7 @@ export default function AXOConcierge() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping]     = useState(false);
   const [showHelp, setShowHelp]     = useState(false);
+  const [currentFAQs, setCurrentFAQs] = useState<MessageOption[]>(BASE_FAQ_OPTIONS.slice(0, 7));
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const cart     = useCart();
@@ -154,17 +172,13 @@ export default function AXOConcierge() {
     return list;
   };
 
-  // ─────────────── main NLP entry point ───────────────────────────────────
-
   const processResponse = async (userInput: string) => {
     setIsTyping(true);
 
-    // Normalise: currency synonyms, strip punctuation
+    // ── TOKENIZATION & NORMALIZATION ──────────────────────────────────────
     let nText = userInput.toLowerCase();
     nText = nText.replace(/rupees?/g, 'lkr').replace(/\brs\b/g, 'lkr').replace(/\/-/g, '').replace(/[^\w\s]/g, ' ');
     const rawTokens = nText.split(/\s+/).filter(Boolean);
-
-    // De-pluralise + synonym map
     const terms = rawTokens.map(t => {
       let base = t;
       if (t !== 'timeless' && t !== 'shoes' && t !== 'less' && t !== 'yes' && t.endsWith('s')) {
@@ -172,6 +186,100 @@ export default function AXOConcierge() {
       }
       return SYNONYMS[base] || SYNONYMS[t] || base;
     });
+
+    // ── SMART FAQ GENERATIONS AND SECURITY ────────────────────────────────
+    const role = authService.getRole() || 'CUSTOMER';
+    const isStaffUser = role === 'STAFF' || role === 'ADMIN';
+    const isAdminUser = role === 'ADMIN';
+    
+    // 1) Context detection
+    const ctxBrand = BRANDS.find(b => rawTokens.includes(b.toLowerCase()) || terms.includes(b.toLowerCase()));
+    const ctxType  = TYPES.find(t => rawTokens.includes(t.toLowerCase()) || terms.includes(t.toLowerCase()));
+    const ctxPolicy = ['shipping', 'delivery', 'return', 'refund', 'policy', 'size', 'fit', 'measurement'].some(kw => rawTokens.includes(kw));
+    const ctxTrans  = ['clear', 'empty', 'wipe', 'checkout', 'buy', 'purchase', 'pay'].some(kw => rawTokens.includes(kw));
+    
+    let smartSuggestions: MessageOption[] = [];
+
+    // Rule 1: Brand -> Items
+    if (ctxBrand && !ctxType) {
+        TYPES.forEach(t => smartSuggestions.push({ label: `${ctxBrand} ${t}`, action: `Show ${ctxBrand} ${t}` }));
+    }
+    // Rule 2: Item -> Brands
+    if (ctxType && !ctxBrand) {
+        BRANDS.forEach(b => smartSuggestions.push({ label: `${b} ${ctxType}`, action: `Show ${b} ${ctxType}` }));
+    }
+    // Rule 3: Policy Bundle
+    if (ctxPolicy) {
+        if (!rawTokens.includes('shipping')) smartSuggestions.push({ label: 'Shipping Info', action: 'How does shipping work?' });
+        if (!rawTokens.includes('return'))   smartSuggestions.push({ label: 'Return Policy', action: 'What is the return policy?' });
+        if (!rawTokens.includes('size'))     smartSuggestions.push({ label: 'Sizing Guide', action: 'Size Guide' });
+    }
+    // Rule 4: Transaction Cross-Suggest
+    if (ctxTrans) {
+        TARGETS.forEach(t => {
+            if (!rawTokens.includes(t.toLowerCase()) && !terms.includes(t.toLowerCase())) {
+                const act = rawTokens.includes('clear') ? 'Clear' : 'Checkout';
+                smartSuggestions.push({ label: `${act} ${t}`, action: `${act} ${t}` });
+            }
+        });
+    }
+
+    // Role-Based Smart Rules (Interchangeable Brands/Items)
+    if (isStaffUser) {
+        if (rawTokens.includes('restock') || ctxType || ctxBrand) {
+            const b = ctxBrand || BRANDS[0];
+            const t = ctxType || TYPES[0];
+            // Primary suggestion
+            smartSuggestions.push({ label: `Restock ${b} ${t}`, action: `Restock ${b} ${t}` });
+            // Secondary suggestions (interchangeability)
+            const otherBrands = BRANDS.filter(br => br !== b).slice(0, 2);
+            const otherTypes = TYPES.filter(ty => ty !== t).slice(0, 2);
+            otherBrands.forEach(ob => smartSuggestions.push({ label: `Restock ${ob} ${t}`, action: `Restock ${ob} ${t}` }));
+            otherTypes.forEach(ot => smartSuggestions.push({ label: `Restock ${b} ${ot}`, action: `Restock ${b} ${ot}` }));
+        }
+        if (rawTokens.includes('order') || rawTokens.includes('pending') || rawTokens.includes('dispatch')) {
+            smartSuggestions.push({ label: 'List Pending Retail', action: 'List all pending retail orders' });
+            smartSuggestions.push({ label: 'List Pending Bulk', action: 'List all pending bulk orders' });
+            smartSuggestions.push({ label: 'Dispatch Status', action: 'How many pending orders?' });
+        }
+        if (rawTokens.includes('user') || rawTokens.includes('activity')) {
+            smartSuggestions.push({ label: 'Recent Activity', action: 'Show recent activity' });
+            smartSuggestions.push({ label: 'New Signups', action: 'Who registered recently?' });
+        }
+        if (rawTokens.includes('stock') || rawTokens.includes('inventory')) {
+            smartSuggestions.push({ label: 'Low Stock Alerts', action: 'Show low stock items' });
+            smartSuggestions.push({ label: 'Quick Inventory', action: 'Check stock levels' });
+        }
+        // General fallback for staff to hit 8+ ops
+        if (smartSuggestions.length < 6) {
+            smartSuggestions.push({ label: 'Total Orders', action: 'Show total orders count' });
+            smartSuggestions.push({ label: 'Total Bulk', action: 'Show total bulk orders count' });
+            smartSuggestions.push({ label: 'Catalog Size', action: 'What is our total number of products?' });
+        }
+    }
+
+    if (isAdminUser) {
+        if (['revenue', 'profit', 'money', 'earnings'].some(k => rawTokens.includes(k))) {
+            smartSuggestions.push({ label: 'Total Revenue', action: 'Show total revenue' });
+            smartSuggestions.push({ label: 'Estimated Profit', action: 'Show estimated profit' });
+        }
+        if (['staff', 'team', 'user', 'add', 'member'].some(k => rawTokens.includes(k))) {
+            smartSuggestions.push({ label: 'Staff Count', action: 'How many staff users do we have?' });
+            smartSuggestions.push({ label: 'Add Staff', action: 'Register new staff member' });
+        }
+        if (['metric', 'admin', 'overview', 'dashboard'].some(k => rawTokens.includes(k))) {
+            smartSuggestions.push({ label: 'Admin Metrics', action: 'Admin metrics overview' });
+        }
+    }
+
+    // Merge with original keyword matching for Base FAQs
+    const matchedBase = BASE_FAQ_OPTIONS.filter(faq => 
+       faq.keywords.some(kw => rawTokens.includes(kw))
+    );
+    const otherBase = BASE_FAQ_OPTIONS.filter(faq => !matchedBase.includes(faq) && !smartSuggestions.some(s => s.label === faq.label));
+    
+    const finalFAQs = [...smartSuggestions, ...matchedBase, ...otherBase].slice(0, 10);
+    setCurrentFAQs(finalFAQs);
 
 
       // ── Canceller ────────────────────────────────────────────────────────
@@ -256,60 +364,6 @@ export default function AXOConcierge() {
         }
       }
 
-      // ── SIGNAL EXTRACTION ───────────────────────────────────────────────
-      const actsCart      = terms.some(t => ['cart', 'bag', 'basket'].includes(t));
-      const actsWL        = terms.some(t => ['wishlist', 'favorites', 'favourite', 'favorite', 'save', 'saved'].includes(t));
-      const actsBulk      = terms.some(t => ['bulk', 'retail', 'wholesale'].includes(t));
-      const actsInv       = terms.some(t => ['inventory', 'restock', 'restocking', 'stock', 'stocklevel', 'threshold', 'qty', 'amount'].includes(t));
-      const actsStaff     = terms.some(t => ['staff', 'worker', 'member', 'admin', 'registration', 'registrations', 'registered', 'user', 'users'].includes(t));
-      const actsMetrics   = terms.some(t => ['report', 'revenue', 'profit', 'metric', 'overview', 'system', 'maintenance', 'activity', 'pending', 'dispatch', 'latest'].includes(t)) || actsStaff;
-
-      const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place', 'set', 'create'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop', 'pay', 'finish', 'restock'].includes(t));
-      const isRemoveVerb = terms.some(t => ['remove', 'delete', 'drop', 'take', 'ditch', 'dump'].includes(t));
-      const isClearVerb  = terms.some(t => ['clear', 'empty', 'wipe', 'reset', 'nuke'].includes(t));
-      const isKeepVerb   = terms.some(t => ['keep', 'just', 'only', 'leave'].includes(t));
-      const isCheckVerb  = terms.some(t => ['check', 'list', 'show', 'view', 'display', 'see'].includes(t)) || ['is', 'are', 'did', 'have', 'was', 'how', 'what', 'who'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
-      const isCheckout   = terms.some(t => ['checkout', 'buy', 'purchase', 'order', 'pay', 'finish'].includes(t));
-      const isInfoVerb   = terms.some(t => ['detail', 'info', 'information', 'profile', 'business', 'retailer', 'company'].includes(t));
-      const isModVerb    = isKeepVerb || terms.some(t => ['double', 'half', 'increase', 'reduce', 'decrease', 'halve', 'update'].includes(t));
-      const isQAVerb     = ['is', 'are', 'did', 'have', 'was', 'how'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
-      const isAll        = terms.some(t => ['all', 'every', 'each', 'everything'].includes(t));
-
-      // Check strict structural branches
-      let resolvedTargets: string[] = [];
-      if (actsCart || terms.some(t => ['buy', 'purchase', 'checkout', 'cop', 'pay'].includes(t))) resolvedTargets.push('Cart');
-      if (actsWL || terms.some(t => ['save', 'favorite', 'wish'].includes(t))) resolvedTargets.push('Wishlist');
-      if (actsBulk || terms.some(t => ['business', 'retailer', 'company'].includes(t))) resolvedTargets.push('Bulk');
-      if (actsInv || (isAddVerb && terms.some(t=>['restock'].includes(t)))) resolvedTargets.push('Inventory');
-      if (actsStaff) resolvedTargets.push('Staff');
-
-      // Expand implicit collisions ("buy in bulk" -> Cart + Bulk -> Bulk overrides Cart locally)
-      if (resolvedTargets.includes('Cart') && resolvedTargets.includes('Bulk')) {
-          resolvedTargets = resolvedTargets.filter(t => t !== 'Cart');
-      }
-
-      // Security role check
-      const role = authService.getRole() || 'CUSTOMER';
-      const isStaffUser = role === 'STAFF' || role === 'ADMIN';
-      const isAdminUser = role === 'ADMIN';
-
-      // 1) Verify structural logic: Reject ambiguous multi-targets
-      if (resolvedTargets.length > 1) {
-          if ((isStaffUser) && (resolvedTargets.includes('Inventory') || resolvedTargets.includes('Staff'))) {
-              endResponse(`Your query is ambiguous because it refers to multiple discrete operations (${resolvedTargets.join(' and ')}). Please pick one branch at a time.`);
-              return;
-          } else if (resolvedTargets.includes('Staff') || resolvedTargets.includes('Inventory')) {
-              // Hide from standard customers
-              endResponse("I couldn't clearly map your query to a standard shopping action. Are you talking about your Cart or Wishlist?");
-              return;
-          } else {
-              endResponse(`Your query is combining commands for your ${resolvedTargets.join(' and ')}. Please separate your requests!`);
-              return;
-          }
-      }
-
-      const activeTarget = resolvedTargets[0] || null;
-
       const mCollections = terms.filter(t => PRODUCTS.some(p => p.collection.toLowerCase() === t));
       const mTypes       = Array.from(new Set(terms.filter(t => PRODUCTS.some(p => p.type.toLowerCase() === t))));
       const mColors      = terms.filter(t => PRODUCTS.some(p => p.color.toLowerCase() === t));
@@ -331,6 +385,54 @@ export default function AXOConcierge() {
 
       const filteredProducts = applyFilters(mCollections, mTypes, mColors, priceNum1, priceDir, priceNum2);
       const hasProductFilters = mCollections.length > 0 || mTypes.length > 0 || mColors.length > 0 || mSizes.length > 0 || priceNum1 !== null;
+
+      // ── SIGNAL EXTRACTION ───────────────────────────────────────────────
+      const actsCart      = terms.some(t => ['cart', 'bag', 'basket'].includes(t));
+      const actsWL        = terms.some(t => ['wishlist', 'favorites', 'favourite', 'favorite', 'save', 'saved'].includes(t));
+      const actsBulk      = terms.some(t => ['bulk', 'retail', 'wholesale'].includes(t));
+      const actsInv       = terms.some(t => ['inventory', 'restock', 'restocking', 'stock', 'stocklevel', 'threshold', 'qty', 'amount'].includes(t));
+      const actsStaff     = terms.some(t => ['staff', 'worker', 'member', 'admin', 'registration', 'registrations', 'registered', 'user', 'users'].includes(t));
+      const actsMetrics   = terms.some(t => ['report', 'revenue', 'profit', 'metric', 'overview', 'system', 'maintenance', 'activity', 'pending', 'dispatch', 'latest'].includes(t)) || actsStaff;
+
+      const isAddVerb    = terms.some(t => ['add', 'insert', 'put', 'place', 'set', 'create'].includes(t)) || terms.some(t => ['buy', 'purchase', 'get', 'order', 'checkout', 'cop', 'pay', 'finish', 'restock'].includes(t));
+      const isRemoveVerb = terms.some(t => ['remove', 'delete', 'drop', 'take', 'ditch', 'dump'].includes(t));
+      const isClearVerb  = terms.some(t => ['clear', 'empty', 'wipe', 'reset', 'nuke'].includes(t));
+      const isKeepVerb   = terms.some(t => ['keep', 'just', 'only', 'leave'].includes(t));
+      const isCheckVerb  = terms.some(t => ['check', 'list', 'show', 'view', 'display', 'see'].includes(t)) || ['is', 'are', 'did', 'have', 'was', 'how', 'what', 'who'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
+      const isCheckout   = terms.includes('checkout') || (terms.some(t => ['buy', 'purchase', 'order', 'pay', 'finish'].includes(t)) && !hasProductFilters);
+      const isInfoVerb   = terms.some(t => ['detail', 'info', 'information', 'profile', 'business', 'retailer', 'company'].includes(t));
+      const isModVerb    = isKeepVerb || terms.some(t => ['double', 'half', 'increase', 'reduce', 'decrease', 'halve', 'update'].includes(t));
+      const isQAVerb     = ['is', 'are', 'did', 'have', 'was', 'how'].some(w => rawTokens[0] === w || rawTokens.slice(0, 3).includes(w));
+      const isAll        = terms.some(t => ['all', 'every', 'each', 'everything'].includes(t));
+
+      // Check strict structural branches
+      let resolvedTargets: string[] = [];
+      if (actsCart || (isAddVerb && !hasProductFilters)) resolvedTargets.push('Cart');
+      if (actsWL || terms.some(t => ['save', 'favorite', 'wish'].includes(t))) resolvedTargets.push('Wishlist');
+      if (actsBulk || terms.some(t => ['business', 'retailer', 'company'].includes(t))) resolvedTargets.push('Bulk');
+      if (actsInv || (isAddVerb && terms.some(t=>['restock'].includes(t)))) resolvedTargets.push('Inventory');
+      if (actsStaff) resolvedTargets.push('Staff');
+      // Expand implicit collisions ("buy in bulk" -> Cart + Bulk -> Bulk overrides Cart locally)
+      if (resolvedTargets.includes('Cart') && resolvedTargets.includes('Bulk')) {
+          resolvedTargets = resolvedTargets.filter(t => t !== 'Cart');
+      }
+
+      // 1) Verify structural logic: Reject ambiguous multi-targets
+      if (resolvedTargets.length > 1) {
+          if ((isStaffUser) && (resolvedTargets.includes('Inventory') || resolvedTargets.includes('Staff'))) {
+              endResponse(`Your query is ambiguous because it refers to multiple discrete operations (${resolvedTargets.join(' and ')}). Please pick one branch at a time.`);
+              return;
+          } else if (resolvedTargets.includes('Staff') || resolvedTargets.includes('Inventory')) {
+              // Hide from standard customers
+              endResponse("I couldn't clearly map your query to a standard shopping action. Are you talking about your Cart or Wishlist?");
+              return;
+          } else {
+              endResponse(`Your query is combining commands for your ${resolvedTargets.join(' and ')}. Please separate your requests!`);
+              return;
+          }
+      }
+
+      const activeTarget = resolvedTargets[0] || null;
 
       // 2) Unrecognized Target Prompting (Replacing old "Ambiguous target branch before anything else")
       if (!activeTarget && !actsMetrics && (isAddVerb || isRemoveVerb || isClearVerb || isModVerb)) {
@@ -1068,11 +1170,18 @@ export default function AXOConcierge() {
             <div ref={messagesEndRef}/>
           </div>
 
-          <div className="axo-chat-options-container" style={{ padding: '0 20px' }}>
+          <div className="axo-chat-options-container">
+            <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Suggested</div>
             <div className="axo-chat-options">
-              <button className="axo-opt-btn" onClick={() => handleQuickAction('fixed-opt', "Buy Timeless Cap")}>Buy Timeless Cap</button>
-              <button className="axo-opt-btn" onClick={() => handleQuickAction('fixed-opt', "Check my cart")}>Check Cart</button>
-              <button className="axo-opt-btn" onClick={() => handleQuickAction('fixed-opt', "Size Guide")}>Sizing</button>
+              {currentFAQs.map((faq, i) => (
+                <button 
+                  key={i} 
+                  className="axo-opt-btn" 
+                  onClick={() => handleQuickAction('fixed-opt', faq.action)}
+                >
+                  {faq.label}
+                </button>
+              ))}
             </div>
           </div>
 
