@@ -1,0 +1,9 @@
+.cursor-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* Above background/crosses, below main content */
+  mix-blend-mode: screen;
+  transition: opacity 0.3s ease;
+}

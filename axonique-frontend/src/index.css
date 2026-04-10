@@ -70,6 +70,11 @@ button {
   padding-top: var(--nav-height);
   min-height: 100vh;
   animation: fadeIn 0.35s ease;
+  transition: padding-top 0.3s ease;
+}
+
+body.has-banner .page {
+  padding-top: calc(var(--nav-height) + 35px);
 }
 
 @keyframes fadeIn {
@@ -179,9 +184,27 @@ section {
 }
 
 /* ----- Scrollbar ----- */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+/* ----- Premium Custom Scrollbar ----- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #111;
+  border-radius: 20px;
+  border: 2px solid #050505;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 6px rgba(252, 16, 16, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
 
 /* ----- Wishlist Remove Button ----- */
 .wishlist-remove-btn {

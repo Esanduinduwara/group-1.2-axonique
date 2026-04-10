@@ -6,11 +6,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { authService } from '../services/authService';
 import Modal from './Modal';
+import type { BrandProfile } from '../types';
 import './Navbar.css';
+
+const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [brand, setBrand] = useState<BrandProfile | null>(null);
   const [modal, setModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -37,6 +41,22 @@ export default function Navbar() {
     { label: 'Wishlist', path: '/wishlist' },
     { label: 'Contact', path: '/contact' },
   ];
+
+  // Fetch brand profile data
+  useEffect(() => {
+    fetch(`${API}/api/brand`)
+      .then((res) => res.json())
+      .then((data) => {
+        const profile = data.data || data;
+        setBrand(profile);
+        if (profile?.discountBannerActive) {
+          document.body.classList.add('has-banner');
+        } else {
+          document.body.classList.remove('has-banner');
+        }
+      })
+      .catch(() => console.warn('Brand profile not available'));
+  }, []);
 
   // Update auth state whenever the location changes
   useEffect(() => {
@@ -87,6 +107,13 @@ export default function Navbar() {
 
   return (
     <>
+      {brand?.discountBannerActive && brand.discountBannerText && (
+        <div className="discount-banner">
+          <div className="discount-banner__marquee">
+            <span>{brand.discountBannerText}</span>
+          </div>
+        </div>
+      )}
       <nav className="navbar" aria-label="Main navigation">
         {/* Logo */}
         <button className="navbar__logo" onClick={() => handleNav('/')} aria-label="AXO — Go to homepage">

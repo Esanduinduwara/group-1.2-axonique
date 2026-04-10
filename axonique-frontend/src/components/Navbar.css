@@ -8,7 +8,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 2001; /* Higher than banner to allow dropdowns to overlap */
   height: var(--nav-height);
   background: rgba(13, 13, 13, 0.95);
   backdrop-filter: blur(12px);
@@ -19,6 +19,8 @@
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
 }
+
+/* Offset navbar when banner is present -- REMOVED because navbar is now at top: 0 */
 
 /* Logo */
 .navbar__logo {
@@ -137,6 +139,7 @@
   border-radius: var(--radius);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   animation: dropdownIn 0.2s ease;
+  z-index: 1001;
   overflow: hidden;
 }
 
@@ -249,6 +252,38 @@
   background: var(--text);
   transition: 0.3s;
   border-radius: 2px;
+}
+
+/* ----- Global Discount Banner ----- */
+.discount-banner {
+  background: #ff0000 !important;
+  color: #ffffff !important;
+  position: fixed;
+  top: var(--nav-height); /* Beneath navbar */
+  left: 0;
+  right: 0;
+  z-index: 2000; /* Just below navbar */
+  height: 35px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.discount-banner__marquee {
+  display: inline-block;
+  width: auto;
+  white-space: nowrap;
+  animation: marquee-offscreen 20s linear infinite;
+}
+
+@keyframes marquee-offscreen {
+  0%   { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
 }
 
 /* Mobile menu */

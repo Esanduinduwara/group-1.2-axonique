@@ -35,6 +35,7 @@ import WishlistPage from './pages/WishlistPage';
 import ContactPage from './pages/ContactPage';
 import AXOConcierge from './components/Chat/AXOConcierge';
 import BulkOrderManagementPage from './pages/BulkOrderManagementPage';
+import CursorGlow from './components/CursorGlow';
 
 export default function App() {
   return (
@@ -143,6 +144,7 @@ export default function App() {
             />
           </Routes>
           <AXOConcierge />
+          <CursorGlow />
         </BrowserRouter>
       </BulkProvider>
     </WishlistProvider>

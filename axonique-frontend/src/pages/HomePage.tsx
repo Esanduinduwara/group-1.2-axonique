@@ -43,12 +43,6 @@ export default function HomePage() {
 
   return (
     <main className="page">
-      {/* ---- Discount Banner ---- */}
-      {brand?.discountBannerActive && brand.discountBannerText && (
-        <div className="discount-banner">
-          {brand.discountBannerText}
-        </div>
-      )}
 
       {/* ---- Hero ---- */}
       <div className="hero">
