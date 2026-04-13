@@ -34,6 +34,7 @@ export default function Navbar() {
   // Use state for authentication to ensure reactive updates
   const [user, setUser] = useState(authService.getUser());
   const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN';
 
   const links = [
     { label: 'Home', path: '/' },
@@ -177,7 +178,7 @@ export default function Navbar() {
                     </>
                   ) : (
                     <>
-                      {user?.role === 'ADMIN' && (
+                      {isAdmin && (
                         <button onClick={() => handleNav('/admin/dashboard')}>Admin Dashboard</button>
                       )}
                       {user?.role === 'STAFF' && (
@@ -257,7 +258,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              {user?.role === 'ADMIN' && (
+              {isAdmin && (
                 <button className="navbar__mobile-link" onClick={() => handleNav('/admin/dashboard')}>Admin Dashboard</button>
               )}
               {user?.role === 'STAFF' && (

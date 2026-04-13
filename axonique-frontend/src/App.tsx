@@ -33,6 +33,7 @@ import BrandProfilePage from './pages/BrandProfilePage';
 import StaffSignInPage from './pages/StaffSignInPage';
 import WishlistPage from './pages/WishlistPage';
 import ContactPage from './pages/ContactPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
 import AXOConcierge from './components/Chat/AXOConcierge';
 import BulkOrderManagementPage from './pages/BulkOrderManagementPage';
 import CursorGlow from './components/CursorGlow';
@@ -76,6 +77,7 @@ export default function App() {
                     <Route path="/refund" element={<RefundPolicyPage />} />
                     <Route path="/terms" element={<TermsPage />} />
                     <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                    <Route path="/unauthorized" element={<UnauthorizedPage />} />
                     <Route path="*" element={<HomePage />} />
                   </Routes>
                   <Footer />

@@ -12,6 +12,7 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const role = authService.getRole();
+  const isAdmin = role === 'ADMIN' || role === 'ROLE_ADMIN';
 
   const handleLogout = () => {
     authService.logout();
@@ -19,18 +20,23 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
   };
 
   const navLinks = [
-    { label: '📊 Dashboard', path: '/admin/dashboard', roles: ['ADMIN'] },
     { label: '📦 Orders', path: '/admin/orders', roles: ['ADMIN', 'STAFF'] },
     { label: '📦 Bulk', path: '/admin/bulk-orders', roles: ['ADMIN', 'STAFF'] },
     { label: '👕 Inventory', path: '/admin/inventory', roles: ['ADMIN', 'STAFF'] },
     { label: '🛍️ Products', path: '/admin/products', roles: ['ADMIN', 'STAFF'] },
-    { label: '🎨 Brand Profile', path: '/admin/brand', roles: ['ADMIN'] },
     { label: '👤 Staff Hub', path: '/staff/dashboard', roles: ['ADMIN', 'STAFF'] },
   ];
 
   const visibleLinks = navLinks.filter(link =>
     role && link.roles.includes(role)
   );
+
+  const adminOnlyLinks = isAdmin
+    ? [
+      { label: '📊 Dashboard', path: '/admin/dashboard' },
+      { label: '🎨 Brand Profile', path: '/admin/brand' },
+    ]
+    : [];
 
   const SidebarContent = () => (
     <div className="admin-sidebar__inner">
@@ -40,6 +46,15 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
       </div>
 
       <nav className="admin-sidebar__nav" aria-label="Admin navigation">
+        {adminOnlyLinks.map(link => (
+          <button
+            key={link.path}
+            className={`admin-sidebar__link ${location.pathname === link.path ? 'active' : ''}`}
+            onClick={() => { navigate(link.path); setMobileOpen(false); }}
+          >
+            {link.label}
+          </button>
+        ))}
         {visibleLinks.map(link => (
           <button
             key={link.path}

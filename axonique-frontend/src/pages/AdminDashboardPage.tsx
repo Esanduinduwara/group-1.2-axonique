@@ -5,10 +5,12 @@ import type { DashboardMetrics, UserSummary } from '../types';
 import './AdminDashboardPage.css';
 
 const API = '' + (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') + '';
+const HIDDEN_ADMIN_EMAILS = new Set(['admin@axonique.com', 'admin_now@axonique.com']);
 
 
 export default function AdminDashboardPage() {
   const role = authService.getRole();
+  const currentUser = authService.getUser();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,10 @@ export default function AdminDashboardPage() {
       fetch(`${API}/api/admin/users`, { headers }).then(r => r.json()),
     ]).then(([metricsData, usersData]) => {
       setMetrics(metricsData.data);
-      setUsers(usersData.data || []);
+      const safeUsers = (usersData.data || []).filter((u: UserSummary) =>
+        u.role !== 'ADMIN' && !HIDDEN_ADMIN_EMAILS.has(u.email.toLowerCase())
+      );
+      setUsers(safeUsers);
     }).catch(() => showToast('Failed to load dashboard data', 'error'))
       .finally(() => setLoading(false));
   }, []);
@@ -179,6 +184,11 @@ export default function AdminDashboardPage() {
   }).join(', ');
 
   const pagedUsers = users.slice(page * pageSize, (page + 1) * pageSize);
+  const isCurrentSessionUser = (user: UserSummary) =>
+    !!currentUser && (
+      currentUser.username.toLowerCase() === user.username.toLowerCase()
+      || currentUser.email.toLowerCase() === user.email.toLowerCase()
+    );
 
   return (
     <div className="admin-layout">
@@ -405,10 +415,11 @@ export default function AdminDashboardPage() {
                                 className="role-select"
                                 value={u.role}
                                 onChange={e => handleRoleChange(u.id, e.target.value)}
+                                disabled={isCurrentSessionUser(u)}
+                                title={isCurrentSessionUser(u) ? 'You cannot change your own role' : 'Change role'}
                               >
                                 <option value="CUSTOMER">CUSTOMER</option>
                                 <option value="STAFF">STAFF</option>
-                                <option value="ADMIN">ADMIN</option>
                                 <option value="RETAILER">RETAILER</option>
                               </select>
                             </td>
@@ -421,7 +432,7 @@ export default function AdminDashboardPage() {
                               <button
                                 className="pm-action-btn pm-action-btn--danger"
                                 onClick={() => handleDeleteUser(u.id)}
-                                disabled={authService.getUser()?.username === u.username}
+                                disabled={isCurrentSessionUser(u)}
                               >
                                 🗑️ Delete
                               </button>

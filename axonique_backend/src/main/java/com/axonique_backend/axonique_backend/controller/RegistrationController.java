@@ -54,6 +54,7 @@ public class RegistrationController {
                     .username(user.getUsername())
                     .email(user.getEmail())
                     .role(roleName)
+                    .authorities(java.util.List.of("ROLE_" + roleName))
                     .build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).body(e.getMessage());
