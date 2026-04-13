@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { useSimulation } from '../context/SimulationContext';
 import './AdminSidebar.css';
 
 interface AdminSidebarProps {
@@ -13,6 +14,7 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
   const [mobileOpen, setMobileOpen] = useState(false);
   const role = authService.getRole();
   const isAdmin = role === 'ADMIN' || role === 'ROLE_ADMIN';
+  const { isSimulationMode, setSimulationMode } = useSimulation();
 
   const handleLogout = () => {
     authService.logout();
@@ -67,6 +69,19 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
       </nav>
 
       <div className="admin-sidebar__footer">
+        {isAdmin && (
+          <div className="admin-sidebar__simulation">
+            <span className="admin-sidebar__simulation-label">View as Customer</span>
+            <button
+              type="button"
+              className={`admin-sidebar__simulation-toggle ${isSimulationMode ? 'active' : ''}`}
+              aria-pressed={isSimulationMode}
+              onClick={() => setSimulationMode(!isSimulationMode)}
+            >
+              <span className="admin-sidebar__simulation-thumb" />
+            </button>
+          </div>
+        )}
         <button
           className="admin-sidebar__link admin-sidebar__link--muted"
           onClick={() => navigate('/')}

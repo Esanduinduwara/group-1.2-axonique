@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { BulkProvider } from './context/BulkContext';
+import { SimulationProvider, useSimulation } from './context/SimulationContext';
 
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
@@ -37,6 +38,12 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import AXOConcierge from './components/Chat/AXOConcierge';
 import BulkOrderManagementPage from './pages/BulkOrderManagementPage';
 import CursorGlow from './components/CursorGlow';
+import SimulationModeBanner from './components/SimulationModeBanner';
+
+function AdminSimulationGate({ children }: { children: React.ReactNode }) {
+  const { isSimulationMode } = useSimulation();
+  return isSimulationMode ? <Navigate to="/" replace /> : <>{children}</>;
+}
 
 export default function App() {
   return (
@@ -44,6 +51,8 @@ export default function App() {
       <WishlistProvider>
         <BulkProvider>
           <BrowserRouter>
+          <SimulationProvider>
+          <SimulationModeBanner />
           <Routes>
             {/* Public routes with Navbar + Footer */}
             <Route
@@ -90,7 +99,9 @@ export default function App() {
               path="/admin/dashboard"
               element={
                 <ProtectedRoute requiredRoles={['ADMIN']}>
-                  <AdminDashboardPage />
+                  <AdminSimulationGate>
+                    <AdminDashboardPage />
+                  </AdminSimulationGate>
                 </ProtectedRoute>
               }
             />
@@ -98,7 +109,9 @@ export default function App() {
               path="/admin/inventory"
               element={
                 <ProtectedRoute requiredRoles={['ADMIN', 'STAFF']}>
-                  <InventoryPage />
+                  <AdminSimulationGate>
+                    <InventoryPage />
+                  </AdminSimulationGate>
                 </ProtectedRoute>
               }
             />
@@ -106,7 +119,9 @@ export default function App() {
               path="/admin/orders"
               element={
                 <ProtectedRoute requiredRoles={['ADMIN', 'STAFF']}>
-                  <OrderManagementPage />
+                  <AdminSimulationGate>
+                    <OrderManagementPage />
+                  </AdminSimulationGate>
                 </ProtectedRoute>
               }
             />
@@ -114,7 +129,9 @@ export default function App() {
               path="/admin/bulk-orders"
               element={
                 <ProtectedRoute requiredRoles={['ADMIN', 'STAFF']}>
-                  <BulkOrderManagementPage />
+                  <AdminSimulationGate>
+                    <BulkOrderManagementPage />
+                  </AdminSimulationGate>
                 </ProtectedRoute>
               }
             />
@@ -122,7 +139,9 @@ export default function App() {
               path="/admin/products"
               element={
                 <ProtectedRoute requiredRoles={['ADMIN', 'STAFF']}>
-                  <ProductManagementPage />
+                  <AdminSimulationGate>
+                    <ProductManagementPage />
+                  </AdminSimulationGate>
                 </ProtectedRoute>
               }
             />
@@ -130,7 +149,9 @@ export default function App() {
               path="/admin/brand"
               element={
                 <ProtectedRoute requiredRoles={['ADMIN']}>
-                  <BrandProfilePage />
+                  <AdminSimulationGate>
+                    <BrandProfilePage />
+                  </AdminSimulationGate>
                 </ProtectedRoute>
               }
             />
@@ -147,6 +168,7 @@ export default function App() {
           </Routes>
           <AXOConcierge />
           <CursorGlow />
+          </SimulationProvider>
         </BrowserRouter>
       </BulkProvider>
     </WishlistProvider>
