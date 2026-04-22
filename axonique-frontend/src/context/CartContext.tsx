@@ -25,6 +25,20 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_STORAGE_KEY = 'axo_cart_items_v1';
 
+function getDiscountedPrice(product: Product): number {
+  const price = Number(product.price);
+
+  if (
+    product.discountActive &&
+    product.discountPercentage != null &&
+    Number(product.discountPercentage) > 0
+  ) {
+    return price - (price * Number(product.discountPercentage)) / 100;
+  }
+
+  return price;
+}
+
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
@@ -32,19 +46,36 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       const idx = state.items.findIndex(
         (i) => i.product.id === product.id && i.size === size
       );
+
       if (idx >= 0) {
         const updated = [...state.items];
         updated[idx] = { ...updated[idx], qty: updated[idx].qty + 1 };
         return { items: updated };
       }
-      return { items: [...state.items, { product, size, qty: 1 }] };
+
+      return {
+        items: [
+          ...state.items,
+          {
+            product: {
+              ...product,
+              discountActive: product.discountActive ?? false,
+              discountPercentage: product.discountPercentage ?? 0,
+            },
+            size,
+            qty: 1,
+          },
+        ],
+      };
     }
+
     case 'REMOVE_ITEM':
       return {
         items: state.items.filter(
           (i) => !(i.product.id === action.payload.productId && i.size === action.payload.size)
         ),
       };
+
     case 'CHANGE_QTY': {
       const { productId, size, delta } = action.payload;
       const updated = state.items
@@ -54,10 +85,13 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             : i
         )
         .filter((i) => i.qty > 0);
+
       return { items: updated };
     }
+
     case 'CLEAR':
       return { items: [] };
+
     default:
       return state;
   }
@@ -68,6 +102,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(CART_STORAGE_KEY);
       if (!raw) return { items: [] };
+
       const parsed = JSON.parse(raw) as CartItem[];
       return { items: Array.isArray(parsed) ? parsed : [] };
     } catch {
@@ -87,14 +122,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => dispatch({ type: 'CLEAR' });
 
   const totalItems = state.items.reduce((s, i) => s + i.qty, 0);
-  const subtotal = state.items.reduce((s, i) => s + i.product.price * i.qty, 0);
+
+  const subtotal = state.items.reduce(
+    (s, i) => s + getDiscountedPrice(i.product) * i.qty,
+    0
+  );
 
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items));
   }, [state.items]);
 
   return (
-    <CartContext.Provider value={{ items: state.items, addItem, removeItem, changeQty, clearCart, totalItems, subtotal }}>
+    <CartContext.Provider
+      value={{
+        items: state.items,
+        addItem,
+        removeItem,
+        changeQty,
+        clearCart,
+        totalItems,
+        subtotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

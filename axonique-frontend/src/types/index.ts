@@ -5,6 +5,10 @@ export interface Product {
   name: string;
   category: string;
   price: number;
+
+  discountPercentage?: number;
+  discountActive?: boolean;
+
   emoji: string;
   imageUrl?: string;
   badge: string | null;

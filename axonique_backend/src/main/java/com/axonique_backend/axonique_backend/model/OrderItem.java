@@ -25,7 +25,6 @@ import lombok.Setter;
  *
  * Note: We store productName and price as a SNAPSHOT at time of order,
  *       so historical orders remain correct even if Product changes later.
- *       This is a deliberate denormalization for data integrity.
  */
 @Entity
 @Table(name = "order_items")
@@ -36,17 +35,13 @@ import lombok.Setter;
 @Builder
 public class OrderItem extends BaseEntity {
 
-    /** FK to the parent Order */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    /** FK to Product — used to look up current product; snapshot fields below preserve history */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
-
-    // ----- Snapshot fields (denormalized for order history integrity) -----
 
     @NotBlank
     @Column(nullable = false)
@@ -61,26 +56,36 @@ public class OrderItem extends BaseEntity {
     @Column(nullable = false)
     private Integer quantity;
 
-    /** Unit price at the time of the order */
     @NotNull
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    /** quantity × unitPrice */
     @NotNull
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal lineTotal;
 
-    // ----- Factory method (OOP: encapsulates construction logic) -----
     public static OrderItem from(Product product, String size, int qty) {
-        BigDecimal unit = product.getPrice();
+        BigDecimal originalPrice = product.getPrice();
+        BigDecimal finalPrice = originalPrice;
+
+        if (product.isDiscountActive()
+                && product.getDiscountPercentage() != null
+                && product.getDiscountPercentage().compareTo(BigDecimal.ZERO) > 0) {
+
+            BigDecimal discountAmount = originalPrice
+                    .multiply(product.getDiscountPercentage())
+                    .divide(BigDecimal.valueOf(100));
+
+            finalPrice = originalPrice.subtract(discountAmount);
+        }
+
         return OrderItem.builder()
                 .product(product)
                 .productName(product.getName())
                 .selectedSize(size)
                 .quantity(qty)
-                .unitPrice(unit)
-                .lineTotal(unit.multiply(BigDecimal.valueOf(qty)))
+                .unitPrice(finalPrice)
+                .lineTotal(finalPrice.multiply(BigDecimal.valueOf(qty)))
                 .build();
     }
 }

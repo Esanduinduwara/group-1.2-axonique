@@ -29,24 +29,33 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const layoutId = `product-${product.id}`;
 
+  const hasDiscount =
+    product.discountActive &&
+    product.discountPercentage != null &&
+    Number(product.discountPercentage) > 0;
+
+  const discountedPrice = hasDiscount
+    ? product.price - (product.price * Number(product.discountPercentage)) / 100
+    : product.price;
+
   return (
     <>
-      <motion.div 
-        className="product-card" 
-        onClick={() => setIsOpen(true)} 
-        role="button" 
+      <motion.div
+        className="product-card"
+        onClick={() => setIsOpen(true)}
+        role="button"
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && setIsOpen(true)}
         aria-label={`View details for ${product.name}`}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        whileHover={{ 
+        whileHover={{
           y: -10,
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         }}
         transition={{ duration: 0.3 }}
-        layoutId={layoutId} // Used for modal animation
+        layoutId={layoutId}
       >
         <div className="product-card__img">
           {product.badge && (
@@ -54,26 +63,49 @@ export default function ProductCard({ product }: ProductCardProps) {
               {product.badge}
             </div>
           )}
-                  {product.imageUrl ? (
-            <motion.img 
+          {product.imageUrl ? (
+            <motion.img
               layoutId={`img-${product.id}`}
-              src={product.imageUrl} 
+              src={product.imageUrl}
               alt={product.name}
               className="product-card__image"
             />
           ) : (
-          <motion.span layoutId={`img-${product.id}`} className="product-card__emoji" aria-hidden="true">
-            {decodeEmoji(product.emoji)}
-          </motion.span>
+            <motion.span layoutId={`img-${product.id}`} className="product-card__emoji" aria-hidden="true">
+              {decodeEmoji(product.emoji)}
+            </motion.span>
           )}
           <div className="product-card__overlay" aria-hidden="true" />
         </div>
 
         <div className="product-card__info">
           <div className="product-card__category">{product.category}</div>
-          <motion.div layoutId={`name-${product.id}`} className="product-card__name">{product.name}</motion.div>
+          <motion.div layoutId={`name-${product.id}`} className="product-card__name">
+            {product.name}
+          </motion.div>
+
+          {hasDiscount && (
+            <div style={{ fontSize: '0.85rem', color: '#15803d', marginTop: 4 }}>
+              {product.discountPercentage}% off
+            </div>
+          )}
+
           <div className="product-card__footer">
-            <div className="product-card__price">Rs {product.price.toLocaleString()}</div>
+            <div className="product-card__price">
+              {hasDiscount ? (
+                <>
+                  <span style={{ textDecoration: 'line-through', opacity: 0.7, marginRight: 8 }}>
+                    Rs {product.price.toLocaleString()}
+                  </span>
+                  <span style={{ color: '#15803d', fontWeight: 600 }}>
+                    Rs {discountedPrice.toLocaleString()}
+                  </span>
+                </>
+              ) : (
+                <>Rs {product.price.toLocaleString()}</>
+              )}
+            </div>
+
             <div className="product-card__actions">
               <button
                 className="btn btn-outline btn-sm"
@@ -96,10 +128,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       <AnimatePresence>
         {isOpen && (
-          <ProductModal 
-            product={product} 
-            onClose={() => setIsOpen(false)} 
-            layoutId={layoutId} 
+          <ProductModal
+            product={product}
+            onClose={() => setIsOpen(false)}
+            layoutId={layoutId}
           />
         )}
       </AnimatePresence>

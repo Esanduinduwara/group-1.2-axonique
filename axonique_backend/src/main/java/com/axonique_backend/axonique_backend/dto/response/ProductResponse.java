@@ -10,7 +10,7 @@ import lombok.Data;
 /**
  * outbound DTO returned to the frontend.
  *
- * SOLID S: shapes the API response independently of the domain model. Changing the response shape never touches Product.java.
+ * SOLID S: shapes the API response independently of the domain model.
  */
 @Data
 @Builder
@@ -19,6 +19,10 @@ public class ProductResponse {
     private String name;
     private String category;
     private BigDecimal price;
+
+    private BigDecimal discountPercentage;
+    private boolean discountActive;
+
     @JsonProperty("desc")
     private String description;
     private String emoji;
