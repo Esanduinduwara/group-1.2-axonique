@@ -1,0 +1,303 @@
+/* ============================================================
+   SCRUM-19 — Responsive Design & Consistent Styling
+   Global design tokens, resets, and shared utility classes
+   ============================================================ */
+
+/* ----- Design Tokens ----- */
+:root {
+  --bg: #000000;
+  --surface: #0b0b0b;
+  --card: #0f0f0f;
+  --border: #222222;
+  --accent: #FC1010;
+  --accent-light: #ff3d3d;
+  --text: #ffffff;
+  --muted: #bfbfbf;
+  --danger: #c0392b;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --nav-height: 64px;
+  --max-width: 1200px;
+  --radius: 6px;
+  --transition: 0.2s ease;
+}
+
+/* ----- Reset ----- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Base Canvas Layer (Everything sits on top of this) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: -10; /* Absolute bottom */
+  pointer-events: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+/* ----- Layout ----- */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.page, .footer {
+  position: relative;
+  z-index: 5; /* Above background/grid, below content (100+) and glow (10) */
+  background: transparent;
+}
+
+.page {
+  padding-top: var(--nav-height);
+  min-height: 100vh;
+  animation: fadeIn 0.35s ease;
+  transition: padding-top 0.3s ease;
+}
+
+body.has-banner .page {
+  padding-top: calc(var(--nav-height) + 35px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ----- Animated Stripes Background Utility ----- */
+.bg-stripes {
+  position: relative;
+}
+
+.bg-stripes::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 180px,
+    rgba(255, 255, 255, 0.02) 180px,
+    rgba(255, 255, 255, 0.02) 360px
+  );
+  background-size: 509px 509px; /* Correct diagonal tile size */
+  z-index: -8;
+  pointer-events: none;
+  animation: driftingStripes 25s linear infinite;
+}
+
+@keyframes driftingStripes {
+  from { background-position: 0 0; }
+  to { background-position: 509px 509px; }
+}
+
+/* ----- Section ----- */
+section {
+  padding: 5rem 2rem;
+}
+
+.section-label {
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.section-header {
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 102;
+}
+
+/* ----- Buttons ----- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  position: relative;
+  z-index: 150; /* Buttons well above glow (10) */
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(252, 16, 16, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-sm {
+  padding: 8px 18px;
+  font-size: 0.68rem;
+  letter-spacing: 1.5px;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ----- Divider ----- */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* ----- Products grid ----- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- Scrollbar ----- */
+/* ----- Premium Custom Scrollbar ----- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #111;
+  border-radius: 20px;
+  border: 2px solid #050505;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 6px rgba(252, 16, 16, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+/* ----- Wishlist Remove Button ----- */
+.wishlist-remove-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.wishlist-remove-btn:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+/* ----- Responsive breakpoints ----- */
+@media (max-width: 768px) {
+  section {
+    padding: 3rem 1rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --nav-height: 56px;
+  }
+
+  .container {
+    padding: 0 0.75rem;
+  }
+}

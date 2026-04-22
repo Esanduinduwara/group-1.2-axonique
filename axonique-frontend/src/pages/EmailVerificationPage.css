@@ -1,0 +1,295 @@
+.verification-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  padding: 1rem;
+}
+
+.verification-container {
+  width: 100%;
+  max-width: 440px;
+}
+
+.verification-card {
+  background-color: var(--card);
+  padding: 3rem;
+  border-radius: var(--radius);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+}
+
+/* Header Styles */
+.verification-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.verification-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--accent), #ff6b6b);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+  animation: pulse-icon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+  }
+}
+
+.verification-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+.verification-header p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* Email Display */
+.email-display {
+  background-color: rgba(255, 215, 0, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border-left: 3px solid var(--accent);
+  text-align: center;
+}
+
+.email-display p:first-child {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.email-text {
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+/* Form Styles */
+.verification-form {
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.code-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.code-input {
+  width: 100%;
+  padding: 14px 16px;
+  background-color: #000;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: 'Courier New', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5rem;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.code-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background-color: #050505;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+}
+
+.code-input::placeholder {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.code-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.code-counter {
+  position: absolute;
+  right: 16px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.help-text {
+  color: var(--muted);
+  font-size: 0.7rem;
+  margin-top: 0.6rem;
+  letter-spacing: 0.5px;
+}
+
+/* Verify Button */
+.verify-button {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: 0.5rem;
+}
+
+.verify-button:hover:not(:disabled) {
+  background-color: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
+}
+
+.verify-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.verify-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--muted);
+}
+
+/* Resend Section */
+.resend-section {
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.resend-text {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.resend-button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all var(--transition);
+  padding: 0;
+  text-decoration: underline;
+}
+
+.resend-button:hover:not(:disabled) {
+  color: #ffd700;
+}
+
+.resend-button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* Footer Note */
+.verification-footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.verification-footer p {
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+}
+
+.verification-footer span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .verification-card {
+    padding: 2rem;
+  }
+
+  .verification-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .code-input {
+    font-size: 1.5rem;
+    letter-spacing: 0.3rem;
+  }
+
+  .verification-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
+  }
+}
+
+/* Animation for success state */
+@keyframes success-bounce {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.verification-card.success {
+  animation: success-bounce 0.6s ease-out;
+}

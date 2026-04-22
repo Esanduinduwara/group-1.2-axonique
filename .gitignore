@@ -1,0 +1,14 @@
+axonique-frontend/node_modules
+axonique_backend/src/main/resources/application.properties
+*.log
+*.zip
+*.txt
+run_project.bat
+run_all.bat
+
+# Chatbot Test Files
+axonique-frontend/src/cli_test.cjs
+axonique-frontend/src/pages/ChatbotTestPage.tsx
+axonique-frontend/src/testnlp.js
+products.json
+test_logic_full.cjs
