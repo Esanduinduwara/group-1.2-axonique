@@ -1,29 +1,29 @@
-import { createContext, useContext, useEffect, useReducer } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { CartItem, Product } from '../types';
 
-interface CartState {
-  items: CartItem[];
-}
-
-type CartAction =
-  | { type: 'ADD_ITEM'; payload: { product: Product; size: string } }
-  | { type: 'REMOVE_ITEM'; payload: { productId: number; size: string } }
-  | { type: 'CHANGE_QTY'; payload: { productId: number; size: string; delta: number } }
-  | { type: 'CLEAR' };
-
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, size: string) => void;
-  removeItem: (productId: number, size: string) => void;
-  changeQty: (productId: number, size: string, delta: number) => void;
-  clearCart: () => void;
+  addItem: (product: Product, size: string) => Promise<void>;
+  removeItem: (productId: number, size: string) => Promise<void>;
+  changeQty: (productId: number, size: string, delta: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   totalItems: number;
   subtotal: number;
+  refreshCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const CART_STORAGE_KEY = 'axo_cart_items_v1';
+
+const API_BASE = 'http://localhost:8080/api/cart';
+const DEMO_USER_ID = 1;
+
+type BackendCartItem = {
+  id: number;
+  product: Product;
+  size: string;
+  quantity: number;
+};
 
 function getDiscountedPrice(product: Product): number {
   const price = Number(product.price);
@@ -39,109 +39,136 @@ function getDiscountedPrice(product: Product): number {
   return price;
 }
 
-function cartReducer(state: CartState, action: CartAction): CartState {
-  switch (action.type) {
-    case 'ADD_ITEM': {
-      const { product, size } = action.payload;
-      const idx = state.items.findIndex(
-        (i) => i.product.id === product.id && i.size === size
-      );
-
-      if (idx >= 0) {
-        const updated = [...state.items];
-        updated[idx] = { ...updated[idx], qty: updated[idx].qty + 1 };
-        return { items: updated };
-      }
-
-      return {
-        items: [
-          ...state.items,
-          {
-            product: {
-              ...product,
-              discountActive: product.discountActive ?? false,
-              discountPercentage: product.discountPercentage ?? 0,
-            },
-            size,
-            qty: 1,
-          },
-        ],
-      };
-    }
-
-    case 'REMOVE_ITEM':
-      return {
-        items: state.items.filter(
-          (i) => !(i.product.id === action.payload.productId && i.size === action.payload.size)
-        ),
-      };
-
-    case 'CHANGE_QTY': {
-      const { productId, size, delta } = action.payload;
-      const updated = state.items
-        .map((i) =>
-          i.product.id === productId && i.size === size
-            ? { ...i, qty: i.qty + delta }
-            : i
-        )
-        .filter((i) => i.qty > 0);
-
-      return { items: updated };
-    }
-
-    case 'CLEAR':
-      return { items: [] };
-
-    default:
-      return state;
-  }
+function mapBackendItem(item: BackendCartItem): CartItem {
+  return {
+    product: item.product,
+    size: item.size,
+    qty: item.quantity,
+  };
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] }, () => {
-    try {
-      const raw = localStorage.getItem(CART_STORAGE_KEY);
-      if (!raw) return { items: [] };
+  const [items, setItems] = useState<CartItem[]>([]);
 
-      const parsed = JSON.parse(raw) as CartItem[];
-      return { items: Array.isArray(parsed) ? parsed : [] };
-    } catch {
-      return { items: [] };
+  const refreshCart = async () => {
+    const res = await fetch(`${API_BASE}/${DEMO_USER_ID}`);
+    if (!res.ok) {
+      throw new Error('Failed to load cart');
     }
-  });
 
-  const addItem = (product: Product, size: string) =>
-    dispatch({ type: 'ADD_ITEM', payload: { product, size } });
-
-  const removeItem = (productId: number, size: string) =>
-    dispatch({ type: 'REMOVE_ITEM', payload: { productId, size } });
-
-  const changeQty = (productId: number, size: string, delta: number) =>
-    dispatch({ type: 'CHANGE_QTY', payload: { productId, size, delta } });
-
-  const clearCart = () => dispatch({ type: 'CLEAR' });
-
-  const totalItems = state.items.reduce((s, i) => s + i.qty, 0);
-
-  const subtotal = state.items.reduce(
-    (s, i) => s + getDiscountedPrice(i.product) * i.qty,
-    0
-  );
+    const data: BackendCartItem[] = await res.json();
+    setItems(data.map(mapBackendItem));
+  };
 
   useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items));
-  }, [state.items]);
+    refreshCart().catch((err) => {
+      console.error('Failed to fetch cart:', err);
+      setItems([]);
+    });
+  }, []);
+
+  const addItem = async (product: Product, size: string) => {
+    const res = await fetch(`${API_BASE}/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: DEMO_USER_ID,
+        productId: product.id,
+        size,
+        qty: 1,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to add item to cart');
+    }
+
+    await refreshCart();
+  };
+
+  const removeItem = async (productId: number, size: string) => {
+    const res = await fetch(`${API_BASE}/remove`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: DEMO_USER_ID,
+        productId,
+        size,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to remove item from cart');
+    }
+
+    await refreshCart();
+  };
+
+  const changeQty = async (productId: number, size: string, delta: number) => {
+    const existing = items.find(
+      (item) => item.product.id === productId && item.size === size
+    );
+
+    if (!existing) return;
+
+    const newQty = existing.qty + delta;
+
+    if (newQty <= 0) {
+      await removeItem(productId, size);
+      return;
+    }
+
+    const res = await fetch(`${API_BASE}/update`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: DEMO_USER_ID,
+        productId,
+        size,
+        qty: newQty,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to update quantity');
+    }
+
+    await refreshCart();
+  };
+
+  const clearCart = async () => {
+    const res = await fetch(`${API_BASE}/clear/${DEMO_USER_ID}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to clear cart');
+    }
+
+    await refreshCart();
+  };
+
+  const totalItems = useMemo(
+    () => items.reduce((sum, item) => sum + item.qty, 0),
+    [items]
+  );
+
+  const subtotal = useMemo(
+    () => items.reduce((sum, item) => sum + getDiscountedPrice(item.product) * item.qty, 0),
+    [items]
+  );
 
   return (
     <CartContext.Provider
       value={{
-        items: state.items,
+        items,
         addItem,
         removeItem,
         changeQty,
         clearCart,
         totalItems,
         subtotal,
+        refreshCart,
       }}
     >
       {children}
