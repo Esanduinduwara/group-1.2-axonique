@@ -6,6 +6,9 @@ import com.axonique_backend.axonique_backend.dto.request.ProductRequest;
 import com.axonique_backend.axonique_backend.dto.response.ProductResponse;
 import com.axonique_backend.axonique_backend.model.Product;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Component
 public class ProductMapper {
 
@@ -22,6 +25,11 @@ public class ProductMapper {
         product.setSizes(request.getSizes());
         product.setStockQuantity(request.getStockQuantity());
         product.setLowStockThreshold(request.getLowStockThreshold());
+
+        // default discount values
+        product.setDiscountActive(false);
+        product.setDiscountPercentage(BigDecimal.ZERO);
+
         return product;
     }
 
@@ -40,13 +48,33 @@ public class ProductMapper {
     }
 
     public ProductResponse toResponse(Product product) {
+
+        BigDecimal originalPrice = product.getPrice();
+        BigDecimal discountPercentage = product.getDiscountPercentage() != null
+                ? product.getDiscountPercentage()
+                : BigDecimal.ZERO;
+
+        boolean discountActive = product.isDiscountActive();
+
+        BigDecimal discountedPrice = originalPrice;
+
+        // 🔥 CORE LOGIC (Task 2)
+        if (discountActive && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal discountAmount = originalPrice
+                    .multiply(discountPercentage)
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+            discountedPrice = originalPrice.subtract(discountAmount);
+        }
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .category(product.getCategory())
-                .price(product.getPrice())
-                .discountPercentage(product.getDiscountPercentage())
-                .discountActive(product.isDiscountActive())
+                .price(originalPrice)
+                .discountPercentage(discountPercentage)
+                .discountActive(discountActive)
+                .discountedPrice(discountedPrice) // ✅ NEW FIELD
                 .description(product.getDescription())
                 .emoji(product.getEmoji())
                 .badge(product.getBadge())

@@ -22,6 +22,7 @@ public class ProductResponse {
 
     private BigDecimal discountPercentage;
     private boolean discountActive;
+    private BigDecimal discountedPrice;
 
     @JsonProperty("desc")
     private String description;
