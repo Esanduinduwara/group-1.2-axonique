@@ -21,6 +21,7 @@ import ShippingPolicyPage from './pages/ShippingPolicyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import VerifyOrderPage from './pages/VerifyOrderPage';
 import RetailerBulkOrderPage from './pages/RetailerBulkOrderPage';
 
 // Admin/Staff Pages
@@ -63,6 +64,7 @@ export default function App() {
                     <Route path="/product/:id" element={<ProductPage />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/verify-order" element={<VerifyOrderPage />} />
                     <Route path="/retailer/bulk-order" element={
                       <ErrorBoundary>
                         <ProtectedRoute requiredRoles={['RETAILER', 'ADMIN']}>

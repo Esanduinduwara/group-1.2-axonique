@@ -8,6 +8,7 @@ package com.axonique_backend.axonique_backend.model;
  * logic.
  */
 public enum OrderStatus {
+    PENDING_VERIFICATION,
     PENDING,
     CONFIRMED,
     SHIPPED,

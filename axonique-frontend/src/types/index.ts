@@ -30,7 +30,7 @@ export interface Order {
   subtotal: number;
   shippingFee: number;
   total: number;
-  status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING_VERIFICATION' | 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   createdAt: string;
   items: OrderItem[];
 }

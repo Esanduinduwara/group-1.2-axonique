@@ -58,6 +58,12 @@ public class SecurityConfig {
                                                 .requestMatchers(org.springframework.http.HttpMethod.POST,
                                                                 "/api/orders")
                                                 .permitAll()
+                                                .requestMatchers(org.springframework.http.HttpMethod.GET,
+                                                                "/api/orders/verify")
+                                                .permitAll()
+                                                .requestMatchers(org.springframework.http.HttpMethod.POST,
+                                                                "/api/orders/resend-verification")
+                                                .permitAll()
                                                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "STAFF")
                                                 .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "STAFF")
                                                 // Admins/staff can view all bulk orders
@@ -83,8 +89,10 @@ public class SecurityConfig {
         @Bean
         public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
                 org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-                configuration.setAllowedOrigins(
-                                java.util.Arrays.asList("http://localhost:5173", "http://127.0.0.1:5173"));
+                configuration.setAllowedOriginPatterns(
+                                java.util.Arrays.asList(
+                                                "http://localhost:*",
+                                                "http://127.0.0.1:*"));
                 configuration.setAllowedMethods(
                                 java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
                 configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type",

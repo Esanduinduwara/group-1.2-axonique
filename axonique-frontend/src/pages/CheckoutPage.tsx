@@ -10,11 +10,13 @@ export default function CheckoutPage() {
   const [customerEmail, setCustomerEmail] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [pendingVerification, setPendingVerification] = useState<{ orderId: number | null; email: string } | null>(null);
 
   const shipping = subtotal >= 10000 ? 0 : 350;
   const total = subtotal + shipping;
 
-  if (items.length === 0) {
+  if (items.length === 0 && !pendingVerification) {
     return (
       <main className="page">
         <section>
@@ -25,6 +27,28 @@ export default function CheckoutPage() {
               <p className="empty-cart__desc">Add items before checkout</p>
               <button className="btn btn-primary" onClick={() => navigate('/catalog')}>
                 Shop Now →
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (items.length === 0 && pendingVerification) {
+    return (
+      <main className="page">
+        <section>
+          <div className="container">
+            <div className="empty-cart" aria-label="Order pending verification">
+              <div className="empty-cart__icon">📧</div>
+              <h2 className="empty-cart__title">Please verify your order via email</h2>
+              <p className="empty-cart__desc">
+                We sent a verification link to <strong>{pendingVerification.email}</strong>.
+                {pendingVerification.orderId ? ` Order ID: #${pendingVerification.orderId}.` : ''}
+              </p>
+              <button className="btn" onClick={() => navigate('/')}>
+                Back to Home
               </button>
             </div>
           </div>
@@ -58,11 +82,11 @@ export default function CheckoutPage() {
       }
 
       clearCart();
-      alert(`Order placed successfully. Order ID: ${data?.data?.id ?? 'N/A'}`);
-      navigate('/');
+      setPendingVerification({ orderId: data?.data?.id ?? null, email: customerEmail });
+      setNotice(`Please verify your order via email to complete your purchase.`);
     } catch (error) {
       console.error(error);
-      alert('Checkout failed. Please try again.');
+      setNotice('We could not place your order right now. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -76,6 +100,20 @@ export default function CheckoutPage() {
             <div className="section-label">Checkout</div>
             <h1 className="section-title">Delivery Details</h1>
           </div>
+          {notice && (
+            <div
+              style={{
+                marginBottom: '1rem',
+                padding: '0.75rem 0.9rem',
+                border: '1px solid var(--border)',
+                borderRadius: '10px',
+                background: 'rgba(255,255,255,0.03)',
+                color: '#f1f1f1',
+              }}
+            >
+              {notice}
+            </div>
+          )}
 
           <div className="checkout-layout">
             <form className="checkout-form" onSubmit={handleSubmit}>

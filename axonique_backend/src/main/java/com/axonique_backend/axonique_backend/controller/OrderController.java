@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import com.axonique_backend.axonique_backend.dto.request.PlaceOrderRequest;
+import com.axonique_backend.axonique_backend.dto.request.ResendOrderVerificationRequest;
 import com.axonique_backend.axonique_backend.dto.response.ApiResponse;
 import com.axonique_backend.axonique_backend.dto.response.OrderResponse;
 import com.axonique_backend.axonique_backend.model.OrderStatus;
@@ -23,7 +24,21 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponse>> placeOrder(
             @Valid @RequestBody PlaceOrderRequest request) {
         OrderResponse order = orderService.placeOrder(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(order));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Order created. Please verify your email to confirm this order.", order));
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<ApiResponse<OrderResponse>> verifyOrder(@RequestParam String token) {
+        OrderResponse order = orderService.verifyOrderByToken(token);
+        return ResponseEntity.ok(ApiResponse.ok("Order verified successfully", order));
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<Void>> resendVerification(
+            @Valid @RequestBody ResendOrderVerificationRequest request) {
+        orderService.resendVerificationEmail(request);
+        return ResponseEntity.ok(ApiResponse.noContent("Verification email sent."));
     }
 
     @GetMapping("/{id}")
