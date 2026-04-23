@@ -1,12 +1,15 @@
 package com.axonique_backend.axonique_backend.controller;
 
+import com.axonique_backend.axonique_backend.dto.request.ClientProductSyncRequest;
 import com.axonique_backend.axonique_backend.dto.request.CreateRetailerRequest;
 import com.axonique_backend.axonique_backend.dto.request.CreateStaffRequest;
 import com.axonique_backend.axonique_backend.dto.response.ApiResponse;
+import com.axonique_backend.axonique_backend.dto.response.ClientProductSyncResponse;
 import com.axonique_backend.axonique_backend.dto.response.DashboardMetricsResponse;
 import com.axonique_backend.axonique_backend.dto.response.ProductResponse;
 import com.axonique_backend.axonique_backend.dto.response.UserSummaryResponse;
 import com.axonique_backend.axonique_backend.service.interfaces.AdminService;
+import com.axonique_backend.axonique_backend.service.interfaces.ClientProductSyncService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final ClientProductSyncService clientProductSyncService;
 
     /**
      * GET /api/admin/dashboard/metrics
@@ -121,6 +125,19 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<List<ProductResponse>>> getLowStockProducts() {
         return ResponseEntity.ok(ApiResponse.ok("Low stock products retrieved", adminService.getLowStockProducts()));
+    }
+
+    /**
+     * POST /api/admin/sync/client-products
+     * Synchronizes client product data into the system.
+     * Accessible to ADMIN or STAFF.
+     */
+    @PostMapping("/sync/client-products")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<ApiResponse<ClientProductSyncResponse>> syncClientProducts(
+            @RequestBody ClientProductSyncRequest request) {
+        ClientProductSyncResponse response = clientProductSyncService.synchronize(request);
+        return ResponseEntity.ok(ApiResponse.ok("Client product synchronization completed", response));
     }
 
     /**
