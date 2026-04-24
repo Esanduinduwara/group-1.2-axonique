@@ -25,6 +25,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByStatus(OrderStatus status);
 
     List<Order> findByCustomerEmailOrderByCreatedAtDesc(String email);
+    List<Order> findAllByOrderByIdDesc();
+    List<Order> findTop10ByOrderByIdDesc();
     Optional<Order> findByVerificationToken(String verificationToken);
     Optional<Order> findByIdAndCustomerEmail(Long id, String customerEmail);
     Optional<Order> findTopByCustomerEmailAndStatusOrderByCreatedAtDesc(String customerEmail, OrderStatus status);

@@ -289,6 +289,7 @@ public class AdminServiceImpl implements AdminService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", productId));
         product.setStockQuantity(quantity);
+        product.setInStock(quantity > 0);
         Product saved = productRepository.save(product);
         return productMapper.toResponse(saved);
     }

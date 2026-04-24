@@ -61,6 +61,21 @@
   z-index: 2;
 }
 
+.product-card__stock-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(231, 76, 60, 0.95);
+  color: #fff;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-weight: 700;
+  z-index: 2;
+}
+
 .product-card__info {
   padding: 1.2rem;
 }

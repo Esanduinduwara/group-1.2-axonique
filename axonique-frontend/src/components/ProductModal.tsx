@@ -17,6 +17,7 @@ export default function ProductModal({ product, onClose, layoutId }: ProductModa
   const { addItem: addToWishlist } = useWishlist();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [toast, setToast] = useState('');
+  const isOutOfStock = !product.inStock || product.stockQuantity <= 0;
 
   // Lock body scroll when open
   useEffect(() => {
@@ -27,6 +28,10 @@ export default function ProductModal({ product, onClose, layoutId }: ProductModa
   }, []);
 
   const handleAddToCart = () => {
+    if (isOutOfStock) {
+      setToast('Cannot place order because the product is out of stock');
+      return;
+    }
     if (!selectedSize) {
       setToast('Please select a size first');
       return;
@@ -83,6 +88,11 @@ export default function ProductModal({ product, onClose, layoutId }: ProductModa
           <div style={{ fontSize: '1.4rem', color: 'var(--accent)', marginBottom: '1.5rem', fontWeight: 500 }}>
             Rs {product.price.toLocaleString()}
           </div>
+          {isOutOfStock && (
+            <div style={{ marginBottom: '1rem', color: '#e74c3c', fontWeight: 600 }}>
+              Out of Stock
+            </div>
+          )}
           <p style={{ color: 'var(--muted)', lineHeight: 1.6, marginBottom: '2rem', fontSize: '0.95rem' }}>
             {product.desc || `Premium ${product.category.toLowerCase()} perfect for any occasion.`}
           </p>
@@ -107,8 +117,13 @@ export default function ProductModal({ product, onClose, layoutId }: ProductModa
             ))}
           </div>
 
-          <button className="btn btn-primary" style={{ width: '100%', marginBottom: '1rem', padding: '0.8rem' }} onClick={handleAddToCart}>
-            Add to Cart →
+          <button
+            className="btn btn-primary"
+            style={{ width: '100%', marginBottom: '1rem', padding: '0.8rem' }}
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+          >
+            {isOutOfStock ? 'Out of Stock' : 'Add to Cart →'}
           </button>
 
           <div style={{ display: 'flex', gap: '1rem' }}>

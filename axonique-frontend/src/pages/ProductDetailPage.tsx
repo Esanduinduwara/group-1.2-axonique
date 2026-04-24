@@ -39,7 +39,13 @@ export default function ProductDetailPage() {
     );
   }
 
+  const isOutOfStock = !product.inStock || product.stockQuantity <= 0;
+
   const handleAddToCart = () => {
+    if (isOutOfStock) {
+      setToast('Cannot place order because the product is out of stock');
+      return;
+    }
     if (!selectedSize) {
       setToast('Please select a size first');
       return;
@@ -86,6 +92,11 @@ export default function ProductDetailPage() {
             <div className="detail-category">{product.category.toUpperCase()}</div>
             <h1 className="detail-name">{product.name}</h1>
             <div className="detail-price">Rs {product.price.toLocaleString()}</div>
+            {isOutOfStock && (
+              <p style={{ color: '#e74c3c', fontWeight: 700, margin: '0.5rem 0' }}>
+                Out of Stock
+              </p>
+            )}
             <p className="detail-desc">{product.desc}</p>
 
             {/* Size selector */}
@@ -105,8 +116,8 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Add to cart */}
-            <button className="btn btn-primary btn-full" onClick={handleAddToCart}>
-              Add to Cart →
+            <button className="btn btn-primary btn-full" onClick={handleAddToCart} disabled={isOutOfStock}>
+              {isOutOfStock ? 'Out of Stock' : 'Add to Cart →'}
             </button>
 
             {/* Secondary actions */}

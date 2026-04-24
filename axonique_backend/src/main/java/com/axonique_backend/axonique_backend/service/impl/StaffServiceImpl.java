@@ -28,8 +28,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public StaffActivityResponse getActivity() {
-        List<Order> recentOrders = orderRepository.findAllOrderByCreatedAtDesc()
-                .stream().limit(10).toList();
+        List<Order> recentOrders = orderRepository.findTop10ByOrderByIdDesc();
 
         List<User> recentUsers = userRepository.findRecentRegistrations(PageRequest.of(0, 10));
 

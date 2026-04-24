@@ -15,9 +15,11 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useWishlist();
   const [isOpen, setIsOpen] = useState(false);
+  const isOutOfStock = !product.inStock || product.stockQuantity <= 0;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isOutOfStock) return;
     setIsOpen(true);
   };
 
@@ -54,6 +56,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               {product.badge}
             </div>
           )}
+          {isOutOfStock && (
+            <div className="product-card__stock-badge" aria-label="Out of stock">
+              Out of Stock
+            </div>
+          )}
                   {product.imageUrl ? (
             <motion.img 
               layoutId={`img-${product.id}`}
@@ -86,8 +93,9 @@ export default function ProductCard({ product }: ProductCardProps) {
                 className="btn btn-primary btn-sm"
                 onClick={handleQuickAdd}
                 aria-label={`View details for ${product.name}`}
+                disabled={isOutOfStock}
               >
-                Add →
+                {isOutOfStock ? 'Out of Stock' : 'Add →'}
               </button>
             </div>
           </div>

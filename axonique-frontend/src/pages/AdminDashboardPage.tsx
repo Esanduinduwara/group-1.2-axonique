@@ -176,7 +176,13 @@ export default function AdminDashboardPage() {
   const maxRevenue = Math.max(...last6Months.map(m => m.revenue), 1);
 
   const statusColors: Record<string, string> = {
-    PENDING: '#888', PROCESSING: '#3498db', SHIPPED: '#f39c12', DELIVERED: '#27ae60',
+    PENDING_VERIFICATION: '#8e44ad',
+    PENDING: '#888',
+    CONFIRMED: '#3498db',
+    PROCESSING: '#3498db',
+    SHIPPED: '#f39c12',
+    DELIVERED: '#27ae60',
+    CANCELLED: '#e74c3c',
   };
   const statusEntries = Object.entries(metrics?.ordersByStatus ?? {});
   const totalOrders = statusEntries.reduce((s, [, v]) => s + v, 0);

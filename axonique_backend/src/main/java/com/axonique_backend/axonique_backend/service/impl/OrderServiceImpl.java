@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAll().stream().map(orderMapper::toResponse).toList();
+        return orderRepository.findAllByOrderByIdDesc().stream().map(orderMapper::toResponse).toList();
     }
 
     @Override
@@ -77,7 +77,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void updateOrderStatus(Long id, OrderStatus newStatus) {
         Order order = findOrderOrThrow(id);
+        OrderStatus currentStatus = order.getStatus();
         validateStatusTransition(order.getStatus(), newStatus);
+        if (newStatus == OrderStatus.CONFIRMED && currentStatus != OrderStatus.CONFIRMED) {
+            deductInventoryForOrder(order);
+        }
         order.setStatus(newStatus);
 
         // Save and flush updates the database immediately
@@ -103,6 +107,7 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException("Verification link is invalid or has expired.");
         }
 
+        deductInventoryForOrder(order);
         order.setStatus(OrderStatus.CONFIRMED);
         order.setVerificationTokenUsed(true);
         order.setVerificationCompletedAt(LocalDateTime.now());
@@ -155,6 +160,12 @@ public class OrderServiceImpl implements OrderService {
 
             if (!product.isInStock())
                 throw new BusinessException("Product out of stock");
+            if (itemReq.getQuantity() <= 0) {
+                throw new BusinessException("Quantity must be greater than zero.");
+            }
+            if (product.getStockQuantity() < itemReq.getQuantity()) {
+                throw new BusinessException("Insufficient stock for product: " + product.getName());
+            }
 
             OrderItem item = OrderItem.from(product, itemReq.getSize(), itemReq.getQuantity());
             order.addItem(item);
@@ -191,5 +202,23 @@ public class OrderServiceImpl implements OrderService {
 
     private String generateVerificationToken() {
         return UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private void deductInventoryForOrder(Order order) {
+        for (OrderItem item : order.getItems()) {
+            Product product = item.getProduct();
+            if (product == null) {
+                continue;
+            }
+            Product managedProduct = productRepository.findById(product.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product", product.getId()));
+            int newQty = managedProduct.getStockQuantity() - item.getQuantity();
+            if (newQty < 0) {
+                throw new BusinessException("Insufficient stock to confirm order for: " + managedProduct.getName());
+            }
+            managedProduct.setStockQuantity(newQty);
+            managedProduct.setInStock(newQty > 0);
+            productRepository.save(managedProduct);
+        }
     }
 }
