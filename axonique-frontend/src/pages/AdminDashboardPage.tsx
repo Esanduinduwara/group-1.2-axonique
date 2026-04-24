@@ -5,10 +5,12 @@ import type { DashboardMetrics, UserSummary } from '../types';
 import './AdminDashboardPage.css';
 
 const API = '' + (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') + '';
+const HIDDEN_ADMIN_EMAILS = new Set(['admin@axonique.com', 'admin_now@axonique.com']);
 
 
 export default function AdminDashboardPage() {
   const role = authService.getRole();
+  const currentUser = authService.getUser();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,10 @@ export default function AdminDashboardPage() {
       fetch(`${API}/api/admin/users`, { headers }).then(r => r.json()),
     ]).then(([metricsData, usersData]) => {
       setMetrics(metricsData.data);
-      setUsers(usersData.data || []);
+      const safeUsers = (usersData.data || []).filter((u: UserSummary) =>
+        u.role !== 'ADMIN' && !HIDDEN_ADMIN_EMAILS.has(u.email.toLowerCase())
+      );
+      setUsers(safeUsers);
     }).catch(() => showToast('Failed to load dashboard data', 'error'))
       .finally(() => setLoading(false));
   }, []);
@@ -127,6 +132,11 @@ export default function AdminDashboardPage() {
   };
 
   const handleRoleChange = async (userId: number, role: string) => {
+    if (role === 'ADMIN') {
+      showToast('Promoting users to ADMIN is restricted by policy', 'error');
+      return;
+    }
+
     try {
       const res = await fetch(`${API}/api/admin/users/${userId}/role?role=${role}`, {
         method: 'PUT', headers,
@@ -179,6 +189,11 @@ export default function AdminDashboardPage() {
   }).join(', ');
 
   const pagedUsers = users.slice(page * pageSize, (page + 1) * pageSize);
+  const isCurrentSessionUser = (user: UserSummary) =>
+    !!currentUser && (
+      currentUser.username.toLowerCase() === user.username.toLowerCase()
+      || currentUser.email.toLowerCase() === user.email.toLowerCase()
+    );
 
   return (
     <div className="admin-layout">
@@ -401,16 +416,25 @@ export default function AdminDashboardPage() {
                             <td>{u.username}</td>
                             <td className="text-muted">{u.email}</td>
                             <td>
-                              <select
-                                className="role-select"
-                                value={u.role}
-                                onChange={e => handleRoleChange(u.id, e.target.value)}
-                              >
-                                <option value="CUSTOMER">CUSTOMER</option>
-                                <option value="STAFF">STAFF</option>
-                                <option value="ADMIN">ADMIN</option>
-                                <option value="RETAILER">RETAILER</option>
-                              </select>
+                              <div style={{ display: 'grid', gap: '0.35rem' }}>
+                                <select
+                                  className="role-select"
+                                  value={u.role}
+                                  onChange={e => handleRoleChange(u.id, e.target.value)}
+                                  disabled={isCurrentSessionUser(u)}
+                                  title={isCurrentSessionUser(u) ? 'You cannot change your own role' : 'Change role'}
+                                >
+                                  <option value="CUSTOMER">CUSTOMER</option>
+                                  <option value="STAFF">STAFF</option>
+                                  <option value="RETAILER">RETAILER</option>
+                                  <option value="ADMIN" disabled>
+                                    ADMIN (restricted)
+                                  </option>
+                                </select>
+                                <small className="text-muted" title="Backend policy restriction">
+                                  ADMIN promotion is blocked by backend policy.
+                                </small>
+                              </div>
                             </td>
                             <td>
                               <span className={`status-badge ${u.enabled ? 'status-badge--active' : 'status-badge--disabled'}`}>
@@ -421,7 +445,7 @@ export default function AdminDashboardPage() {
                               <button
                                 className="pm-action-btn pm-action-btn--danger"
                                 onClick={() => handleDeleteUser(u.id)}
-                                disabled={authService.getUser()?.username === u.username}
+                                disabled={isCurrentSessionUser(u)}
                               >
                                 🗑️ Delete
                               </button>

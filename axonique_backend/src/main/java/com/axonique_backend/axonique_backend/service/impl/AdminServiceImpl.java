@@ -20,18 +20,30 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AdminServiceImpl implements AdminService {
+    private static final String PRIMARY_ADMIN_EMAIL = "admin_now@axonique.com";
+    private static final String LEGACY_ADMIN_EMAIL = "admin@axonique.com";
+    private static final Set<String> STAFF_LOCKED_EMAILS = new HashSet<>(
+            Arrays.asList("staff1@axonique.com", "staff_user@axonique.com"));
 
     private final OrderRepository orderRepository;
     private final BulkOrderRepository bulkOrderRepository;
@@ -108,7 +120,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(readOnly = true)
     public List<UserSummaryResponse> getAllUsers() {
-        return userRepository.findAllOrderByIdDesc().stream()
+        List<User> users = userRepository.findAllOrderByIdDesc();
+        users.forEach(this::enforceRolePolicyIfNeeded);
+        return users.stream()
+                .filter(u -> u.getRole() != Role.ADMIN)
+                .filter(u -> !LEGACY_ADMIN_EMAIL.equalsIgnoreCase(normalizeEmail(u.getEmail())))
                 .map(u -> UserSummaryResponse.builder()
                         .id(u.getId())
                         .username(u.getUsername())
@@ -121,22 +137,24 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public UserSummaryResponse createRetailer(CreateRetailerRequest request) {
+        String normalizedEmail = normalizeEmail(request.getEmail());
+
         // Validate username not already taken
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username '" + request.getUsername() + "' is already taken");
         }
 
         // Validate email not already registered
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email '" + request.getEmail() + "' is already registered");
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new IllegalArgumentException("Email '" + normalizedEmail + "' is already registered");
         }
 
         // Create new retailer user
         User retailer = User.builder()
                 .username(request.getUsername())
-                .email(request.getEmail())
+                .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.RETAILER)
+                .role(resolveRoleForEmail(normalizedEmail, Role.RETAILER))
                 .enabled(true)
                 .build();
 
@@ -152,22 +170,24 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public UserSummaryResponse createStaff(CreateStaffRequest request) {
+        String normalizedEmail = normalizeEmail(request.getEmail());
+
         // Validate username not already taken
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username '" + request.getUsername() + "' is already taken");
         }
 
         // Validate email not already registered
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email '" + request.getEmail() + "' is already registered");
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new IllegalArgumentException("Email '" + normalizedEmail + "' is already registered");
         }
 
         // Create new staff user
         User staff = User.builder()
                 .username(request.getUsername())
-                .email(request.getEmail())
+                .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.STAFF)
+                .role(resolveRoleForEmail(normalizedEmail, Role.STAFF))
                 .enabled(true)
                 .build();
 
@@ -185,11 +205,19 @@ public class AdminServiceImpl implements AdminService {
     public UserSummaryResponse updateUserRole(Long userId, String role) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+        Role requestedRole;
         try {
-            user.setRole(Role.valueOf(role.toUpperCase()));
+            requestedRole = Role.valueOf(role.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid role: " + role + ". Must be CUSTOMER, STAFF, ADMIN, or RETAILER");
         }
+
+        if (requestedRole == Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Promoting users to ADMIN is not allowed.");
+        }
+
+        protectAdminSelfDemotion(user, requestedRole);
+        user.setRole(resolveRoleForEmail(normalizeEmail(user.getEmail()), requestedRole));
         userRepository.save(user);
         return UserSummaryResponse.builder()
                 .id(user.getId())
@@ -198,6 +226,53 @@ public class AdminServiceImpl implements AdminService {
                 .role(user.getRole().name())
                 .enabled(user.isEnabled())
                 .build();
+    }
+
+    private void protectAdminSelfDemotion(User targetUser, Role requestedRole) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            return;
+        }
+
+        String actorUsername = authentication.getName();
+        if (!actorUsername.equalsIgnoreCase(targetUser.getUsername())) {
+            return;
+        }
+
+        if (targetUser.getRole() == Role.ADMIN && requestedRole != Role.ADMIN) {
+            throw new IllegalArgumentException("Admin users cannot change their own role.");
+        }
+    }
+
+    private void enforceRolePolicyIfNeeded(User user) {
+        String normalizedEmail = normalizeEmail(user.getEmail());
+        Role enforcedRole = resolveRoleForEmail(normalizedEmail, user.getRole());
+        if (user.getRole() != enforcedRole) {
+            user.setRole(enforcedRole);
+            userRepository.save(user);
+        }
+    }
+
+    private Role resolveRoleForEmail(String email, Role requestedRole) {
+        Role safeRequestedRole = requestedRole == null ? Role.CUSTOMER : requestedRole;
+
+        if (PRIMARY_ADMIN_EMAIL.equals(email)) {
+            return Role.ADMIN;
+        }
+
+        if (safeRequestedRole == Role.ADMIN) {
+            return STAFF_LOCKED_EMAILS.contains(email) ? Role.STAFF : Role.CUSTOMER;
+        }
+
+        if (safeRequestedRole == Role.STAFF) {
+            return STAFF_LOCKED_EMAILS.contains(email) ? Role.STAFF : Role.CUSTOMER;
+        }
+
+        return safeRequestedRole;
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
     }
 
     @Override

@@ -119,6 +119,51 @@
   gap: 0.75rem;
 }
 
+.admin-sidebar__simulation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+}
+
+.admin-sidebar__simulation-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.admin-sidebar__simulation-toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.admin-sidebar__simulation-toggle.active {
+  background: rgba(252, 16, 16, 0.2);
+  border-color: rgba(252, 16, 16, 0.45);
+}
+
+.admin-sidebar__simulation-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+}
+
+.admin-sidebar__simulation-toggle.active .admin-sidebar__simulation-thumb {
+  transform: translateX(20px);
+}
+
 .admin-sidebar__logout {
   background: transparent;
   border: 1px solid #c0392b;
