@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
@@ -48,4 +49,13 @@ public class ProductRequest {
     private int stockQuantity = 0;
 
     private int lowStockThreshold = 5;
+
+    // ============================
+    // Individual Item Discount
+    // ============================
+    @DecimalMin(value = "0.0", message = "Discount percentage cannot be negative")
+    @DecimalMax(value = "100.0", message = "Discount percentage cannot exceed 100")
+    private BigDecimal discountPercentage = BigDecimal.ZERO;
+
+    private boolean discountActive = false;
 }

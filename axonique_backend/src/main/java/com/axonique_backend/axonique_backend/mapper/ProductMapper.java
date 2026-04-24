@@ -26,9 +26,13 @@ public class ProductMapper {
         product.setStockQuantity(request.getStockQuantity());
         product.setLowStockThreshold(request.getLowStockThreshold());
 
-        // default discount values
-        product.setDiscountActive(false);
-        product.setDiscountPercentage(BigDecimal.ZERO);
+        // Individual item discount
+        product.setDiscountActive(request.isDiscountActive());
+        product.setDiscountPercentage(
+                request.getDiscountPercentage() != null
+                        ? request.getDiscountPercentage()
+                        : BigDecimal.ZERO
+        );
 
         return product;
     }
@@ -45,6 +49,14 @@ public class ProductMapper {
         product.setSizes(request.getSizes());
         product.setStockQuantity(request.getStockQuantity());
         product.setLowStockThreshold(request.getLowStockThreshold());
+
+        // Individual item discount
+        product.setDiscountActive(request.isDiscountActive());
+        product.setDiscountPercentage(
+                request.getDiscountPercentage() != null
+                        ? request.getDiscountPercentage()
+                        : BigDecimal.ZERO
+        );
     }
 
     public ProductResponse toResponse(Product product) {
@@ -58,7 +70,7 @@ public class ProductMapper {
 
         BigDecimal discountedPrice = originalPrice;
 
-        // 🔥 CORE LOGIC (Task 2)
+        // CORE LOGIC (Task 2)
         if (discountActive && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal discountAmount = originalPrice
                     .multiply(discountPercentage)
@@ -74,7 +86,7 @@ public class ProductMapper {
                 .price(originalPrice)
                 .discountPercentage(discountPercentage)
                 .discountActive(discountActive)
-                .discountedPrice(discountedPrice) // ✅ NEW FIELD
+                .discountedPrice(discountedPrice)
                 .description(product.getDescription())
                 .emoji(product.getEmoji())
                 .badge(product.getBadge())

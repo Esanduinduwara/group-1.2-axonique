@@ -1,6 +1,7 @@
 package com.axonique_backend.axonique_backend.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,7 +75,7 @@ public class OrderItem extends BaseEntity {
 
             BigDecimal discountAmount = originalPrice
                     .multiply(product.getDiscountPercentage())
-                    .divide(BigDecimal.valueOf(100));
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
             finalPrice = originalPrice.subtract(discountAmount);
         }

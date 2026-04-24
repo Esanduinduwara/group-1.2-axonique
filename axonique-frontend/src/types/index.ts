@@ -8,6 +8,7 @@ export interface Product {
 
   discountPercentage?: number;
   discountActive?: boolean;
+  discountedPrice?: number;
 
   emoji: string;
   imageUrl?: string;

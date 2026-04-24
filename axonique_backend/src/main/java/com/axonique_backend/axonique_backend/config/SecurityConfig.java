@@ -60,17 +60,14 @@ public class SecurityConfig {
                                                 .permitAll()
                                                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "STAFF")
                                                 .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "STAFF")
-                                                // Admins/staff can view all bulk orders
                                                 .requestMatchers(HttpMethod.GET, "/api/bulk-orders/all")
                                                 .hasAnyRole("ADMIN", "STAFF")
-                                                // Retailers and admins can create / view bulk orders
                                                 .requestMatchers(HttpMethod.POST, "/api/bulk-orders")
                                                 .hasAnyRole("RETAILER", "ADMIN")
                                                 .requestMatchers(HttpMethod.GET, "/api/bulk-orders/my")
                                                 .hasAnyRole("RETAILER", "ADMIN")
                                                 .requestMatchers(HttpMethod.GET, "/api/bulk-orders/**")
                                                 .hasAnyRole("RETAILER", "ADMIN", "STAFF")
-                                                // Only admins/staff can update order status
                                                 .requestMatchers(HttpMethod.PATCH, "/api/bulk-orders/**")
                                                 .hasAnyRole("ADMIN", "STAFF")
                                                 .requestMatchers("/sendMail/**")
@@ -83,8 +80,22 @@ public class SecurityConfig {
         @Bean
         public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
                 org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+
                 configuration.setAllowedOrigins(
-                                java.util.Arrays.asList("http://localhost:5173", "http://127.0.0.1:5173"));
+                                java.util.Arrays.asList(
+                                                "http://localhost:5173",
+                                                "http://127.0.0.1:5173",
+                                                "http://localhost:5174",
+                                                "http://127.0.0.1:5174",
+                                                "http://localhost:5175",
+                                                "http://127.0.0.1:5175",
+                                                "http://localhost:5176",
+                                                "http://127.0.0.1:5176",
+                                                "http://localhost:5177",
+                                                "http://127.0.0.1:5177",
+                                                "http://localhost:5178",
+                                                "http://127.0.0.1:5178"));
+
                 configuration.setAllowedMethods(
                                 java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
                 configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type",

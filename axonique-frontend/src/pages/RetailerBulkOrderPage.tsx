@@ -283,39 +283,63 @@ function OrderBuilder({
                 const lineSubtotal = line.unitPrice * line.qty;
                 const discountInfo = getBulkDiscount(totalQty);
                 const discAmt = lineSubtotal * discountInfo.pct / 100;
+
+                const hasItemDiscount =
+                line.product?.discountActive &&
+                Number(line.product?.discountPercentage || 0) > 0;
+
                 return (
-                  <div key={idx} className="order-line">
-                    <span className="order-line__name">
-                      <span className="order-line__emoji">{decodeEmoji(line.product.emoji)}</span>
-                      {line.product.name}
-                    </span>
-                    <span className="order-line__size">{line.size}</span>
-                    <span className="order-line__qty">
-                      <input
-                        className="rb-input rb-input--qty rb-input--inline"
-                        type="number"
-                        min={1}
-                        value={line.qty}
-                        onChange={e => onQtyChange(line.product.id, line.size, Math.max(1, parseInt(e.target.value) || 1))}
-                        aria-label={`Quantity for line ${idx + 1}`}
-                      />
-                    </span>
-                    <span className="order-line__unit">{fmt(line.unitPrice)}</span>
-                    <span className="order-line__disc">
-                      {line.discountPct > 0
-                        ? <span className="disc-chip">−{fmt(Math.round(discAmt))}</span>
-                        : <span className="disc-chip disc-chip--none">—</span>
-                      }
-                    </span>
-                    <span className="order-line__total">{fmt(Math.round(lineSubtotal - discAmt))}</span>
-                    <button
-                      className="btn-remove"
-                      onClick={() => onRemove(line.product.id, line.size)}
-                      aria-label={`Remove ${line.product.name}`}
-                    >✕</button>
-                  </div>
-                );
-              })}
+                 <div key={idx} className="order-line">
+      <span className="order-line__name">
+        <span className="order-line__emoji">{decodeEmoji(line.product.emoji)}</span>
+        {line.product.name}
+      </span>
+
+      <span className="order-line__size">{line.size}</span>
+
+      <span className="order-line__qty">
+        <input
+          className="rb-input rb-input--qty rb-input--inline"
+          type="number"
+          min={1}
+          value={line.qty}
+          onChange={e =>
+            onQtyChange(
+              line.product.id,
+              line.size,
+              Math.max(1, parseInt(e.target.value) || 1)
+            )
+          }
+          aria-label={`Quantity for line ${idx + 1}`}
+        />
+      </span>
+
+      <span className="order-line__unit">{fmt(line.unitPrice)}</span>
+
+      <span className="order-line__disc">
+        {hasItemDiscount ? (
+          <span className="disc-chip">
+            Item {Number(line.product.discountPercentage)}%
+          </span>
+        ) : (
+          <span className="disc-chip disc-chip--none">—</span>
+        )}
+      </span>
+
+      <span className="order-line__total">
+        {fmt(Math.round(lineSubtotal - discAmt))}
+      </span>
+
+      <button
+        className="btn-remove"
+        onClick={() => onRemove(line.product.id, line.size)}
+        aria-label={`Remove ${line.product.name}`}
+      >
+        ✕
+      </button>
+    </div>
+  );
+})}
             </div>
           )}
         </section>
