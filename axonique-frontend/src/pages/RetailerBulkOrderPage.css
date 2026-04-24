@@ -59,6 +59,7 @@
 .rb-header {
   border-bottom: 1px solid var(--border);
   padding: 56px 0 40px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
 }
 
 .rb-header__label {
@@ -91,7 +92,8 @@
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: var(--nav-height, 64px);
-  background: var(--bg);
+  background: rgba(10, 10, 10, 0.86);
+  backdrop-filter: blur(10px);
   z-index: 100;
 }
 
@@ -114,18 +116,20 @@
   font-weight: 500;
   letter-spacing: .04em;
   cursor: pointer;
-  transition: color .2s, border-color .2s;
+  transition: color .2s, border-color .2s, background .2s;
   position: relative;
   white-space: nowrap;
 }
 
 .rb-tab:hover {
   color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .rb-tab--active {
   color: var(--text);
   border-bottom-color: var(--accent);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .rb-tab__icon {
@@ -447,12 +451,13 @@
   flex-direction: column;
   gap: 10px;
   position: relative;
-  transition: border-color .2s, transform .2s;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
 }
 
 .product-tile:hover {
   border-color: #444;
   transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
 .product-tile--low-stock {
@@ -703,6 +708,7 @@
   padding: 24px;
   position: sticky;
   top: calc(var(--nav-height, 64px) + 56px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
 }
 
 .order-summary__title {

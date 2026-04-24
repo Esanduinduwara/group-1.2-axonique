@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
-import { useBulk, getBulkDiscount, DISCOUNT_TIERS } from '../context/BulkContext';
+import { useBulk, getBulkDiscount } from '../context/BulkContext';
 import { decodeEmoji } from '../utils/decodeEmoji';
 import './RetailerBulkOrderPage.css';
 
@@ -47,37 +47,6 @@ function fmt(n: number) {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-function DiscountBanner({ totalQty }: { totalQty: number }) {
-  const current = getBulkDiscount(totalQty);
-  const next = DISCOUNT_TIERS.find(t => t.minQty > totalQty);
-  const needed = next ? next.minQty - totalQty : 0;
-
-  return (
-    <div className="discount-banner">
-      <div className="discount-banner__left">
-        <span className="discount-banner__tier">{current.label}</span>
-        <span className="discount-banner__rate">
-          {current.pct > 0 ? `${current.pct}% bulk discount applied` : 'No discount yet'}
-        </span>
-      </div>
-      <div className="discount-banner__tiers">
-        {DISCOUNT_TIERS.map(t => (
-          <div key={t.label} className={`tier-badge ${totalQty >= t.minQty ? 'tier-badge--active' : ''}`}>
-            <span className="tier-badge__pct">{t.pct}%</span>
-            <span className="tier-badge__label">{t.label}</span>
-            <span className="tier-badge__min">{t.minQty}+ units</span>
-          </div>
-        ))}
-      </div>
-      {next && (
-        <div className="discount-banner__nudge">
-          Add <strong>{needed}</strong> more units to unlock <strong>{next.pct}%</strong> ({next.label})
-        </div>
-      )}
-    </div>
-  );
-}
 
 function ProductSelector({
   products,
@@ -324,8 +293,6 @@ function OrderBuilder({
       {/* Summary Sidebar */}
       <aside className="order-summary">
         <h3 className="order-summary__title">Order Summary</h3>
-
-        <DiscountBanner totalQty={totalQty} />
 
         <div className="summary-lines">
           <div className="summary-row">
