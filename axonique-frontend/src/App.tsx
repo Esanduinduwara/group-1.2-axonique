@@ -51,8 +51,8 @@ export default function App() {
     <CartProvider>
       <WishlistProvider>
         <BulkProvider>
-          <SimulationProvider>
-            <BrowserRouter>
+          <BrowserRouter>
+            <SimulationProvider>
               <SimulationModeBanner />
               <Routes>
                 {/* Public routes with Navbar + Footer */}
@@ -170,8 +170,8 @@ export default function App() {
               </Routes>
               <AXOConcierge />
               <CursorGlow />
-            </BrowserRouter>
-          </SimulationProvider>
+            </SimulationProvider>
+          </BrowserRouter>
       </BulkProvider>
     </WishlistProvider>
   </CartProvider>
