@@ -22,6 +22,7 @@ public class OrderResponse {
     private BigDecimal shippingFee;
     private BigDecimal total;
     private String status;
+    private String verificationToken;
     private List<OrderItemResponse> items;
     private LocalDateTime createdAt;
 }
