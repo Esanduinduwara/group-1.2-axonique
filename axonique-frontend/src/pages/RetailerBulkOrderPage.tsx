@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
-import { useBulk, getBulkDiscount } from '../context/BulkContext';
+import { useBulk, getBulkDiscount, DISCOUNT_TIERS } from '../context/BulkContext';
 import { decodeEmoji } from '../utils/decodeEmoji';
 import './RetailerBulkOrderPage.css';
 
@@ -286,7 +286,11 @@ function OrderBuilder({
       <span className="order-line__unit">{fmt(line.unitPrice)}</span>
 
       <span className="order-line__disc">
-        {hasItemDiscount ? (
+        {discountInfo.pct > 0 ? (
+          <span className="disc-chip">
+            {discountInfo.pct}%
+          </span>
+        ) : hasItemDiscount ? (
           <span className="disc-chip">
             Item {Number(line.product.discountPercentage)}%
           </span>
@@ -317,6 +321,39 @@ function OrderBuilder({
       {/* Summary Sidebar */}
       <aside className="order-summary">
         <h3 className="order-summary__title">Order Summary</h3>
+
+        {/* Discount Tier Indicator */}
+        {(() => {
+          const discountInfo = getBulkDiscount(totalQty);
+          const nextTier = DISCOUNT_TIERS.find(t => totalQty < t.minQty);
+          return (
+            <div className="os-tier-panel">
+              <div className="os-tier-panel__header">
+                <span className="os-tier-panel__tier">{discountInfo.label}</span>
+                <span className="os-tier-panel__rate">
+                  {discountInfo.pct > 0 ? `${discountInfo.pct}% off` : 'No discount yet'}
+                </span>
+              </div>
+              <div className="os-tier-panel__tiers">
+                {DISCOUNT_TIERS.map(tier => (
+                  <div
+                    key={tier.label}
+                    className={`tier-badge${totalQty >= tier.minQty ? ' tier-badge--active' : ''}`}
+                  >
+                    <span className="tier-badge__pct">{tier.pct}%</span>
+                    <span className="tier-badge__label">{tier.label}</span>
+                    <span className="tier-badge__min">{tier.minQty}+ units</span>
+                  </div>
+                ))}
+              </div>
+              {nextTier && (
+                <p className="os-tier-panel__nudge">
+                  Add <strong>{nextTier.minQty - totalQty} more units</strong> to unlock <strong>{nextTier.pct}% ({nextTier.label})</strong>
+                </p>
+              )}
+            </div>
+          );
+        })()}
 
         <div className="summary-lines">
           <div className="summary-row">
