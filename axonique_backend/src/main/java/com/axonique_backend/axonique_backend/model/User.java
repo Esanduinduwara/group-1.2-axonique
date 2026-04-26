@@ -1,7 +1,10 @@
 package com.axonique_backend.axonique_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -32,4 +35,8 @@ public class User {
     @Column(nullable = false, length = 20)
     @Builder.Default
     private Role role = Role.CUSTOMER;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> cartItems;
 }
