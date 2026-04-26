@@ -47,6 +47,14 @@ public class Product extends BaseEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(precision = 5, scale = 2)
+    @Builder.Default
+    private BigDecimal discountPercentage = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean discountActive = false;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

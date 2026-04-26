@@ -66,17 +66,14 @@ public class SecurityConfig {
                                                 .permitAll()
                                                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "STAFF")
                                                 .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "STAFF")
-                                                // Admins/staff can view all bulk orders
                                                 .requestMatchers(HttpMethod.GET, "/api/bulk-orders/all")
                                                 .hasAnyRole("ADMIN", "STAFF")
-                                                // Retailers and admins can create / view bulk orders
                                                 .requestMatchers(HttpMethod.POST, "/api/bulk-orders")
                                                 .hasAnyRole("RETAILER", "ADMIN")
                                                 .requestMatchers(HttpMethod.GET, "/api/bulk-orders/my")
                                                 .hasAnyRole("RETAILER", "ADMIN")
                                                 .requestMatchers(HttpMethod.GET, "/api/bulk-orders/**")
                                                 .hasAnyRole("RETAILER", "ADMIN", "STAFF")
-                                                // Only admins/staff can update order status
                                                 .requestMatchers(HttpMethod.PATCH, "/api/bulk-orders/**")
                                                 .hasAnyRole("ADMIN", "STAFF")
                                                 .requestMatchers("/sendMail/**")

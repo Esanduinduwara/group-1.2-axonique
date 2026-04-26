@@ -6,21 +6,12 @@ import com.axonique_backend.axonique_backend.dto.request.ProductRequest;
 import com.axonique_backend.axonique_backend.dto.response.ProductResponse;
 import com.axonique_backend.axonique_backend.model.Product;
 
-/**
- * converts between Product domain model and DTOs.
- *
- * SOLID S (Single Responsibility): mapping is its own concern.
- * SOLID D (Dependency Inversion): controllers and services depend on this
- *   abstraction, keeping domain models out of the HTTP layer.
- *
- *Encapsulation: hides the mapping logic from callers.
- */
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Component
 public class ProductMapper {
 
-    /**
-     * Convert a ProductRequest (inbound) → Product entity.
-     */
     public Product toEntity(ProductRequest request) {
         Product product = new Product();
         product.setName(request.getName());
@@ -34,14 +25,18 @@ public class ProductMapper {
         product.setSizes(request.getSizes());
         product.setStockQuantity(request.getStockQuantity());
         product.setLowStockThreshold(request.getLowStockThreshold());
+
+        // Individual item discount
+        product.setDiscountActive(request.isDiscountActive());
+        product.setDiscountPercentage(
+                request.getDiscountPercentage() != null
+                        ? request.getDiscountPercentage()
+                        : BigDecimal.ZERO
+        );
+
         return product;
     }
 
-    /**
-     * Update an existing Product entity from a ProductRequest.
-     * OOP: mutates the entity in place rather than creating a new one,
-     *      preserving the JPA-managed identity.
-     */
     public void updateEntity(Product product, ProductRequest request) {
         product.setName(request.getName());
         product.setCategory(request.getCategory());
@@ -54,17 +49,44 @@ public class ProductMapper {
         product.setSizes(request.getSizes());
         product.setStockQuantity(request.getStockQuantity());
         product.setLowStockThreshold(request.getLowStockThreshold());
+
+        // Individual item discount
+        product.setDiscountActive(request.isDiscountActive());
+        product.setDiscountPercentage(
+                request.getDiscountPercentage() != null
+                        ? request.getDiscountPercentage()
+                        : BigDecimal.ZERO
+        );
     }
 
-    /**
-     * Convert a Product entity → ProductResponse (outbound).
-     */
     public ProductResponse toResponse(Product product) {
+
+        BigDecimal originalPrice = product.getPrice();
+        BigDecimal discountPercentage = product.getDiscountPercentage() != null
+                ? product.getDiscountPercentage()
+                : BigDecimal.ZERO;
+
+        boolean discountActive = product.isDiscountActive();
+
+        BigDecimal discountedPrice = originalPrice;
+
+        // CORE LOGIC (Task 2)
+        if (discountActive && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal discountAmount = originalPrice
+                    .multiply(discountPercentage)
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+            discountedPrice = originalPrice.subtract(discountAmount);
+        }
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .category(product.getCategory())
-                .price(product.getPrice())
+                .price(originalPrice)
+                .discountPercentage(discountPercentage)
+                .discountActive(discountActive)
+                .discountedPrice(discountedPrice)
                 .description(product.getDescription())
                 .emoji(product.getEmoji())
                 .badge(product.getBadge())
