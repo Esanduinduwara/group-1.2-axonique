@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { CartItem, Product } from '../types';
+import { authService } from '../services/authService';
 
 interface CartContextType {
   items: CartItem[];
@@ -16,7 +17,12 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const API_BASE = 'http://localhost:8080/api/cart';
-const DEMO_USER_ID = 1;
+
+function getCurrentUserId(): number {
+  const user = authService.getUser();
+  if (!user?.id) throw new Error('User not authenticated');
+  return user.id;
+}
 
 type BackendCartItem = {
   id: number;
@@ -51,7 +57,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const refreshCart = async () => {
-    const res = await fetch(`${API_BASE}/${DEMO_USER_ID}`);
+    const res = await fetch(`${API_BASE}/${getCurrentUserId()}`);
     if (!res.ok) {
       throw new Error('Failed to load cart');
     }
@@ -72,7 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: DEMO_USER_ID,
+        userId: getCurrentUserId(),
         productId: product.id,
         size,
         qty: 1,
@@ -91,7 +97,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: DEMO_USER_ID,
+        userId: getCurrentUserId(),
         productId,
         size,
       }),
@@ -122,7 +128,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: DEMO_USER_ID,
+        userId: getCurrentUserId(),
         productId,
         size,
         qty: newQty,
@@ -137,7 +143,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = async () => {
-    const res = await fetch(`${API_BASE}/clear/${DEMO_USER_ID}`, {
+    const res = await fetch(`${API_BASE}/clear/${getCurrentUserId()}`, {
       method: 'DELETE',
     });
 

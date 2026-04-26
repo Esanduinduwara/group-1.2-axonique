@@ -50,6 +50,7 @@ public class RegistrationController {
             String token = jwtUtils.generateToken(user.getUsername(), roleName);
 
             return ResponseEntity.ok(com.axonique_backend.axonique_backend.dto.LoginResponse.builder()
+                    .id(user.getId())
                     .token(token)
                     .username(user.getUsername())
                     .email(user.getEmail())

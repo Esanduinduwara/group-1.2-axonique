@@ -4,6 +4,7 @@ const TOKEN_KEY = 'axonique_token';
 const USER_KEY = 'axonique_user';
 
 export interface UserInfo {
+    id: number;
     username: string;
     email: string;
     role: 'CUSTOMER' | 'STAFF' | 'ADMIN' | 'RETAILER' | 'ROLE_ADMIN';
