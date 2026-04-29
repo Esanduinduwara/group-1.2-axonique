@@ -28,6 +28,7 @@ public class OrderMapper {
                 .shippingFee(order.getShippingFee())
                 .total(order.getTotal())
                 .status(order.getStatus().name())
+                .verificationToken(order.getVerificationToken())
                 .items(mapItems(order.getItems()))
                 .createdAt(order.getCreatedAt())
                 .build();

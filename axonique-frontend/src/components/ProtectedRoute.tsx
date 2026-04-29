@@ -11,9 +11,10 @@ export default function ProtectedRoute({ children, requiredRoles }: ProtectedRou
     return <Navigate to="/signin" replace />;
   }
 
-  const role = authService.getRole() as 'ADMIN' | 'STAFF' | 'CUSTOMER' | 'RETAILER' | null;
-  if (!role || !requiredRoles.includes(role)) {
-    return <Navigate to="/" replace />;
+  const role = authService.getRole();
+  const normalizedRole = role === 'ROLE_ADMIN' ? 'ADMIN' : role;
+  if (!normalizedRole || !requiredRoles.includes(normalizedRole as 'ADMIN' | 'STAFF' | 'CUSTOMER' | 'RETAILER')) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;

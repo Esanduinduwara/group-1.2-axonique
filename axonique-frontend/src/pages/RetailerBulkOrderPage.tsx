@@ -4,34 +4,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
-import './RetailerBulkOrderPage.css'; 
+import { useBulk, getBulkDiscount, DISCOUNT_TIERS } from '../context/BulkContext';
+import { decodeEmoji } from '../utils/decodeEmoji';
+import './RetailerBulkOrderPage.css';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  emoji: string;
-  imageUrl?: string;
-  badge: string | null;
-  sizes: string[];
-  desc?: string;
-  description?: string;
-  inStock: boolean;
-  stockQuantity: number;
-  lowStockThreshold: number;
-  lowStock: boolean;
-}
-
-interface BulkLineItem {
-  product: Product;
-  size: string;
-  qty: number;
-  unitPrice: number;
-  discountPct: number;
-}
+import type { Product } from '../types';
 
 type Tab = 'order' | 'inventory' | 'history';
 
@@ -48,21 +27,7 @@ interface PastOrder {
   status: OrderStatus;
 }
 
-// ─── Discount tiers ───────────────────────────────────────────────────────────
 
-const DISCOUNT_TIERS = [
-  { minQty: 50,  pct: 5,  label: 'Bronze' },
-  { minQty: 100, pct: 10, label: 'Silver' },
-  { minQty: 200, pct: 15, label: 'Gold'   },
-  { minQty: 500, pct: 20, label: 'Platinum'},
-];
-
-function getDiscount(qty: number): { pct: number; label: string } {
-  for (let i = DISCOUNT_TIERS.length - 1; i >= 0; i--) {
-    if (qty >= DISCOUNT_TIERS[i].minQty) return DISCOUNT_TIERS[i];
-  }
-  return { pct: 0, label: 'Standard' };
-}
 
 // ─── Mock data (replace with real API calls) ─────────────────────────────────
 // Replaced with real API calls in the main component useEffect hooks.
@@ -70,9 +35,9 @@ function getDiscount(qty: number): { pct: number; label: string } {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const STATUS_META: Record<OrderStatus, { label: string; cls: string }> = {
-  PENDING:   { label: 'Pending',   cls: 'status--pending'   },
+  PENDING: { label: 'Pending', cls: 'status--pending' },
   CONFIRMED: { label: 'Confirmed', cls: 'status--confirmed' },
-  SHIPPED:   { label: 'Shipped',   cls: 'status--shipped'   },
+  SHIPPED: { label: 'Shipped', cls: 'status--shipped' },
   DELIVERED: { label: 'Delivered', cls: 'status--delivered' },
   CANCELLED: { label: 'Cancelled', cls: 'status--cancelled' },
 };
@@ -82,37 +47,6 @@ function fmt(n: number) {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-function DiscountBanner({ totalQty }: { totalQty: number }) {
-  const current = getDiscount(totalQty);
-  const next = DISCOUNT_TIERS.find(t => t.minQty > totalQty);
-  const needed = next ? next.minQty - totalQty : 0;
-
-  return (
-    <div className="discount-banner">
-      <div className="discount-banner__left">
-        <span className="discount-banner__tier">{current.label}</span>
-        <span className="discount-banner__rate">
-          {current.pct > 0 ? `${current.pct}% bulk discount applied` : 'No discount yet'}
-        </span>
-      </div>
-      <div className="discount-banner__tiers">
-        {DISCOUNT_TIERS.map(t => (
-          <div key={t.label} className={`tier-badge ${totalQty >= t.minQty ? 'tier-badge--active' : ''}`}>
-            <span className="tier-badge__pct">{t.pct}%</span>
-            <span className="tier-badge__label">{t.label}</span>
-            <span className="tier-badge__min">{t.minQty}+ units</span>
-          </div>
-        ))}
-      </div>
-      {next && (
-        <div className="discount-banner__nudge">
-          Add <strong>{needed}</strong> more units to unlock <strong>{next.pct}%</strong> ({next.label})
-        </div>
-      )}
-    </div>
-  );
-}
 
 function ProductSelector({
   products,
@@ -177,14 +111,14 @@ function ProductSelector({
         {filtered.map(p => {
           const sel = getSel(p.id);
           const qty = parseInt(sel.qty) || 0;
-          const disc = getDiscount(qty);
+          const disc = getBulkDiscount(qty);
           const effectivePrice = p.price * (1 - disc.pct / 100);
 
           return (
             <div key={p.id} className={`product-tile ${p.lowStock ? 'product-tile--low-stock' : ''}`}>
               {p.lowStock && <div className="low-stock-badge">Low Stock</div>}
               {p.badge && <div className="product-badge">{p.badge}</div>}
-              <div className="product-tile__emoji">{p.emoji}</div>
+              <div className="product-tile__emoji">{p.imageUrl ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : decodeEmoji(p.emoji)}</div>
               <div className="product-tile__body">
                 <div className="product-tile__name">{p.name}</div>
                 <div className="product-tile__cat">{p.category}</div>
@@ -246,10 +180,13 @@ function OrderBuilder({
   setDeliveryAddress,
   notes,
   setNotes,
+  subtotal,
+  totalDiscount,
+  grandTotal
 }: {
-  lines: BulkLineItem[];
-  onRemove: (idx: number) => void;
-  onQtyChange: (idx: number, qty: number) => void;
+  lines: any[];
+  onRemove: (productId: number, size: string) => void;
+  onQtyChange: (productId: number, size: string, qty: number) => void;
   onSubmit: () => void;
   submitting: boolean;
   companyName: string;
@@ -262,12 +199,12 @@ function OrderBuilder({
   setDeliveryAddress: (val: string) => void;
   notes: string;
   setNotes: (val: string) => void;
+  subtotal: number;
+  totalDiscount: number;
+  grandTotal: number;
 }) {
 
-  const totalQty      = lines.reduce((s, l) => s + l.qty, 0);
-  const subtotal      = lines.reduce((s, l) => s + l.unitPrice * l.qty, 0);
-  const totalDiscount = lines.reduce((s, l) => s + (l.unitPrice * l.qty * l.discountPct / 100), 0);
-  const grandTotal    = subtotal - totalDiscount;
+  const totalQty = lines.reduce((s, l) => s + l.qty, 0);
 
   const canSubmit = lines.length > 0 && companyName && contactPerson && contactEmail && deliveryAddress;
 
@@ -279,23 +216,23 @@ function OrderBuilder({
           <h3 className="rb-section__title">Retailer Information</h3>
           <div className="rb-form-grid">
             <label className="rb-label">
-              Company / Brand Name
+              Company / Brand Name <span className="rb-label-tag">Required</span>
               <input className="rb-input" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Acme Retail Ltd." />
             </label>
             <label className="rb-label">
-              Contact Person
+              Contact Person <span className="rb-label-tag">Required</span>
               <input className="rb-input" value={contactPerson} onChange={e => setContactPerson(e.target.value)} placeholder="Jane Doe" />
             </label>
             <label className="rb-label">
-              Email
+              Email <span className="rb-label-tag">Required</span>
               <input className="rb-input" type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="orders@acme.lk" />
             </label>
             <label className="rb-label">
-              Delivery Address
+              Delivery Address <span className="rb-label-tag">Required</span>
               <input className="rb-input" value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} placeholder="123 Main St, Colombo 03" />
             </label>
             <label className="rb-label" style={{ gridColumn: '1 / -1' }}>
-              Special Notes
+              Special Notes <span className="rb-label-tag rb-label-tag--opt">Optional</span>
               <textarea className="rb-input rb-textarea" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Delivery instructions, packing preferences…" />
             </label>
           </div>
@@ -313,40 +250,69 @@ function OrderBuilder({
               </div>
               {lines.map((line, idx) => {
                 const lineSubtotal = line.unitPrice * line.qty;
-                const discAmt = lineSubtotal * line.discountPct / 100;
+                const discountInfo = getBulkDiscount(totalQty);
+                const discAmt = lineSubtotal * discountInfo.pct / 100;
+
+                const hasItemDiscount =
+                line.product?.discountActive &&
+                Number(line.product?.discountPercentage || 0) > 0;
+
                 return (
-                  <div key={idx} className="order-line">
-                    <span className="order-line__name">
-                      <span className="order-line__emoji">{line.product.emoji}</span>
-                      {line.product.name}
-                    </span>
-                    <span className="order-line__size">{line.size}</span>
-                    <span className="order-line__qty">
-                      <input
-                        className="rb-input rb-input--qty rb-input--inline"
-                        type="number"
-                        min={1}
-                        value={line.qty}
-                        onChange={e => onQtyChange(idx, Math.max(1, parseInt(e.target.value) || 1))}
-                        aria-label={`Quantity for line ${idx + 1}`}
-                      />
-                    </span>
-                    <span className="order-line__unit">{fmt(line.unitPrice)}</span>
-                    <span className="order-line__disc">
-                      {line.discountPct > 0
-                        ? <span className="disc-chip">−{fmt(Math.round(discAmt))}</span>
-                        : <span className="disc-chip disc-chip--none">—</span>
-                      }
-                    </span>
-                    <span className="order-line__total">{fmt(Math.round(lineSubtotal - discAmt))}</span>
-                    <button
-                      className="btn-remove"
-                      onClick={() => onRemove(idx)}
-                      aria-label={`Remove ${line.product.name}`}
-                    >✕</button>
-                  </div>
-                );
-              })}
+                 <div key={idx} className="order-line">
+      <span className="order-line__name">
+        <span className="order-line__emoji">{decodeEmoji(line.product.emoji)}</span>
+        {line.product.name}
+      </span>
+
+      <span className="order-line__size">{line.size}</span>
+
+      <span className="order-line__qty">
+        <input
+          className="rb-input rb-input--qty rb-input--inline"
+          type="number"
+          min={1}
+          value={line.qty}
+          onChange={e =>
+            onQtyChange(
+              line.product.id,
+              line.size,
+              Math.max(1, parseInt(e.target.value) || 1)
+            )
+          }
+          aria-label={`Quantity for line ${idx + 1}`}
+        />
+      </span>
+
+      <span className="order-line__unit">{fmt(line.unitPrice)}</span>
+
+      <span className="order-line__disc">
+        {discountInfo.pct > 0 ? (
+          <span className="disc-chip">
+            {discountInfo.pct}%
+          </span>
+        ) : hasItemDiscount ? (
+          <span className="disc-chip">
+            Item {Number(line.product.discountPercentage)}%
+          </span>
+        ) : (
+          <span className="disc-chip disc-chip--none">—</span>
+        )}
+      </span>
+
+      <span className="order-line__total">
+        {fmt(Math.round(lineSubtotal - discAmt))}
+      </span>
+
+      <button
+        className="btn-remove"
+        onClick={() => onRemove(line.product.id, line.size)}
+        aria-label={`Remove ${line.product.name}`}
+      >
+        ✕
+      </button>
+    </div>
+  );
+})}
             </div>
           )}
         </section>
@@ -356,7 +322,38 @@ function OrderBuilder({
       <aside className="order-summary">
         <h3 className="order-summary__title">Order Summary</h3>
 
-        <DiscountBanner totalQty={totalQty} />
+        {/* Discount Tier Indicator */}
+        {(() => {
+          const discountInfo = getBulkDiscount(totalQty);
+          const nextTier = DISCOUNT_TIERS.find(t => totalQty < t.minQty);
+          return (
+            <div className="os-tier-panel">
+              <div className="os-tier-panel__header">
+                <span className="os-tier-panel__tier">{discountInfo.label}</span>
+                <span className="os-tier-panel__rate">
+                  {discountInfo.pct > 0 ? `${discountInfo.pct}% off` : 'No discount yet'}
+                </span>
+              </div>
+              <div className="os-tier-panel__tiers">
+                {DISCOUNT_TIERS.map(tier => (
+                  <div
+                    key={tier.label}
+                    className={`tier-badge${totalQty >= tier.minQty ? ' tier-badge--active' : ''}`}
+                  >
+                    <span className="tier-badge__pct">{tier.pct}%</span>
+                    <span className="tier-badge__label">{tier.label}</span>
+                    <span className="tier-badge__min">{tier.minQty}+ units</span>
+                  </div>
+                ))}
+              </div>
+              {nextTier && (
+                <p className="os-tier-panel__nudge">
+                  Add <strong>{nextTier.minQty - totalQty} more units</strong> to unlock <strong>{nextTier.pct}% ({nextTier.label})</strong>
+                </p>
+              )}
+            </div>
+          );
+        })()}
 
         <div className="summary-lines">
           <div className="summary-row">
@@ -400,6 +397,7 @@ function InventoryPanel({ products }: { products: Product[] }) {
   const [search, setSearch] = useState('');
   const lowStock = products.filter(p => p.lowStock);
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  const maxStock = Math.max(1, ...products.map(p => p.stockQuantity));
 
   return (
     <div className="inventory-panel">
@@ -426,15 +424,14 @@ function InventoryPanel({ products }: { products: Product[] }) {
           <span role="columnheader">Category</span>
           <span role="columnheader">Unit Price</span>
           <span role="columnheader">Stock</span>
-          <span role="columnheader">Threshold</span>
           <span role="columnheader">Status</span>
         </div>
         {filtered.map(p => {
-          const pct = Math.min(100, (p.stockQuantity / Math.max(1, p.lowStockThreshold * 5)) * 100);
+          const pct = Math.min(100, (p.stockQuantity / maxStock) * 100);
           return (
             <div key={p.id} className="inventory-row" role="row">
               <span className="inv-name" role="cell">
-                <span aria-hidden="true">{p.emoji}</span> {p.name}
+                <span aria-hidden="true">{decodeEmoji(p.emoji)}</span> {p.name}
               </span>
               <span role="cell">{p.category}</span>
               <span role="cell">{fmt(p.price)}</span>
@@ -447,7 +444,6 @@ function InventoryPanel({ products }: { products: Product[] }) {
                   <span className="stock-bar__label">{p.stockQuantity}</span>
                 </div>
               </span>
-              <span role="cell">{p.lowStockThreshold}</span>
               <span role="cell">
                 <span className={`inv-status ${p.lowStock ? 'inv-status--low' : 'inv-status--ok'}`}>
                   {p.lowStock ? 'Low' : 'OK'}
@@ -542,16 +538,21 @@ export default function RetailerBulkOrderPage() {
   const [tab, setTab] = useState<Tab>('order');
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<PastOrder[]>([]);
-  const [lines, setLines] = useState<BulkLineItem[]>([]);
+  const { items: lines, info, setInfo, addItem, removeItem, changeQty, totalQty, subtotal, discountAmt, grandTotal, clearBulk } = useBulk();
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  
-  // Form fields for bulk order
-  const [companyName, setCompanyName] = useState('');
-  const [contactPerson, setContactPerson] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [notes, setNotes] = useState('');
+
+  // Form fields for bulk order from Context
+  const companyName = info.companyName;
+  const setCompanyName = (val: string) => setInfo({ companyName: val });
+  const contactPerson = info.contactPerson;
+  const setContactPerson = (val: string) => setInfo({ contactPerson: val });
+  const contactEmail = info.contactEmail;
+  const setContactEmail = (val: string) => setInfo({ contactEmail: val });
+  const deliveryAddress = info.deliveryAddress;
+  const setDeliveryAddress = (val: string) => setInfo({ deliveryAddress: val });
+  const notes = info.notes;
+  const setNotes = (val: string) => setInfo({ notes: val });
 
   const token = authService.getToken();
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
@@ -566,8 +567,13 @@ export default function RetailerBulkOrderPage() {
       .then(data => {
         console.log('Products fetched:', data);
         // Handle both array and wrapped response format
-        const products = Array.isArray(data) ? data : (data.data || []);
-        setProducts(products);
+        const fetchedProducts = Array.isArray(data) ? data : (data.data || []);
+        // Map fetched products to standard Product type
+        const mappedProducts: Product[] = fetchedProducts.map((p: any) => ({
+          ...p,
+          desc: p.description || p.desc || '' // Ensure desc is string
+        }));
+        setProducts(mappedProducts);
       })
       .catch(err => {
         console.error('Failed to fetch products:', err);
@@ -616,94 +622,76 @@ export default function RetailerBulkOrderPage() {
   }, [toast]);
 
   const addLine = useCallback((product: Product, size: string, qty: number) => {
-    setLines(prev => {
-      const idx = prev.findIndex(l => l.product.id === product.id && l.size === size);
-      if (idx >= 0) {
-        const updated = [...prev];
-        const newQty = updated[idx].qty + qty;
-        const disc = getDiscount(newQty);
-        updated[idx] = { ...updated[idx], qty: newQty, discountPct: disc.pct };
-        return updated;
-      }
-      const disc = getDiscount(qty);
-      return [...prev, { product, size, qty, unitPrice: product.price, discountPct: disc.pct }];
-    });
+    addItem(product, size, qty);
     setToast(`${product.name} (${size} × ${qty}) added to order`);
-  }, []);
+  }, [addItem]);
 
-  const removeLine = useCallback((idx: number) => {
-    setLines(prev => prev.filter((_, i) => i !== idx));
-  }, []);
+  const removeLine = useCallback((productId: number, size: string) => {
+    removeItem(productId, size);
+  }, [removeItem]);
 
-  const changeQty = useCallback((idx: number, qty: number) => {
-    setLines(prev => {
-      const updated = [...prev];
-      const disc = getDiscount(qty);
-      updated[idx] = { ...updated[idx], qty, discountPct: disc.pct };
-      return updated;
-    });
-  }, []);
+  const updateLineQty = useCallback((productId: number, size: string, qty: number) => {
+    changeQty(productId, size, qty);
+  }, [changeQty]);
 
-const handleSubmit = useCallback(async () => {
-  setSubmitting(true);
-  try {
-    const res = await fetch(`${apiBaseUrl}/api/bulk-orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        companyName,
-        contactPerson,
-        contactEmail,
-        deliveryAddress,
-        notes,
-        items: lines.map(l => ({
-          productId: l.product.id,
-          size: l.size,
-          quantity: l.qty,
-          unitPrice: l.unitPrice,
-        })),
-      }),
-    });
-    if (!res.ok) throw new Error('Order failed');
-    setLines([]);
-    setCompanyName('');
-    setContactPerson('');
-    setContactEmail('');
-    setDeliveryAddress('');
-    setNotes('');
-    setToast('Bulk order placed successfully!');
-    setTab('history');
-    
-    // Refetch bulk orders to show the newly created order
-    const ordersRes = await fetch(`${apiBaseUrl}/api/bulk-orders/my`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (ordersRes.ok) {
-      const ordersData = await ordersRes.json();
-      const bulkOrderResponses = ordersData.data || [];
-      const updatedOrders: PastOrder[] = bulkOrderResponses.map((bo: any) => ({
-        id: bo.id,
-        ref: bo.ref,
-        date: bo.createdAt ? new Date(bo.createdAt).toLocaleDateString() : '',
-        items: bo.itemCount || 0,
-        subtotal: bo.subtotal || 0,
-        discount: bo.discountAmount || 0,
-        total: bo.total || 0,
-        status: bo.status as OrderStatus,
-      }));
-      setOrders(updatedOrders);
+  const handleSubmit = useCallback(async () => {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/bulk-orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          companyName,
+          contactPerson,
+          contactEmail,
+          deliveryAddress,
+          notes,
+          items: lines.map(l => ({
+            productId: l.product.id,
+            size: l.size,
+            quantity: l.qty,
+            unitPrice: l.unitPrice,
+          })),
+        }),
+      });
+      if (!res.ok) throw new Error('Order failed');
+      clearBulk();
+      setCompanyName('');
+      setContactPerson('');
+      setContactEmail('');
+      setDeliveryAddress('');
+      setNotes('');
+      setToast('Bulk order placed successfully!');
+      setTab('history');
+
+      // Refetch bulk orders to show the newly created order
+      const ordersRes = await fetch(`${apiBaseUrl}/api/bulk-orders/my`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (ordersRes.ok) {
+        const ordersData = await ordersRes.json();
+        const bulkOrderResponses = ordersData.data || [];
+        const updatedOrders: PastOrder[] = bulkOrderResponses.map((bo: any) => ({
+          id: bo.id,
+          ref: bo.ref,
+          date: bo.createdAt ? new Date(bo.createdAt).toLocaleDateString() : '',
+          items: bo.itemCount || 0,
+          subtotal: bo.subtotal || 0,
+          discount: bo.discountAmount || 0,
+          total: bo.total || 0,
+          status: bo.status as OrderStatus,
+        }));
+        setOrders(updatedOrders);
+      }
+    } catch (err) {
+      setToast('Failed to place order. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-  } catch (err) {
-    setToast('Failed to place order. Please try again.');
-  } finally {
-    setSubmitting(false);
-  }
-}, [lines, companyName, contactPerson, contactEmail, deliveryAddress, notes, token, apiBaseUrl]);
-
-  const totalQty = lines.reduce((s, l) => s + l.qty, 0);
+  }, [lines, companyName, contactPerson, contactEmail, deliveryAddress, notes, token, apiBaseUrl, clearBulk, setCompanyName, setContactPerson, setContactEmail, setDeliveryAddress, setNotes]);
 
   return (
     <main className="rb-page">
@@ -772,7 +760,7 @@ const handleSubmit = useCallback(async () => {
             <OrderBuilder
               lines={lines}
               onRemove={removeLine}
-              onQtyChange={changeQty}
+              onQtyChange={updateLineQty}
               onSubmit={handleSubmit}
               submitting={submitting}
               companyName={companyName}
@@ -785,6 +773,9 @@ const handleSubmit = useCallback(async () => {
               setDeliveryAddress={setDeliveryAddress}
               notes={notes}
               setNotes={setNotes}
+              subtotal={subtotal}
+              totalDiscount={discountAmt}
+              grandTotal={grandTotal}
             />
             <div className="rb-divider" />
             <div className="rb-section-label">Product Catalogue</div>

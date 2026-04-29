@@ -5,21 +5,21 @@
 
 /* ----- Design Tokens ----- */
 :root {
-  --bg: #000000;
-  --surface: #0b0b0b;
-  --card: #0f0f0f;
-  --border: #222222;
-  --accent: #ffffff;
-  --accent-light: #e6e6e6;
-  --text: #ffffff;
-  --muted: #bfbfbf;
-  --danger: #c0392b;
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'DM Sans', sans-serif;
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --card: #161616;
+  --border: #2a2a2a;
+  --accent: #d6d6d6;
+  --accent-light: #f0f0f0;
+  --text: #f5f5f5;
+  --muted: #a2a2a2;
+  --danger: #b55b4f;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --nav-height: 64px;
   --max-width: 1200px;
-  --radius: 6px;
-  --transition: 0.2s ease;
+  --radius: 10px;
+  --transition: 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ----- Reset ----- */
@@ -36,12 +36,34 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font-family: var(--font-body);
   font-size: 15px;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Base Canvas Layer (Everything sits on top of this) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: -10; /* Absolute bottom */
+  pointer-events: none;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1200px 500px at 20% -10%, rgba(255, 255, 255, 0.05), transparent 60%),
+    radial-gradient(900px 420px at 90% 0%, rgba(255, 255, 255, 0.03), transparent 55%);
+  z-index: -9;
+  pointer-events: none;
 }
 
 img {
@@ -66,15 +88,60 @@ button {
   padding: 0 2rem;
 }
 
+.page, .footer {
+  position: relative;
+  z-index: 5; /* Above background/grid, below content (100+) and glow (10) */
+  background: transparent;
+}
+
 .page {
   padding-top: var(--nav-height);
   min-height: 100vh;
   animation: fadeIn 0.35s ease;
+  transition: padding-top 0.3s ease;
+}
+
+body.has-banner .page {
+  padding-top: calc(var(--nav-height) + 35px);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ----- Animated Stripes Background Utility ----- */
+.bg-stripes {
+  position: relative;
+}
+
+.bg-stripes::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 180px,
+    rgba(255, 255, 255, 0.02) 180px,
+    rgba(255, 255, 255, 0.02) 360px
+  );
+  background-size: 509px 509px; /* Correct diagonal tile size */
+  z-index: -8;
+  pointer-events: none;
+  animation: driftingStripes 25s linear infinite;
+}
+
+@keyframes driftingStripes {
+  from { background-position: 0 0; }
+  to { background-position: 509px 509px; }
 }
 
 /* ----- Section ----- */
@@ -99,6 +166,8 @@ section {
 
 .section-header {
   margin-bottom: 3rem;
+  position: relative;
+  z-index: 102;
 }
 
 /* ----- Buttons ----- */
@@ -111,22 +180,25 @@ section {
   font-weight: 500;
   letter-spacing: 2px;
   text-transform: uppercase;
-  border-radius: 3px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
   transition: all var(--transition);
   white-space: nowrap;
+  position: relative;
+  z-index: 150; /* Buttons well above glow (10) */
 }
 
 .btn-primary {
   background: var(--accent);
-  color: #000;
+  color: #111;
+  border: 1px solid rgba(255, 255, 255, 0.28);
 }
 
 .btn-primary:hover {
   background: var(--accent-light);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 24px rgba(255, 255, 255, 0.16);
 }
 
 .btn-outline {
@@ -138,6 +210,12 @@ section {
 .btn-outline:hover {
   border-color: var(--accent);
   color: var(--accent);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btn:focus-visible {
+  outline: 2px solid rgba(240, 240, 240, 0.7);
+  outline-offset: 2px;
 }
 
 .btn-sm {
@@ -163,6 +241,7 @@ section {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.5rem;
+  align-items: stretch;
 }
 
 @media (max-width: 640px) {
@@ -179,9 +258,27 @@ section {
 }
 
 /* ----- Scrollbar ----- */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+/* ----- Premium Custom Scrollbar ----- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #111;
+  border-radius: 20px;
+  border: 2px solid #050505;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.18);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
 
 /* ----- Wishlist Remove Button ----- */
 .wishlist-remove-btn {
@@ -197,6 +294,7 @@ section {
   font-size: 13px;
   transition: background 0.15s, color 0.15s;
 }
+
 .wishlist-remove-btn:hover {
   background: #e74c3c;
   color: #fff;
@@ -204,11 +302,21 @@ section {
 
 /* ----- Responsive breakpoints ----- */
 @media (max-width: 768px) {
-  section { padding: 3rem 1rem; }
-  .container { padding: 0 1rem; }
+  section {
+    padding: 3rem 1rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
 }
 
 @media (max-width: 480px) {
-  :root { --nav-height: 56px; }
-  .container { padding: 0 0.75rem; }
+  :root {
+    --nav-height: 56px;
+  }
+
+  .container {
+    padding: 0 0.75rem;
+  }
 }

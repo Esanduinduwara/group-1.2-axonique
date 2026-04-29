@@ -1,6 +1,7 @@
 package com.axonique_backend.axonique_backend.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,14 @@ public class Product extends BaseEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "discount_pct", nullable = false, precision = 5, scale = 2)
+    @Builder.Default
+    private BigDecimal discountPercentage = BigDecimal.ZERO;
+
+    @Column(name = "discount_active", nullable = false)
+    @Builder.Default
+    private boolean discountActive = false;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -57,10 +66,10 @@ public class Product extends BaseEntity {
     private String badge;
 
     /** Image URL for the product (replaces emoji display) */
-    @Column(length = 500)
+    @Column(name = "image_url", length = 500)
     private String imageUrl;
 
-    @Column(nullable = false)
+    @Column(name = "in_stock", nullable = false)
     @Builder.Default
     private boolean inStock = true;
 
@@ -70,17 +79,31 @@ public class Product extends BaseEntity {
      *
      * OOP Encapsulation: getter/setter convert to/from List<String>
      */
-    @Column(nullable = false)
+    @Column(name = "sizes_raw", nullable = false)
     private String sizesRaw;
 
     /** Inventory management fields */
-    @Column(nullable = false)
+    @Column(name = "stock_quantity", nullable = false)
     @Builder.Default
     private Integer stockQuantity = 0;
 
-    @Column(nullable = false)
+    @Column(name = "low_stock_threshold", nullable = false)
     @Builder.Default
     private Integer lowStockThreshold = 5;
+
+    // ----- Client Sync Fields -----
+
+    @Column(name = "external_id", unique = true, length = 100)
+    private String externalId;
+
+    @Column(name = "source_system", length = 100)
+    private String sourceSystem;
+
+    @Column(name = "last_synced_at")
+    private LocalDateTime lastSyncedAt;
+
+    @Column(name = "sync_version")
+    private Long syncVersion;
 
     @Column(nullable = false)
     @Builder.Default

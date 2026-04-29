@@ -8,6 +8,7 @@ const API = '' + (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') 
 const PAGE_SIZE = 10;
 
 const STATUS_COLORS: Record<string, string> = {
+  PENDING_VERIFICATION: '#8e44ad',
   PENDING: '#888',
   CONFIRMED: '#3498db',
   SHIPPED: '#f39c12',
@@ -15,7 +16,7 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: '#e74c3c',
 };
 
-type Status = 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+type Status = 'PENDING_VERIFICATION' | 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
 export default function OrderManagementPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -197,6 +198,7 @@ export default function OrderManagementPage() {
                             onChange={e => updateStatus(o.id, e.target.value as Status)}
                           >
                             <option value="PENDING">PENDING</option>
+                            <option value="PENDING_VERIFICATION">PENDING_VERIFICATION</option>
                             <option value="CONFIRMED">CONFIRMED</option>
                             <option value="SHIPPED">SHIPPED</option>
                             <option value="DELIVERED">DELIVERED</option>

@@ -266,7 +266,7 @@ export default function PrivacyPolicyPage() {
               <a className="policy-email" href="mailto:axoclothingonline@gmail.com">
                 axoclothingonline@gmail.com
               </a>{' '}
-              or contact us at No17 kurudhuwatta road Amandaluwa Seeduwa, negambo, 11410, LK.
+              or contact us at: No 17, Kurudhuwatta Road, Amandaluwa, Seeduwa, Negambo, 11410, LK.
             </p>
           </div>
         </div>

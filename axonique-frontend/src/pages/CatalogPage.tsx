@@ -73,8 +73,12 @@ export default function CatalogPage() {
       ? list
       : list.filter((p) => p.category === categoryFilter);
 
-    // Availability (all products treated as in-stock)
-    if (availFilter === 'out-of-stock') list = [];
+    if (availFilter === 'in-stock') {
+      list = list.filter((p) => p.inStock && p.stockQuantity > 0);
+    }
+    if (availFilter === 'out-of-stock') {
+      list = list.filter((p) => !p.inStock || p.stockQuantity <= 0);
+    }
 
     // Sort
     switch (sortBy) {
@@ -92,7 +96,7 @@ export default function CatalogPage() {
     setOpenMenu((prev) => (prev === id ? null : id));
 
   return (
-    <main className="page">
+    <main className="page bg-stripes">
       <section>
         <div className="container">
           <div className="section-header">

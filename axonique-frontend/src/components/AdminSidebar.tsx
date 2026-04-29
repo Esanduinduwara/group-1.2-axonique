@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { useSimulation } from '../context/SimulationContext';
 import './AdminSidebar.css';
 
 interface AdminSidebarProps {
@@ -12,6 +13,9 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const role = authService.getRole();
+  const isAdmin = role === 'ADMIN' || role === 'ROLE_ADMIN';
+  const normalizedRole = role?.startsWith('ROLE_') ? role.slice(5) : role;
+  const { isSimulationMode, setSimulationMode } = useSimulation();
 
   const handleLogout = () => {
     authService.logout();
@@ -19,18 +23,23 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
   };
 
   const navLinks = [
-    { label: '📊 Dashboard', path: '/admin/dashboard', roles: ['ADMIN'] },
     { label: '📦 Orders', path: '/admin/orders', roles: ['ADMIN', 'STAFF'] },
-    { label: '📦 Bulk Orders', path: '/admin/bulk-orders', roles: ['ADMIN', 'STAFF'] },
+    { label: '📦 Bulk', path: '/admin/bulk-orders', roles: ['ADMIN', 'STAFF'] },
     { label: '👕 Inventory', path: '/admin/inventory', roles: ['ADMIN', 'STAFF'] },
     { label: '🛍️ Products', path: '/admin/products', roles: ['ADMIN', 'STAFF'] },
-    { label: '🎨 Brand Profile', path: '/admin/brand', roles: ['ADMIN'] },
     { label: '👤 Staff Hub', path: '/staff/dashboard', roles: ['ADMIN', 'STAFF'] },
   ];
 
   const visibleLinks = navLinks.filter(link =>
-    role && link.roles.includes(role)
+    normalizedRole && link.roles.includes(normalizedRole)
   );
+
+  const adminOnlyLinks = isAdmin
+    ? [
+      { label: '📊 Dashboard', path: '/admin/dashboard' },
+      { label: '🎨 Brand Profile', path: '/admin/brand' },
+    ]
+    : [];
 
   const SidebarContent = () => (
     <div className="admin-sidebar__inner">
@@ -40,6 +49,15 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
       </div>
 
       <nav className="admin-sidebar__nav" aria-label="Admin navigation">
+        {adminOnlyLinks.map(link => (
+          <button
+            key={link.path}
+            className={`admin-sidebar__link ${location.pathname === link.path ? 'active' : ''}`}
+            onClick={() => { navigate(link.path); setMobileOpen(false); }}
+          >
+            {link.label}
+          </button>
+        ))}
         {visibleLinks.map(link => (
           <button
             key={link.path}
@@ -52,6 +70,19 @@ export default function AdminSidebar({ title = 'Admin Panel' }: AdminSidebarProp
       </nav>
 
       <div className="admin-sidebar__footer">
+        {isAdmin && (
+          <div className="admin-sidebar__simulation">
+            <span className="admin-sidebar__simulation-label">View as Customer</span>
+            <button
+              type="button"
+              className={`admin-sidebar__simulation-toggle ${isSimulationMode ? 'active' : ''}`}
+              aria-pressed={isSimulationMode}
+              onClick={() => setSimulationMode(!isSimulationMode)}
+            >
+              <span className="admin-sidebar__simulation-thumb" />
+            </button>
+          </div>
+        )}
         <button
           className="admin-sidebar__link admin-sidebar__link--muted"
           onClick={() => navigate('/')}

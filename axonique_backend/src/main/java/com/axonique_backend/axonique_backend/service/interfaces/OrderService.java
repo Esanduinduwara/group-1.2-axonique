@@ -2,6 +2,7 @@ package com.axonique_backend.axonique_backend.service.interfaces;
 
 import java.util.List;
 import com.axonique_backend.axonique_backend.dto.request.PlaceOrderRequest;
+import com.axonique_backend.axonique_backend.dto.request.ResendOrderVerificationRequest;
 import com.axonique_backend.axonique_backend.model.OrderStatus;
 import com.axonique_backend.axonique_backend.dto.response.OrderResponse;
 
@@ -19,4 +20,8 @@ public interface OrderService {
 
     // CHANGE THIS LINE: Set return type to void
     void updateOrderStatus(Long id, OrderStatus newStatus);
+
+    OrderResponse verifyOrderByToken(String token);
+
+    void resendVerificationEmail(ResendOrderVerificationRequest request);
 }

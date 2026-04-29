@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
 import { authService } from '../services/authService';
+import { decodeEmoji } from '../utils/decodeEmoji';
 import type { Product } from '../types';
 import './InventoryPage.css';
 
@@ -50,6 +51,7 @@ export default function InventoryPage() {
   }, [editingId]);
 
   const lowStockCount = products.filter(p => p.lowStock).length;
+  const maxStock = Math.max(1, ...products.map(p => p.stockQuantity));
 
   const startEdit = (p: Product) => {
     setEditingId(p.id);
@@ -122,8 +124,7 @@ export default function InventoryPage() {
                       <th>Product Name</th>
                       <th>Category</th>
                       <th>Price</th>
-                      <th>Stock Qty</th>
-                      <th>Threshold</th>
+                      <th>Stock Level</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -133,34 +134,41 @@ export default function InventoryPage() {
                         <td>
                           <div className="inv-product">
                             {p.imageUrl && <img src={p.imageUrl} alt={p.name} className="inv-thumb" />}
-                            <span>{p.name}</span>
+                            <span>{decodeEmoji(p.name)}</span>
                           </div>
                         </td>
                         <td><span className="category-badge">{p.category}</span></td>
                         <td>LKR {p.price.toLocaleString()}</td>
-                        <td>
-                          {editingId === p.id ? (
-                            <input
-                              ref={inputRef}
-                              className="inv-qty-input"
-                              type="number"
-                              value={editValue}
-                              min={0}
-                              onChange={e => setEditValue(e.target.value)}
-                              onBlur={() => commitEdit(p.id)}
-                              onKeyDown={e => e.key === 'Enter' && commitEdit(p.id)}
-                            />
-                          ) : (
-                            <button
-                              className={`inv-qty-btn ${p.lowStock ? 'inv-qty-btn--low' : ''}`}
-                              onClick={() => startEdit(p)}
-                              title="Click to edit"
-                            >
-                              {p.stockQuantity}
-                            </button>
-                          )}
+                         <td>
+                          <div className="inv-stock-cell">
+                            <div className="stock-bar" aria-label={`${p.stockQuantity} units`}>
+                              <div
+                                className={`stock-bar__fill ${p.lowStock ? 'stock-bar__fill--low' : ''}`}
+                                style={{ width: `${Math.min(100, (p.stockQuantity / maxStock) * 100)}%` }}
+                              />
+                            </div>
+                            {editingId === p.id ? (
+                              <input
+                                ref={inputRef}
+                                className="inv-qty-input"
+                                type="number"
+                                value={editValue}
+                                min={0}
+                                onChange={e => setEditValue(e.target.value)}
+                                onBlur={() => commitEdit(p.id)}
+                                onKeyDown={e => e.key === 'Enter' && commitEdit(p.id)}
+                              />
+                            ) : (
+                              <button
+                                className={`inv-qty-btn ${p.lowStock ? 'inv-qty-btn--low' : ''}`}
+                                onClick={() => startEdit(p)}
+                                title="Click to edit"
+                              >
+                                {p.stockQuantity}
+                              </button>
+                            )}
+                          </div>
                         </td>
-                        <td className="text-muted">{p.lowStockThreshold}</td>
                         <td>{getStatusBadge(p)}</td>
                       </tr>
                     ))}

@@ -1,0 +1,48 @@
+.verify-order-page {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+}
+
+.verify-order-card {
+  width: min(560px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+}
+
+.verify-order-title {
+  margin-bottom: 0.75rem;
+}
+
+.verify-order-message {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.verify-order-message.success {
+  color: #8cd9b0;
+}
+
+.verify-order-message.error {
+  color: #d5b68f;
+}
+
+.verify-order-actions button {
+  width: fit-content;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f1f1;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.verify-order-actions button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.32);
+}

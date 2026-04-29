@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './SignInPage.css';
@@ -37,6 +38,7 @@ export default function SignInPage() {
       if (response.ok) {
         const data = await response.json();
         authService.saveAuth(data.token, {
+          id: data.id,
           username: data.username,
           email: data.email,
           role: (data.role || 'CUSTOMER') as 'ADMIN' | 'STAFF' | 'CUSTOMER',
@@ -78,7 +80,12 @@ export default function SignInPage() {
 
   return (
     <div className="page signin-page">
-      <div className="container signin-container">
+      <motion.div 
+        className="container signin-container"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="section-title">Log In</h1>
         <p className="signin-subtitle">Welcome back to AXO.</p>
 
@@ -120,7 +127,7 @@ export default function SignInPage() {
             Joined AXO? <Link to="/reset-password">Reset Password</Link>
           </p>
         </div>
-      </div>
+      </motion.div>
 
       <Modal
         isOpen={modal.isOpen}

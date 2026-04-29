@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Axonique Backend (Spring Boot) — log to Terminal",
+      "request": "launch",
+      "mainClass": "com.axonique_backend.axonique_backend.AxoniqueBackendApplication",
+      "projectName": "axonique_backend",
+      "cwd": "${workspaceFolder}/axonique_backend",
+      "console": "integratedTerminal"
+    }
+  ]
+}

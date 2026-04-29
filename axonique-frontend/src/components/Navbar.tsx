@@ -5,12 +5,17 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { authService } from '../services/authService';
+import { useSimulation } from '../context/SimulationContext';
 import Modal from './Modal';
+import type { BrandProfile } from '../types';
 import './Navbar.css';
+
+const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [brand, setBrand] = useState<BrandProfile | null>(null);
   const [modal, setModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -30,6 +35,8 @@ export default function Navbar() {
   // Use state for authentication to ensure reactive updates
   const [user, setUser] = useState(authService.getUser());
   const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
+  const { isSimulationMode } = useSimulation();
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'ROLE_ADMIN';
 
   const links = [
     { label: 'Home', path: '/' },
@@ -37,6 +44,22 @@ export default function Navbar() {
     { label: 'Wishlist', path: '/wishlist' },
     { label: 'Contact', path: '/contact' },
   ];
+
+  // Fetch brand profile data
+  useEffect(() => {
+    fetch(`${API}/api/brand`)
+      .then((res) => res.json())
+      .then((data) => {
+        const profile = data.data || data;
+        setBrand(profile);
+        if (profile?.discountBannerActive) {
+          document.body.classList.add('has-banner');
+        } else {
+          document.body.classList.remove('has-banner');
+        }
+      })
+      .catch(() => console.warn('Brand profile not available'));
+  }, []);
 
   // Update auth state whenever the location changes
   useEffect(() => {
@@ -87,6 +110,13 @@ export default function Navbar() {
 
   return (
     <>
+      {brand?.discountBannerActive && brand.discountBannerText && (
+        <div className="discount-banner">
+          <div className="discount-banner__marquee">
+            <span>{brand.discountBannerText}</span>
+          </div>
+        </div>
+      )}
       <nav className="navbar" aria-label="Main navigation">
         {/* Logo */}
         <button className="navbar__logo" onClick={() => handleNav('/')} aria-label="AXO — Go to homepage">
@@ -110,14 +140,14 @@ export default function Navbar() {
               </button>
             </li>
           ))}
-          {isAuthenticated && user && (user.role === 'RETAILER' || user.role === 'ADMIN') && (
+          {isAuthenticated && user && (user.role === 'RETAILER' || (isAdmin && !isSimulationMode)) && (
             <li>
               <button
                 className={`navbar__link${isActive('/retailer/bulk-order') ? ' navbar__link--active' : ''}`}
                 onClick={() => handleNav('/retailer/bulk-order')}
                 aria-current={isActive('/retailer/bulk-order') ? 'page' : undefined}
               >
-                Bulk Orders
+                Bulk
               </button>
             </li>
           )}
@@ -150,7 +180,7 @@ export default function Navbar() {
                     </>
                   ) : (
                     <>
-                      {user?.role === 'ADMIN' && (
+                      {isAdmin && !isSimulationMode && (
                         <button onClick={() => handleNav('/admin/dashboard')}>Admin Dashboard</button>
                       )}
                       {user?.role === 'STAFF' && (
@@ -206,12 +236,12 @@ export default function Navbar() {
             {link.label}
           </button>
         ))}
-        {isAuthenticated && user && (user.role === 'RETAILER' || user.role === 'ADMIN') && (
+        {isAuthenticated && user && (user.role === 'RETAILER' || (isAdmin && !isSimulationMode)) && (
           <button
             className={`navbar__mobile-link${isActive('/retailer/bulk-order') ? ' navbar__mobile-link--active' : ''}`}
             onClick={() => handleNav('/retailer/bulk-order')}
           >
-            Bulk Orders
+            Bulk
           </button>
         )}
         <button className="navbar__mobile-link" onClick={() => handleNav('/cart')}>
@@ -230,7 +260,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              {user?.role === 'ADMIN' && (
+              {isAdmin && !isSimulationMode && (
                 <button className="navbar__mobile-link" onClick={() => handleNav('/admin/dashboard')}>Admin Dashboard</button>
               )}
               {user?.role === 'STAFF' && (

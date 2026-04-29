@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS products (
   name       VARCHAR(255)   NOT NULL,
   category   VARCHAR(100)   NOT NULL,
   price      DECIMAL(10, 2) NOT NULL,
+  discount_pct DECIMAL(5, 2) NOT NULL DEFAULT 0.00,
+  discount_active BOOLEAN NOT NULL DEFAULT FALSE,
   description TEXT,
   emoji      VARCHAR(10),
   badge      VARCHAR(50),
@@ -23,6 +25,10 @@ CREATE TABLE IF NOT EXISTS products (
   sizes_raw  VARCHAR(255)   NOT NULL DEFAULT '',
   stock_quantity INT NOT NULL DEFAULT 0,
   low_stock_threshold INT NOT NULL DEFAULT 5,
+  external_id VARCHAR(100) UNIQUE,
+  source_system VARCHAR(100),
+  last_synced_at TIMESTAMP NULL,
+  sync_version BIGINT,
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -145,7 +151,7 @@ CREATE TABLE IF NOT EXISTS bulk_order_items (
   line_total       DECIMAL(12,2) NOT NULL,       -- quantity * unit_price * (1 - discount_pct/100)
   created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (bulk_order_id) REFERENCES bulk_orders(id) ON DELETE CASCADE,
-  FOREIGN KEY (product_id)    REFERENCES products(id) ON SET NULL
+  FOREIGN KEY (product_id)    REFERENCES products(id) ON DELETE SET NULL
 );
 
 -- ── 5. Retailer profile (optional enrichment) ─────────────

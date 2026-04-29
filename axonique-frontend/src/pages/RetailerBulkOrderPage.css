@@ -59,6 +59,7 @@
 .rb-header {
   border-bottom: 1px solid var(--border);
   padding: 56px 0 40px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
 }
 
 .rb-header__label {
@@ -91,7 +92,8 @@
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: var(--nav-height, 64px);
-  background: var(--bg);
+  background: rgba(10, 10, 10, 0.86);
+  backdrop-filter: blur(10px);
   z-index: 100;
 }
 
@@ -114,18 +116,20 @@
   font-weight: 500;
   letter-spacing: .04em;
   cursor: pointer;
-  transition: color .2s, border-color .2s;
+  transition: color .2s, border-color .2s, background .2s;
   position: relative;
   white-space: nowrap;
 }
 
 .rb-tab:hover {
   color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .rb-tab--active {
   color: var(--text);
   border-bottom-color: var(--accent);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .rb-tab__icon {
@@ -237,6 +241,22 @@
   font-weight: 500;
 }
 
+.rb-label-tag {
+  font-size: 9px;
+  letter-spacing: .08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.rb-label-tag--opt {
+  opacity: 0.5;
+  font-weight: 400;
+}
+
 .rb-section {
   margin-bottom: 32px;
 }
@@ -289,9 +309,9 @@
   border-radius: var(--radius);
 }
 
-/* ── Discount Banner ────────────────────────────────────── */
+/* ── Order Summary Tier Panel ───────────────────────────── */
 
-.discount-banner {
+.os-tier-panel {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
@@ -299,25 +319,25 @@
   background: var(--surface);
 }
 
-.discount-banner__left {
+.os-tier-panel__header {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
 }
 
-.discount-banner__tier {
+.os-tier-panel__tier {
   font-family: var(--font-display);
   font-size: 18px;
   font-weight: 700;
 }
 
-.discount-banner__rate {
+.os-tier-panel__rate {
   font-size: 12px;
   color: var(--muted);
 }
 
-.discount-banner__tiers {
+.os-tier-panel__tiers {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
@@ -360,7 +380,7 @@
   color: #555;
 }
 
-.discount-banner__nudge {
+.os-tier-panel__nudge {
   font-size: 11px;
   color: var(--muted);
   text-align: center;
@@ -368,7 +388,7 @@
   border-top: 1px solid var(--border);
 }
 
-.discount-banner__nudge strong {
+.os-tier-panel__nudge strong {
   color: var(--text);
 }
 
@@ -431,12 +451,13 @@
   flex-direction: column;
   gap: 10px;
   position: relative;
-  transition: border-color .2s, transform .2s;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
 }
 
 .product-tile:hover {
   border-color: #444;
   transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
 .product-tile--low-stock {
@@ -532,6 +553,15 @@
   grid-template-columns: 1fr 1fr auto;
   gap: 6px;
   align-items: center;
+}
+
+.product-tile__controls > * {
+  min-width: 0;
+}
+
+.product-tile__controls .rb-select,
+.product-tile__controls .rb-input--qty {
+  padding: 8px;
 }
 
 .btn-add {
@@ -678,6 +708,7 @@
   padding: 24px;
   position: sticky;
   top: calc(var(--nav-height, 64px) + 56px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
 }
 
 .order-summary__title {

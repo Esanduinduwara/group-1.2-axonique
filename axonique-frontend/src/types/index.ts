@@ -5,6 +5,11 @@ export interface Product {
   name: string;
   category: string;
   price: number;
+
+  discountPercentage?: number;
+  discountActive?: boolean;
+  discountedPrice?: number;
+
   emoji: string;
   imageUrl?: string;
   badge: string | null;
@@ -30,7 +35,7 @@ export interface Order {
   subtotal: number;
   shippingFee: number;
   total: number;
-  status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING_VERIFICATION' | 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   createdAt: string;
   items: OrderItem[];
 }

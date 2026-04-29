@@ -19,7 +19,13 @@ function timeAgo(dateStr: string | null) {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: '#888', PROCESSING: '#3498db', SHIPPED: '#f39c12', DELIVERED: '#27ae60',
+  PENDING_VERIFICATION: '#8e44ad',
+  PENDING: '#888',
+  CONFIRMED: '#3498db',
+  PROCESSING: '#3498db',
+  SHIPPED: '#f39c12',
+  DELIVERED: '#27ae60',
+  CANCELLED: '#e74c3c',
 };
 
 export default function StaffDashboardPage() {
